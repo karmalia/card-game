@@ -10,6 +10,7 @@ import {
 } from "react-native-gesture-handler";
 import Animated, {
   Easing,
+  ReduceMotion,
   runOnJS,
   runOnUI,
   useAnimatedGestureHandler,
@@ -59,20 +60,42 @@ const CardNumber = styled(Text, {
 
 type GameCardProps = {
   card: Card;
-  deckPosition: TPos;
+  startingPosition: TPos;
+  endingPosition: TPos | null;
 };
 
-const GameCard = ({ card, deckPosition }: GameCardProps) => {
+const GameCard = ({
+  card,
+  startingPosition,
+  endingPosition,
+}: GameCardProps) => {
+  const springConfig = {
+    duration: 201,
+    dampingRatio: 2.1,
+    stiffness: 427,
+    overshootClamping: false,
+    restDisplacementThreshold: 0.01,
+    restSpeedThreshold: 0.01,
+    reduceMotion: ReduceMotion.System,
+  };
+
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
-  const [cardPos, setCardPos] = useState({
-    top: deckPosition.pageY,
-    left: deckPosition.pageX,
+
+  const {
+    placeOnBoard,
+    trashCanPosition,
+    topSlotsPositions,
+    bottomSlotPositions,
+    setGamePhase,
+  } = useGameStore();
+  const cardLocation = useSharedValue({
+    posx: startingPosition.pageX,
+    posy: startingPosition.pageY,
   });
 
-  console.log("cardPos", cardPos);
+  console.log("topSlots!", topSlotsPositions);
 
-  const { playCard, trashCanPosition, topSlotsPositions } = useGameStore();
   const middleCenterY = Dimensions.get("screen").height / 2;
   const drag = Gesture.Pan()
     .onStart((event) => {
@@ -84,22 +107,24 @@ const GameCard = ({ card, deckPosition }: GameCardProps) => {
       translateY.value = event.translationY;
     })
     .onEnd((event) => {
-      if (
-        event.absoluteY > middleCenterY &&
-        event.absoluteY < topSlotsPositions[1].pageY
-      ) {
+      if (event.absoluteY < middleCenterY) {
+        console.log("bottomSlots", bottomSlotPositions);
         // The card is in the middle section - play the card
         const firstEmptySlot = Object.values(topSlotsPositions).find(
           (slot) => !slot.isActive
         );
         if (firstEmptySlot) {
           translateX.value = withSpring(
-            firstEmptySlot.pageX - deckPosition.pageX
+            firstEmptySlot.pageX - startingPosition.pageX,
+            springConfig
           );
           translateY.value = withSpring(
-            firstEmptySlot.pageY - deckPosition.pageY
+            firstEmptySlot.pageY - startingPosition.pageY,
+            springConfig,
+            () => {
+              runOnJS(placeOnBoard)(card.id, firstEmptySlot);
+            }
           );
-          // playCard(card.id, firstEmptySlot);
         }
       } else if (
         event.absoluteX > trashCanPosition.pageX &&
@@ -116,43 +141,60 @@ const GameCard = ({ card, deckPosition }: GameCardProps) => {
       }
     });
 
-  const CardAnimationStyles = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: translateX.value },
-      { translateY: translateY.value },
-    ],
-  }));
+  const CardAnimationStyles = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: translateX.value },
+        { translateY: translateY.value },
+      ],
+      top: cardLocation.value.posy,
+      left: cardLocation.value.posx,
+    };
+  });
+
+  /*
+  
+  JS THREAD
+
+
+  UI THREAD
+  
+  */
 
   useEffect(() => {
-    function fix(val: any) {
-      setTimeout(() => {
-        setCardPos(val);
-      }, 1000);
-    }
     function startAnimation() {
-      translateX.value = withSpring(card.endingPos.pageX - deckPosition.pageX);
+      translateX.value = withSpring(
+        card.endingPos.pageX - startingPosition.pageX,
+        springConfig
+      );
 
       translateY.value = withSpring(
-        card.endingPos.pageY - deckPosition.pageY,
-        undefined,
+        card.endingPos.pageY - startingPosition.pageY,
+        springConfig,
         () => {
-          runOnJS(fix)({
-            top: card.endingPos.pageY,
-            left: card.endingPos.pageX,
-          });
+          runOnJS(setGamePhase)(2);
         }
       );
-      runOnUI(() => {
-        translateX.value = withTiming(0, {
-          duration: 1000,
-        });
-        translateY.value = withTiming(0, {
-          duration: 1000,
-        });
-      })();
     }
-    startAnimation();
+    if (endingPosition !== null) startAnimation();
   }, []);
+
+  // undefined,
+  //       () => {
+  //         runOnJS(fix)({
+  //           top: card.endingPos.pageY,
+  //           left: card.endingPos.pageX,
+  //         });
+  //       }
+  //     );
+  //     runOnUI(() => {
+  //       translateX.value = withTiming(0, {
+  //         duration: 1000,
+  //       });
+  //       translateY.value = withTiming(0, {
+  //         duration: 1000,
+  //       });
+  //     })()
 
   return (
     <GestureDetector gesture={drag}>
@@ -160,8 +202,6 @@ const GameCard = ({ card, deckPosition }: GameCardProps) => {
         style={[
           {
             position: "absolute",
-            top: cardPos.top,
-            left: cardPos.left,
           },
           CardAnimationStyles,
         ]}

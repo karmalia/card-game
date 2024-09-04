@@ -15,6 +15,7 @@ import {
 import SafeAreaStyled from "@/components/gamescreen/safe-area.styled";
 import CardSlotStyled from "@/components/gamescreen/card-slot.styled";
 import { useRouter } from "expo-router";
+import { randomUUID } from "expo-crypto";
 
 /**
  
@@ -62,8 +63,12 @@ const Index = () => {
   const [reset, setReset] = useState(false);
   const {
     cardsOnBoard,
+    gamePhase,
     cardsInDeck,
     cardInHand,
+    cardsOnGame,
+    bottomSlotPositions,
+    setGamePhase,
     drawCard,
     populateDeck,
     setTopSlotsPositions,
@@ -116,16 +121,16 @@ const Index = () => {
     ) {
       setTimeout(() => {
         let updatedTopSlots: ITopSlots = {
-          1: { isActive: false, pageX: 0, pageY: 0 },
-          2: { isActive: false, pageX: 0, pageY: 0 },
-          3: { isActive: false, pageX: 0, pageY: 0 },
+          1: { isActive: false, pageX: 0, pageY: 0, slotId: randomUUID() },
+          2: { isActive: false, pageX: 0, pageY: 0, slotId: randomUUID() },
+          3: { isActive: false, pageX: 0, pageY: 0, slotId: randomUUID() },
         };
         let updatedBottomSlots: IBottomSlots = {
-          1: { isActive: false, pageX: 0, pageY: 0 },
-          2: { isActive: false, pageX: 0, pageY: 0 },
-          3: { isActive: false, pageX: 0, pageY: 0 },
-          4: { isActive: false, pageX: 0, pageY: 0 },
-          5: { isActive: false, pageX: 0, pageY: 0 },
+          1: { isActive: false, pageX: 0, pageY: 0, slotId: randomUUID() },
+          2: { isActive: false, pageX: 0, pageY: 0, slotId: randomUUID() },
+          3: { isActive: false, pageX: 0, pageY: 0, slotId: randomUUID() },
+          4: { isActive: false, pageX: 0, pageY: 0, slotId: randomUUID() },
+          5: { isActive: false, pageX: 0, pageY: 0, slotId: randomUUID() },
         };
 
         topSlot1Ref.current.measure(
@@ -199,6 +204,8 @@ const Index = () => {
           });
         });
 
+        setGamePhase(1);
+
         startGame(
           drawCard,
           cardsInDeck.length,
@@ -207,7 +214,7 @@ const Index = () => {
         );
       }, 0);
     }
-  }, [reset]);
+  }, []);
 
   return (
     <SafeAreaStyled>
@@ -294,9 +301,24 @@ const Index = () => {
           <Ionicons name="trash" size={52} />
         </Stack>
       </Stack>
-      {cardInHand.map((card) => (
-        <GameCard key={card.id} card={card} deckPosition={deckPosition} />
-      ))}
+      {gamePhase === 1 &&
+        cardsOnGame.map((card, index) => (
+          <GameCard
+            key={card.id}
+            card={card}
+            startingPosition={deckPosition}
+            endingPosition={Object.values(bottomSlotPositions)[index]}
+          />
+        ))}
+      {gamePhase === 2 &&
+        cardsOnGame.map((card, index) => (
+          <GameCard
+            key={card.id}
+            card={card}
+            startingPosition={Object.values(bottomSlotPositions)[index]}
+            endingPosition={null}
+          />
+        ))}
     </SafeAreaStyled>
   );
 };

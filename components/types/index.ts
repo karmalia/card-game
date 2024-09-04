@@ -5,7 +5,10 @@ export interface TPos {
 
 export interface TSlotPos extends TPos {
   isActive: boolean;
+  slotId: string;
 }
+
+export type ArraySlots = TSlotPos[];
 
 export interface ITopSlots {
   1: TSlotPos;

@@ -6,26 +6,30 @@ import {
   IBottomSlots,
   ITopSlots,
   TPos,
+  TSlotPos,
 } from "@/components/types";
 import {
   initialBottomSlots,
   initialTopSlots,
-} from "@/components/utils/slotClass";
+} from "@/components/utils/slot-class";
 
 type gameStore = {
+  gamePhase: number;
   score: number;
   topSlotsPositions: ITopSlots;
   bottomSlotPositions: IBottomSlots;
   trashCanPosition: TPos;
   cardInHand: Card[];
   cardsOnBoard: Card[];
+  cardsOnGame: Card[];
   cardsOnTrash: Card[];
   cardsInDeck: Card[];
   drawCard: (startingPos: TPos, endingPos: TPos) => void;
+  setGamePhase: (phase: number) => void;
   setTopSlotsPositions: (positions: ITopSlots) => void;
   setBottomSlotsPositions: (positions: IBottomSlots) => void;
   setThrashCanPosition: (position: TPos) => void;
-  playCard: (cardId: string) => void;
+  placeOnBoard: (cardId: string, firstEmptySlot: TSlotPos) => void;
   discardCard: (cardId: string) => void;
   calculateScore: () => void;
   populateDeck: () => void;
@@ -102,6 +106,7 @@ const generateDeck = (): Card[] => {
 };
 
 const initialGameState = {
+  gamePhase: 0,
   score: 0,
   topSlotsPositions: initialTopSlots,
   bottomSlotPositions: initialBottomSlots,
@@ -111,14 +116,16 @@ const initialGameState = {
   },
   cardInHand: [],
   cardsOnBoard: [],
+  cardsOnGame: [],
   cardsOnTrash: [],
   cardsInDeck: generateDeck(),
 };
+console.log("İnitialGameState", initialGameState);
 const useGameStore = create<gameStore>((set) => ({
   ...initialGameState,
   drawCard: (startingPos, endingPos) =>
     set((state) => {
-      console.log("res 48");
+      console.log("res 59");
       if (state.cardInHand.length <= 5) {
         const [drawnCard, ...remainingDeck] = state.cardsInDeck;
 
@@ -127,11 +134,18 @@ const useGameStore = create<gameStore>((set) => ({
             ...state.cardInHand,
             { ...drawnCard, startingPos, endingPos },
           ],
+          cardsOnGame: [
+            ...state.cardInHand,
+            { ...drawnCard, startingPos, endingPos },
+          ],
           cardsInDeck: remainingDeck,
         };
       }
       return state;
     }),
+  setGamePhase: (phase: number) => {
+    return set((state) => ({ ...state, gamePhase: phase }));
+  },
 
   setTopSlotsPositions: (positions) =>
     set((state) => {
@@ -146,12 +160,34 @@ const useGameStore = create<gameStore>((set) => ({
       return { ...state, trashCanPosition: position };
     }),
 
-  playCard: (cardId: string) =>
+  placeOnBoard: (cardId: string, firstEmptySlot: TSlotPos) =>
     set((state) => {
+      console.log("firstEmptySlott.slotId", firstEmptySlot.slotId);
       const cardToPlay = state.cardInHand.find((card) => card.id === cardId);
+      const activatedSlotIndex = Object.values(
+        state.topSlotsPositions
+      ).findIndex((slot) => slot.slotId === firstEmptySlot.slotId);
+
+      const slotKey = (activatedSlotIndex +
+        1) as keyof typeof state.topSlotsPositions;
+      const updatedProperty = { isActive: true };
+
+      const newTopSlots = {
+        ...state.topSlotsPositions,
+        [slotKey]: {
+          ...state.topSlotsPositions[slotKey],
+          ...updatedProperty,
+        },
+      };
+      console.log("newTopSlots", newTopSlots);
       if (cardToPlay && state.cardsOnBoard.length < 3) {
         return {
+          ...state,
+          cardInHand: [
+            ...state.cardInHand.filter((card) => card.id === cardToPlay.id),
+          ],
           cardsOnBoard: [...state.cardsOnBoard, cardToPlay],
+          topSlotsPositions: newTopSlots,
         };
       }
       return state;
