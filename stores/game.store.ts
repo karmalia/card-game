@@ -1,19 +1,30 @@
 import { create } from "zustand";
 import * as Crypto from "expo-crypto";
-export type CardColors = "red" | "yellow" | "blue";
-type Card = {
-  id: string;
-  value: number;
-  color: CardColors;
-};
+import {
+  Card,
+  CardColors,
+  IBottomSlots,
+  ITopSlots,
+  TPos,
+} from "@/components/types";
+import {
+  initialBottomSlots,
+  initialTopSlots,
+} from "@/components/utils/slotClass";
 
 type gameStore = {
   score: number;
+  topSlotsPositions: ITopSlots;
+  bottomSlotPositions: IBottomSlots;
+  trashCanPosition: TPos;
   cardInHand: Card[];
   cardsOnBoard: Card[];
   cardsOnTrash: Card[];
   cardsInDeck: Card[];
-  drawCard: () => void;
+  drawCard: (startingPos: TPos, endingPos: TPos) => void;
+  setTopSlotsPositions: (positions: ITopSlots) => void;
+  setBottomSlotsPositions: (positions: IBottomSlots) => void;
+  setThrashCanPosition: (position: TPos) => void;
   playCard: (cardId: string) => void;
   discardCard: (cardId: string) => void;
   calculateScore: () => void;
@@ -63,7 +74,21 @@ const generateDeck = (): Card[] => {
 
   for (let color of colors) {
     for (let value = 1; value <= 9; value++) {
-      deck.push({ id: Crypto.randomUUID(), value, color });
+      deck.push({
+        id: Crypto.randomUUID(),
+        value,
+        color,
+        startingPos: {
+          pageX: 0,
+          pageY: 0,
+        },
+        endingPos: {
+          pageX: 0,
+          pageY: 0,
+        },
+        isPlayed: false,
+        isDeleted: false,
+      });
     }
   }
 
@@ -78,6 +103,12 @@ const generateDeck = (): Card[] => {
 
 const initialGameState = {
   score: 0,
+  topSlotsPositions: initialTopSlots,
+  bottomSlotPositions: initialBottomSlots,
+  trashCanPosition: {
+    pageX: 0,
+    pageY: 0,
+  },
   cardInHand: [],
   cardsOnBoard: [],
   cardsOnTrash: [],
@@ -85,16 +116,34 @@ const initialGameState = {
 };
 const useGameStore = create<gameStore>((set) => ({
   ...initialGameState,
-  drawCard: () =>
+  drawCard: (startingPos, endingPos) =>
     set((state) => {
-      if (state.cardInHand.length < 5 && state.cardsInDeck.length > 0) {
+      console.log("res 48");
+      if (state.cardInHand.length <= 5) {
         const [drawnCard, ...remainingDeck] = state.cardsInDeck;
+
         return {
-          cardInHand: [...state.cardInHand, drawnCard],
+          cardInHand: [
+            ...state.cardInHand,
+            { ...drawnCard, startingPos, endingPos },
+          ],
           cardsInDeck: remainingDeck,
         };
       }
       return state;
+    }),
+
+  setTopSlotsPositions: (positions) =>
+    set((state) => {
+      return { ...state, topSlotsPositions: positions };
+    }),
+  setBottomSlotsPositions: (positions) =>
+    set((state) => {
+      return { ...state, bottomSlotPositions: positions };
+    }),
+  setThrashCanPosition: (position) =>
+    set((state) => {
+      return { ...state, trashCanPosition: position };
     }),
 
   playCard: (cardId: string) =>
@@ -102,7 +151,6 @@ const useGameStore = create<gameStore>((set) => ({
       const cardToPlay = state.cardInHand.find((card) => card.id === cardId);
       if (cardToPlay && state.cardsOnBoard.length < 3) {
         return {
-          cardInHand: state.cardInHand.filter((card) => card.id !== cardId),
           cardsOnBoard: [...state.cardsOnBoard, cardToPlay],
         };
       }
