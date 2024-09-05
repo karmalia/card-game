@@ -7,8 +7,15 @@ import { Ionicons } from "@expo/vector-icons";
 import useGameStore from "@/stores/game.store";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { widths } from "@tamagui/config";
-import { IBottomSlots, ITopSlots, TPos, TSlotPos } from "@/components/types";
 import {
+  ArraySlots,
+  IBottomSlots,
+  ITopSlots,
+  TPos,
+  TSlotPos,
+} from "@/components/types";
+import {
+  GameSlot,
   initialBottomSlots,
   initialTopSlots,
 } from "@/components/utils/slot-class";
@@ -35,24 +42,12 @@ import { randomUUID } from "expo-crypto";
   
  */
 
-function startGame(
-  drawCard: (startingPos: TPos, endingPos: TPos) => void,
-  cardsInDeckCount: number,
-  deckPosition: TPos,
-  bottomSlotsPositions: IBottomSlots
-) {
+function startGame(drawCard: () => void, cardsInDeckCount: number) {
   if (cardsInDeckCount === 27) {
     let Secs = 100;
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 0; i <= 4; i++) {
       setTimeout(() => {
-        console.log(
-          "bottomSlotsPositions[i as keyof typeof bottomSlotsPositions]",
-          bottomSlotsPositions[i as keyof typeof bottomSlotsPositions]
-        );
-        drawCard(
-          { ...deckPosition },
-          { ...bottomSlotsPositions[i as keyof typeof bottomSlotsPositions] }
-        );
+        drawCard();
       }, Secs * i);
     }
   }
@@ -68,6 +63,7 @@ const Index = () => {
     cardInHand,
     cardsOnGame,
     bottomSlotPositions,
+    topSlotPositions,
     setGamePhase,
     drawCard,
     populateDeck,
@@ -75,6 +71,11 @@ const Index = () => {
     setBottomSlotsPositions,
     setThrashCanPosition,
   } = useGameStore();
+
+  console.log(
+    "GameScreenRendered!",
+    bottomSlotPositions.map((slot) => !slot.isActive)
+  );
 
   const [deckPosition, setDeckPosition] = React.useState({
     pageX: 0,
@@ -105,116 +106,88 @@ const Index = () => {
 
 */
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     console.log("Reset!");
-    if (
-      topSlot1Ref?.current &&
-      topSlot2Ref?.current &&
-      topSlot3Ref?.current &&
-      bottomSlot1Ref?.current &&
-      bottomSlot2Ref?.current &&
-      bottomSlot3Ref?.current &&
-      bottomSlot4Ref?.current &&
-      bottomSlot5Ref?.current &&
-      deckPositionRef?.current &&
-      thrashCanRef?.current
-    ) {
-      setTimeout(() => {
-        let updatedTopSlots: ITopSlots = {
-          1: { isActive: false, pageX: 0, pageY: 0, slotId: randomUUID() },
-          2: { isActive: false, pageX: 0, pageY: 0, slotId: randomUUID() },
-          3: { isActive: false, pageX: 0, pageY: 0, slotId: randomUUID() },
-        };
-        let updatedBottomSlots: IBottomSlots = {
-          1: { isActive: false, pageX: 0, pageY: 0, slotId: randomUUID() },
-          2: { isActive: false, pageX: 0, pageY: 0, slotId: randomUUID() },
-          3: { isActive: false, pageX: 0, pageY: 0, slotId: randomUUID() },
-          4: { isActive: false, pageX: 0, pageY: 0, slotId: randomUUID() },
-          5: { isActive: false, pageX: 0, pageY: 0, slotId: randomUUID() },
-        };
 
-        topSlot1Ref.current.measure(
+    setTimeout(() => {
+      topSlot1Ref.current.measure((_x, _y, _w, _h, px: number, py: number) => {
+        const Slot1 = new GameSlot(randomUUID(), false, px, py);
+
+        topSlot2Ref.current.measure(
           (_x, _y, _w, _h, px: number, py: number) => {
-            updatedTopSlots[1].pageX = px;
-            updatedTopSlots[1].pageY = py;
+            const Slot2 = new GameSlot(randomUUID(), false, px, py);
 
-            topSlot2Ref.current.measure(
+            topSlot3Ref.current.measure(
               (_x, _y, _w, _h, px: number, py: number) => {
-                updatedTopSlots[2].pageX = px;
-                updatedTopSlots[2].pageY = py;
+                const Slot3 = new GameSlot(randomUUID(), false, px, py);
 
-                topSlot3Ref.current.measure(
-                  (_x, _y, _w, _h, px: number, py: number) => {
-                    updatedTopSlots[3].pageX = px;
-                    updatedTopSlots[3].pageY = py;
-
-                    setTopSlotsPositions(updatedTopSlots);
-                  }
-                );
+                setTopSlotsPositions([Slot1, Slot2, Slot3]);
               }
             );
           }
         );
+      });
 
-        bottomSlot1Ref.current.measure(
-          (_x, _y, _w, _h, px: number, py: number) => {
-            updatedBottomSlots[1].pageX = px;
-            updatedBottomSlots[1].pageY = py;
+      bottomSlot1Ref.current.measure(
+        (_x, _y, _w, _h, px: number, py: number) => {
+          const Slot1 = new GameSlot(randomUUID(), true, px, py);
 
-            bottomSlot2Ref.current.measure(
-              (_x, _y, _w, _h, px: number, py: number) => {
-                updatedBottomSlots[2].pageX = px;
-                updatedBottomSlots[2].pageY = py;
+          bottomSlot2Ref.current.measure(
+            (_x, _y, _w, _h, px: number, py: number) => {
+              const Slot2 = new GameSlot(randomUUID(), true, px, py);
 
-                bottomSlot3Ref.current.measure(
-                  (_x, _y, _w, _h, px: number, py: number) => {
-                    updatedBottomSlots[3].pageX = px;
-                    updatedBottomSlots[3].pageY = py;
+              bottomSlot3Ref.current.measure(
+                (_x, _y, _w, _h, px: number, py: number) => {
+                  const Slot3 = new GameSlot(randomUUID(), true, px, py);
 
-                    bottomSlot4Ref.current.measure(
-                      (_x, _y, _w, _h, px: number, py: number) => {
-                        updatedBottomSlots[4]!.pageX = px;
-                        updatedBottomSlots[4]!.pageY = py;
-                        bottomSlot5Ref.current.measure(
-                          (_x, _y, _w, _h, px: number, py: number) => {
-                            updatedBottomSlots[5]!.pageX = px;
-                            updatedBottomSlots[5]!.pageY = py;
+                  bottomSlot4Ref.current.measure(
+                    (_x, _y, _w, _h, px: number, py: number) => {
+                      const Slot4 = new GameSlot(randomUUID(), true, px, py);
+                      bottomSlot5Ref.current.measure(
+                        (_x, _y, _w, _h, px: number, py: number) => {
+                          const Slot5 = new GameSlot(
+                            randomUUID(),
+                            true,
+                            px,
+                            py
+                          );
 
-                            setBottomSlotsPositions(updatedBottomSlots);
-                          }
-                        );
-                      }
-                    );
-                  }
-                );
-              }
-            );
-          }
-        );
+                          setBottomSlotsPositions([
+                            Slot1,
+                            Slot2,
+                            Slot3,
+                            Slot4,
+                            Slot5,
+                          ]);
+                        }
+                      );
+                    }
+                  );
+                }
+              );
+            }
+          );
+        }
+      );
+      thrashCanRef.current.measure((_x, _y, _w, _h, px, py) =>
+        setThrashCanPosition({ pageX: px, pageY: py })
+      );
 
-        thrashCanRef.current.measure((_x, _y, _w, _h, px, py) =>
-          setThrashCanPosition({ pageX: px, pageY: py })
-        );
-
-        deckPositionRef.current.measure((_x, _y, _w, _h, px, py) => {
-          console.log("Px py", px, py);
-          setDeckPosition({
-            pageX: px,
-            pageY: py,
-          });
+      deckPositionRef.current.measure((_x, _y, _w, _h, px, py) => {
+        setDeckPosition({
+          pageX: px,
+          pageY: py,
         });
-
-        setGamePhase(1);
-
-        startGame(
-          drawCard,
-          cardsInDeck.length,
-          deckPosition,
-          updatedBottomSlots
-        );
-      }, 0);
-    }
+      });
+    }, 0);
   }, []);
+
+  React.useEffect(() => {
+    if (bottomSlotPositions.length > 0) {
+      setGamePhase(1);
+      startGame(drawCard, cardsInDeck.length);
+    }
+  }, [bottomSlotPositions.length]);
 
   return (
     <SafeAreaStyled>
@@ -302,23 +275,46 @@ const Index = () => {
         </Stack>
       </Stack>
       {gamePhase === 1 &&
-        cardsOnGame.map((card, index) => (
-          <GameCard
-            key={card.id}
-            card={card}
-            startingPosition={deckPosition}
-            endingPosition={Object.values(bottomSlotPositions)[index]}
-          />
-        ))}
+        cardsOnGame.map((card, index) => {
+          console.log("Phase 1");
+          return (
+            <GameCard
+              key={card.id}
+              card={card}
+              startingPosition={deckPosition}
+              endingPosition={bottomSlotPositions[index]}
+              bottomSlotPositions={bottomSlotPositions}
+              topSlotPositions={topSlotPositions}
+              firstTopEmptySlot={
+                topSlotPositions.find((slot) => !slot.isActive) || null
+              }
+              firstBottomEmptySlot={
+                bottomSlotPositions.find((slot) => !slot.isActive) || null
+              }
+              gamePhase={gamePhase}
+            />
+          );
+        })}
       {gamePhase === 2 &&
-        cardsOnGame.map((card, index) => (
-          <GameCard
-            key={card.id}
-            card={card}
-            startingPosition={Object.values(bottomSlotPositions)[index]}
-            endingPosition={null}
-          />
-        ))}
+        cardsOnGame.map((card, index) => {
+          return (
+            <GameCard
+              key={card.id}
+              card={card}
+              startingPosition={bottomSlotPositions[index]}
+              endingPosition={null}
+              bottomSlotPositions={bottomSlotPositions}
+              topSlotPositions={topSlotPositions}
+              firstTopEmptySlot={
+                topSlotPositions.find((slot) => !slot.isActive) || null
+              }
+              firstBottomEmptySlot={
+                bottomSlotPositions.find((slot) => !slot.isActive) || null
+              }
+              gamePhase={gamePhase}
+            />
+          );
+        })}
     </SafeAreaStyled>
   );
 };

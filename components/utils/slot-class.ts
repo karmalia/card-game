@@ -1,4 +1,5 @@
 import { randomUUID } from "expo-crypto";
+import { ArraySlots } from "../types";
 
 export class GameSlot {
   isActive: boolean;

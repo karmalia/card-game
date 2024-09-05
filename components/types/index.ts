@@ -26,8 +26,6 @@ export type Card = {
   id: string;
   value: number;
   color: CardColors;
-  startingPos: TPos;
-  endingPos: TPos;
   isPlayed: boolean;
   isDeleted: boolean;
 };
