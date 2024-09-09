@@ -28,4 +28,6 @@ export type Card = {
   color: CardColors;
   isPlayed: boolean;
   isDeleted: boolean;
+  slot: Omit<TSlotPos, "isActive">;
+  destinationSlot: Omit<TSlotPos, "isActive"> | null;
 };

@@ -27,7 +27,6 @@ const MoveTable = (props: Props) => {
         gestureState: PanResponderGestureState
       ) => {
         const { moveX, moveY } = gestureState;
-        console.log(`Moved to: X=${moveX}, Y=${moveY}`);
         // You can add more logic here, like updating state or handling drag and drop
       },
       onPanResponderRelease: (
@@ -35,7 +34,6 @@ const MoveTable = (props: Props) => {
         gestureState: PanResponderGestureState
       ) => {
         const { moveX, moveY } = gestureState;
-        console.log(`Released at: X=${moveX}, Y=${moveY}`);
         // Handle drop logic here
       },
     })
@@ -51,12 +49,7 @@ const MoveTable = (props: Props) => {
     <View style={styles.container}>
       <Text>MoveTable</Text>
       <Animated.View style={[animatedStyles]}>
-        <Stack
-          backgroundColor={"$red5"}
-          height={"$5"}
-          width={"$5"}
-          onPress={() => console.log("Pressed")}
-        />
+        <Stack backgroundColor={"$red5"} height={"$5"} width={"$5"} />
       </Animated.View>
     </View>
   );

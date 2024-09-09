@@ -1,16 +1,9 @@
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import "react-native-reanimated";
 import tamaguiConfig from "@/tamagui.config";
-import { useColorScheme } from "@/components/useColorScheme";
 import { TamaguiProvider } from "tamagui";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
@@ -56,8 +49,6 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-
   const router = useRouter();
 
   React.useEffect(() => {
@@ -66,19 +57,14 @@ function RootLayoutNav() {
 
   return (
     <TamaguiProvider config={tamaguiConfig}>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack initialRouteName="login/index">
-          <Stack.Screen
-            name="gamescreen/index"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen name="login/index" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="movetable/index"
-            options={{ headerShown: false }}
-          />
-        </Stack>
-      </ThemeProvider>
+      <Stack initialRouteName="login/index">
+        <Stack.Screen
+          name="gamescreen/index"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen name="login/index" options={{ headerShown: false }} />
+        <Stack.Screen name="movetable/index" options={{ headerShown: false }} />
+      </Stack>
     </TamaguiProvider>
   );
 }

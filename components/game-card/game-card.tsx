@@ -5,24 +5,17 @@ import useGameStore from "@/stores/game.store";
 import {
   Gesture,
   GestureDetector,
-  PanGestureHandler,
   TouchableOpacity,
 } from "react-native-gesture-handler";
 import Animated, {
-  Easing,
   ReduceMotion,
   runOnJS,
-  runOnUI,
-  useAnimatedGestureHandler,
-  useAnimatedReaction,
   useAnimatedStyle,
-  useDerivedValue,
   useSharedValue,
-  withDelay,
   withSpring,
-  withTiming,
 } from "react-native-reanimated";
-import { ArraySlots, Card, TPos, TSlotPos } from "../types";
+import { Card, TPos, TSlotPos } from "../types";
+
 const StyledCard = styled(View, {
   name: "GameCard",
   variants: {
@@ -54,6 +47,9 @@ const StyledCard = styled(View, {
   borderRadius: "$2",
 });
 
+const part = Dimensions.get("screen").height / 3;
+const middleCenterY = part * 2;
+
 const CardNumber = styled(Text, {
   name: "CardNumber",
   fontSize: "$12",
@@ -64,92 +60,98 @@ type GameCardProps = {
   card: Card;
   startingPosition: TPos;
   endingPosition: TPos | null;
-  topSlotPositions: ArraySlots;
-  bottomSlotPositions: ArraySlots;
-  firstTopEmptySlot: TSlotPos | null;
-  firstBottomEmptySlot: TSlotPos | null;
-  gamePhase: number;
+};
+
+const springConfig = {
+  duration: 201,
+  dampingRatio: 2.1,
+  stiffness: 427,
+  overshootClamping: false,
+  restDisplacementThreshold: 0.01,
+  restSpeedThreshold: 0.01,
+  reduceMotion: ReduceMotion.System,
 };
 
 const GameCard = ({
   card,
   startingPosition,
   endingPosition,
-  topSlotPositions,
-  bottomSlotPositions,
-  firstTopEmptySlot,
-  firstBottomEmptySlot,
-  gamePhase,
 }: GameCardProps) => {
-  const springConfig = {
-    duration: 201,
-    dampingRatio: 2.1,
-    stiffness: 427,
-    overshootClamping: false,
-    restDisplacementThreshold: 0.01,
-    restSpeedThreshold: 0.01,
-    reduceMotion: ReduceMotion.System,
-  };
-
-  console.log("FirstBottomEmptySlot", firstBottomEmptySlot);
-
-  console.log(
-    "game-card:95 topSlotsSpaces",
-    topSlotPositions.map((slot) => slot.isActive)
-  );
-  console.log(
-    "game-card:99 bottomSlotsSpaces",
-    bottomSlotPositions.map((slot) => slot.isActive)
-  );
-
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
 
-  const sharedCard = useSharedValue(card);
-  const { placeOnBoard, removeFromBoard, trashCanPosition, setGamePhase } =
-    useGameStore();
+  const [cardState, setCardState] = useState(card);
+
+  const sharedCard = useSharedValue({
+    ...cardState,
+    slot: {
+      slotId: cardState.slot.slotId,
+      pageX: cardState.slot.pageX,
+      pageY: cardState.slot.pageY,
+    },
+    destinationSlot:
+      cardState.destinationSlot !== null
+        ? {
+            slotId: cardState.destinationSlot.slotId,
+            pageX: cardState.destinationSlot.pageX,
+            pageY: cardState.destinationSlot.pageY,
+          }
+        : null,
+  });
+
+  const {
+    placeOnBoard,
+    removeFromBoard,
+    trashCanPosition,
+    gamePhase,
+    topSlotPositions,
+    bottomSlotPositions,
+    cardsOnBoard,
+    cardInHand,
+  } = useGameStore();
+
   const sharedCardLocation = useSharedValue({
     pageX: startingPosition?.pageX || 0,
     pageY: startingPosition?.pageY || 0,
   });
 
-  const sharedTopFirstEmptySlot = useSharedValue<TSlotPos | null>(
-    firstTopEmptySlot ? JSON.parse(JSON.stringify(firstTopEmptySlot)) : null
-  );
-
-  const sharedBottomFirstEmptySlot = useSharedValue<TSlotPos | null>(
-    firstBottomEmptySlot
-      ? JSON.parse(JSON.stringify(firstBottomEmptySlot))
-      : null
-  );
+  const sharedTopFirstEmptySlot = useSharedValue<TSlotPos | null>(null);
 
   useEffect(() => {
-    if (firstTopEmptySlot) {
-      sharedTopFirstEmptySlot.value = JSON.parse(
-        JSON.stringify(firstTopEmptySlot)
-      );
+    if (topSlotPositions.length) {
+      const emptySlot = topSlotPositions.find((slot) => !slot.isActive);
+      sharedTopFirstEmptySlot.value = emptySlot
+        ? JSON.parse(
+            JSON.stringify(topSlotPositions.find((slot) => !slot.isActive))
+          )
+        : null;
     } else {
       sharedTopFirstEmptySlot.value = null;
     }
-  }, [firstTopEmptySlot]);
+  }, [topSlotPositions]);
 
   useEffect(() => {
-    if (firstBottomEmptySlot) {
-      sharedBottomFirstEmptySlot.value = JSON.parse(
-        JSON.stringify(firstBottomEmptySlot)
-      );
-    } else {
-      sharedBottomFirstEmptySlot.value = null;
-    }
-  }, [firstBottomEmptySlot]);
-
-  useEffect(() => {
-    sharedCard.value = card;
-  }, [card.isPlayed]);
-
-  const middleCenterY = Dimensions.get("screen").height / 2;
+    // Keep sharedCard in sync with cardState whenever cardState changes
+    sharedCard.value = {
+      ...cardState,
+      slot: {
+        slotId: cardState.slot.slotId,
+        pageX: cardState.slot.pageX,
+        pageY: cardState.slot.pageY,
+      },
+      destinationSlot:
+        cardState.destinationSlot !== null
+          ? {
+              slotId: cardState.destinationSlot.slotId,
+              pageX: cardState.destinationSlot.pageX,
+              pageY: cardState.destinationSlot.pageY,
+            }
+          : null,
+    };
+  }, [cardState]);
   const drag = Gesture.Pan()
     .onStart((event) => {
+      console.log("DragStart");
       event.x = translateX.value;
       event.y = translateY.value;
     })
@@ -158,15 +160,10 @@ const GameCard = ({
       translateY.value = event.translationY;
     })
     .onEnd((event) => {
-      console.log("");
+      console.log("DragEnd");
       if (event.absoluteY < middleCenterY) {
-        // The card is in the middle section - play the card
         try {
-          //useShared or derived value might work
-          console.log("Test1", sharedTopFirstEmptySlot.value);
-
           if (sharedTopFirstEmptySlot.value) {
-            console.log("Test 2");
             const targetX =
               sharedTopFirstEmptySlot.value.pageX -
               sharedCardLocation.value.pageX;
@@ -174,20 +171,17 @@ const GameCard = ({
               sharedTopFirstEmptySlot.value.pageY -
               sharedCardLocation.value.pageY;
 
+            sharedCard.value.isPlayed = true;
             translateX.value = withSpring(targetX, springConfig);
             translateY.value = withSpring(targetY, springConfig, () => {
-              runOnJS(placeOnBoard)(
-                sharedCard.value.id,
-                sharedTopFirstEmptySlot.value!
-              );
+              runOnJS(placeOnBoard)(sharedCard.value);
             });
           } else {
             translateX.value = withSpring(0, springConfig);
             translateY.value = withSpring(0, springConfig);
           }
         } catch (error) {
-          console.log("Test");
-          console.log("Error", error.message);
+          console.log("Error during drag end:", error.message);
         }
       } else if (
         event.absoluteX > trashCanPosition.pageX &&
@@ -201,32 +195,28 @@ const GameCard = ({
       }
     });
 
-  const tap = Gesture.Tap().onTouchesDown(() => {
+  const tap = Gesture.Tap().onStart(() => {
+    console.log(
+      "bottomSlotPositions",
+      bottomSlotPositions.map((s) => s.isActive)
+    );
+    console.log(
+      "topSlotPositions",
+      topSlotPositions.map((s) => s.isActive)
+    );
     try {
-      //useShared or derived value might work
-      console.log("tap Test1");
-
-      if (sharedBottomFirstEmptySlot.value) {
-        const targetX =
-          sharedBottomFirstEmptySlot.value.pageX -
-          sharedCardLocation.value.pageX;
-        const targetY =
-          sharedBottomFirstEmptySlot.value.pageY -
-          sharedCardLocation.value.pageY;
-
-        translateX.value = withSpring(targetX, springConfig);
-        translateY.value = withSpring(targetY, springConfig, () => {
-          runOnJS(removeFromBoard)(
-            sharedCard.value.id,
-            sharedBottomFirstEmptySlot.value!
-          );
+      if (sharedCard.value) {
+        sharedCard.value.isPlayed = false;
+        translateX.value = withSpring(0, springConfig);
+        translateY.value = withSpring(0, springConfig, () => {
+          runOnJS(removeFromBoard)(sharedCard.value);
         });
       } else {
         translateX.value = withSpring(0, springConfig);
         translateY.value = withSpring(0, springConfig);
       }
     } catch (error) {
-      console.log("Test");
+      console.log("Tap error:", error.message);
     }
   });
 
@@ -242,27 +232,39 @@ const GameCard = ({
   });
 
   useEffect(() => {
-    if (endingPosition !== null && endingPosition !== null && gamePhase !== 2)
-      startAnimation();
+    const allCards = [...cardsOnBoard, ...cardInHand];
+    const findOnTop = cardsOnBoard.find((c) => c.id === cardState.id);
+    const findCard = allCards.find((c) => c.id === cardState.id);
+
+    if (findCard && findCard.destinationSlot) {
+      // Update cardState in JS thread when the destinationSlot changes
+      setCardState((prev) => ({
+        ...prev,
+        isPlayed: findOnTop ? true : false,
+        destinationSlot: findCard.destinationSlot,
+      }));
+    }
+  }, [cardsOnBoard, cardInHand]);
+
+  //Starts at phase one
+  useEffect(() => {
     function startAnimation() {
       translateX.value = withSpring(
-        // @ts-ignore
-        endingPosition.pageX - sharedCardLocation.value.pageX,
+        endingPosition!.pageX - sharedCardLocation.value.pageX,
         springConfig
       );
       translateY.value = withSpring(
-        // @ts-ignore
-        endingPosition.pageY - sharedCardLocation.value.pageY,
-        springConfig,
-        () => {
-          runOnJS(setGamePhase)(2);
-        }
+        endingPosition!.pageY - sharedCardLocation.value.pageY,
+        springConfig
       );
+    }
+    if (endingPosition !== null && gamePhase === 1) {
+      startAnimation();
     }
   }, []);
 
   return (
-    <GestureDetector gesture={card.isPlayed ? tap : drag}>
+    <GestureDetector gesture={sharedCard.value.isPlayed ? tap : drag}>
       <Animated.View
         style={[
           {
@@ -273,18 +275,12 @@ const GameCard = ({
       >
         <TouchableOpacity
           onPress={() => {
-            console.log("Card", card.isPlayed);
-            if (sharedCard.value.isPlayed) {
-              console.log("Card", card);
-              console.log(
-                "Kart Board'da, geri çekilecek",
-                sharedCard.value.isPlayed
-              );
-            } else {
-              console.log("Card", card);
-              console.log("Kart elde", sharedCard.value.isPlayed);
-            }
+            console.log(
+              "Card pressed:",
+              sharedCard.value.isPlayed ? "Board" : "Hand"
+            );
           }}
+          touchSoundDisabled
         >
           <StyledCard
             red={card.color === "red"}
@@ -301,5 +297,3 @@ const GameCard = ({
 };
 
 export default GameCard;
-
-const styles = StyleSheet.create({});

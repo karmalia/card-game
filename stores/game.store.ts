@@ -18,18 +18,20 @@ type gameStore = {
   firstEmptySlotId: string;
   filledTopSlotCount: number;
   trashCanPosition: TPos;
+  deckPosition: TPos;
   cardInHand: Card[];
   cardsOnBoard: Card[];
   cardsOnGame: Card[];
   cardsOnTrash: Card[];
   cardsInDeck: Card[];
-  drawCard: (startingPos: TPos, endingPos: TPos) => void;
+  drawCard: (slot: TSlotPos) => void;
   setGamePhase: (phase: number) => void;
   setTopSlotsPositions: (positions: ArraySlots) => void;
   setBottomSlotsPositions: (positions: ArraySlots) => void;
   setThrashCanPosition: (position: TPos) => void;
-  placeOnBoard: (cardId: string, firstEmptySlot: TSlotPos) => void;
-  removeFromBoard: (cardId: string, firstEmptySlot: TSlotPos) => void;
+  setDeckPosition: (position: TPos) => void;
+  placeOnBoard: (card: Card) => void;
+  removeFromBoard: (card: Card) => void;
   discardCard: (cardId: string) => void;
   calculateScore: () => void;
   populateDeck: () => void;
@@ -77,13 +79,19 @@ const generateDeck = (): Card[] => {
   const deck: Card[] = [];
 
   for (let color of colors) {
-    for (let value = 1; value <= 9; value++) {
+    for (let value = 1; value <= 8; value++) {
       deck.push({
         id: Crypto.randomUUID(),
         value,
         color,
         isPlayed: false,
         isDeleted: false,
+        slot: {
+          slotId: "",
+          pageX: 0,
+          pageY: 0,
+        },
+        destinationSlot: null,
       });
     }
   }
@@ -108,6 +116,10 @@ const initialGameState = {
     pageX: 0,
     pageY: 0,
   },
+  deckPosition: {
+    pageX: 0,
+    pageY: 0,
+  },
   cardInHand: [],
   cardsOnBoard: [],
   cardsOnGame: [],
@@ -116,17 +128,26 @@ const initialGameState = {
 };
 const useGameStore = create<gameStore>((set) => ({
   ...initialGameState,
-  drawCard: () => {
+  drawCard: (slot: TSlotPos) => {
     return set((state) => {
-      console.log("res 59");
       if (state.cardInHand.length <= 5) {
         const [drawnCard, ...remainingDeck] = state.cardsInDeck;
 
-        return {
-          cardInHand: [...state.cardInHand, { ...drawnCard }],
-          cardsOnGame: [...state.cardInHand, { ...drawnCard }],
+        const newState = {
+          ...state,
+          cardInHand: [...state.cardInHand, { ...drawnCard, slot }],
+          cardsOnGame: [...state.cardInHand, { ...drawnCard, slot }],
           cardsInDeck: remainingDeck,
+          bottomSlotPositions: state.bottomSlotPositions.map((bottomSlot) => {
+            if (bottomSlot.slotId === slot.slotId) {
+              return { ...slot, isActive: true };
+            } else {
+              return bottomSlot;
+            }
+          }),
         };
+
+        return newState;
       }
       return state;
     });
@@ -148,82 +169,69 @@ const useGameStore = create<gameStore>((set) => ({
     set((state) => {
       return { ...state, trashCanPosition: position };
     }),
-  placeOnBoard: (cardId: string, firstEmptySlot: TSlotPos) =>
+  setDeckPosition: (position) =>
     set((state) => {
-      const cardToPlay = state.cardInHand.find((card) => card.id === cardId);
-
-      if (cardToPlay && state.cardsOnBoard.length < 3) {
-        const cardBottomIndex = state.cardInHand.findIndex(
-          (card) => card.id === cardId
-        );
-        return {
-          ...state,
-          cardInHand: [
-            ...state.cardInHand.filter((card) => card.id !== cardToPlay.id),
-          ],
-          cardsOnBoard: [
-            ...state.cardsOnBoard,
-            { ...cardToPlay, isPlayed: true },
-          ],
-          topSlotPositions: state.topSlotPositions.map((slot) =>
-            slot.slotId === firstEmptySlot.slotId
-              ? { ...slot, isActive: true }
-              : slot
-          ),
-          bottomSlotPositions: state.bottomSlotPositions.map((slot, index) =>
-            cardBottomIndex === index ? { ...slot, isActive: false } : slot
-          ),
-          cardsOnGame: state.cardsOnGame.map((card) =>
-            card.id === cardId ? { ...card, isPlayed: true } : card
-          ),
-        };
-      }
-      console.log("Place On Board ELSE!");
-      console.log("CardId", cardId);
-      console.log("CardToPlay", cardToPlay);
-      console.log("game-store:183 state.cardsOnBoard", state.cardsOnBoard);
-      return state;
+      return { ...state, deckPosition: position };
     }),
-  removeFromBoard: (cardId: string, firstEmptySlot: TSlotPos) =>
+  placeOnBoard: (card) =>
     set((state) => {
-      //Board Üzürinde bul
-      const cardToRemove = state.cardsOnBoard.find(
-        (card) => card.id === cardId
+      const cardToPlay = state.cardInHand.find((item) => item.id === card.id);
+      const firstEmptyTopSlot = state.topSlotPositions.find(
+        (slot) => !slot.isActive
       );
 
-      if (cardToRemove && state.cardInHand.length < 5) {
-        console.log("Remove From Board");
-        const cardTopIndex = state.cardsOnBoard.findIndex(
-          (card) => card.id === cardId
-        );
-        console.log("cardTopIndex", cardTopIndex);
-        console.log("firstEmptySlot", firstEmptySlot);
-
-        return {
+      if (cardToPlay && state.cardsOnBoard.length < 3 && firstEmptyTopSlot) {
+        const newState = {
           ...state,
           cardInHand: [
-            ...state.cardsOnBoard,
-            { ...cardToRemove, isPlayed: false },
+            ...state.cardInHand.filter((item) => item.id !== card.id),
           ],
           cardsOnBoard: [
-            ...state.cardsOnBoard.filter((card) => card.id !== cardToRemove.id),
+            ...state.cardsOnBoard,
+            {
+              ...cardToPlay,
+              isPlayed: true,
+              destinationSlot: firstEmptyTopSlot,
+            },
           ],
-          bottomSlotPositions: state.bottomSlotPositions.map((slot) =>
-            slot.slotId === firstEmptySlot.slotId
+
+          topSlotPositions: state.topSlotPositions.map((slot) =>
+            slot.slotId == firstEmptyTopSlot.slotId
               ? { ...slot, isActive: true }
               : slot
           ),
-          topSlotPositions: state.topSlotPositions.map((slot, index) =>
-            cardTopIndex === index ? { ...slot, isActive: false } : slot
-          ),
-          cardsOnGame: state.cardsOnGame.map((card) =>
-            card.id === cardId ? { ...card, isPlayed: false } : card
-          ),
+          bottomSlotPositions: state.bottomSlotPositions.map((item) => {
+            if (item.slotId == card.slot.slotId) {
+              return { ...item, isActive: false };
+            } else {
+              return item;
+            }
+          }),
         };
+
+        return newState;
       }
-      console.log("Remove From Board ELSE!!!");
-      console.log("CardToRemove", cardToRemove);
       return state;
+    }),
+  removeFromBoard: (card) =>
+    set((state) => {
+      //Board Üzürinde bul
+
+      var newState = {
+        ...state,
+        cardInHand: [...state.cardInHand, { ...card, isPlayed: false }],
+        cardsOnBoard: [
+          ...state.cardsOnBoard.filter((item) => item.id !== card.id),
+        ],
+
+        topSlotPositions: state.topSlotPositions.map((slot, index) =>
+          card.destinationSlot?.slotId === slot.slotId
+            ? { ...slot, isActive: false }
+            : slot
+        ),
+      };
+
+      return newState;
     }),
   discardCard: (cardId: string) =>
     set((state) => {

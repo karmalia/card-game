@@ -1,6 +1,3 @@
-import { randomUUID } from "expo-crypto";
-import { ArraySlots } from "../types";
-
 export class GameSlot {
   isActive: boolean;
   slotId: string;
@@ -14,17 +11,3 @@ export class GameSlot {
     this.slotId = id;
   }
 }
-
-export const initialTopSlots = {
-  1: new GameSlot(randomUUID()),
-  2: new GameSlot(randomUUID()),
-  3: new GameSlot(randomUUID()),
-};
-
-export const initialBottomSlots = {
-  1: new GameSlot(randomUUID()),
-  2: new GameSlot(randomUUID()),
-  3: new GameSlot(randomUUID()),
-  4: new GameSlot(randomUUID()),
-  5: new GameSlot(randomUUID()),
-};
