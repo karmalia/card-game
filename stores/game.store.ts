@@ -19,7 +19,7 @@ type gameStore = {
   filledTopSlotCount: number;
   trashCanPosition: TPos;
   deckPosition: TPos;
-  cardInHand: Card[];
+  cardsInHand: Card[];
   cardsOnBoard: Card[];
   cardsOnGame: Card[];
   cardsOnTrash: Card[];
@@ -32,8 +32,13 @@ type gameStore = {
   setDeckPosition: (position: TPos) => void;
   placeOnBoard: (card: Card) => void;
   removeFromBoard: (card: Card) => void;
-  discardCard: (cardId: string) => void;
-  calculateScore: () => void;
+  discardCard: (card: Card) => void;
+  calculateScore: (
+    serialized: boolean,
+    hasSameValue: boolean,
+    hasSameColor: boolean,
+    totalValue: number
+  ) => void;
   populateDeck: () => void;
 };
 
@@ -120,7 +125,7 @@ const initialGameState = {
     pageX: 0,
     pageY: 0,
   },
-  cardInHand: [],
+  cardsInHand: [],
   cardsOnBoard: [],
   cardsOnGame: [],
   cardsOnTrash: [],
@@ -130,13 +135,13 @@ const useGameStore = create<gameStore>((set) => ({
   ...initialGameState,
   drawCard: (slot: TSlotPos) => {
     return set((state) => {
-      if (state.cardInHand.length <= 5) {
+      if (state.cardsInHand.length <= 5) {
         const [drawnCard, ...remainingDeck] = state.cardsInDeck;
 
         const newState = {
           ...state,
-          cardInHand: [...state.cardInHand, { ...drawnCard, slot }],
-          cardsOnGame: [...state.cardInHand, { ...drawnCard, slot }],
+          cardsInHand: [...state.cardsInHand, { ...drawnCard, slot }],
+          cardsOnGame: [...state.cardsInHand, { ...drawnCard, slot }],
           cardsInDeck: remainingDeck,
           bottomSlotPositions: state.bottomSlotPositions.map((bottomSlot) => {
             if (bottomSlot.slotId === slot.slotId) {
@@ -175,7 +180,7 @@ const useGameStore = create<gameStore>((set) => ({
     }),
   placeOnBoard: (card) =>
     set((state) => {
-      const cardToPlay = state.cardInHand.find((item) => item.id === card.id);
+      const cardToPlay = state.cardsInHand.find((item) => item.id === card.id);
       const firstEmptyTopSlot = state.topSlotPositions.find(
         (slot) => !slot.isActive
       );
@@ -183,8 +188,8 @@ const useGameStore = create<gameStore>((set) => ({
       if (cardToPlay && state.cardsOnBoard.length < 3 && firstEmptyTopSlot) {
         const newState = {
           ...state,
-          cardInHand: [
-            ...state.cardInHand.filter((item) => item.id !== card.id),
+          cardsInHand: [
+            ...state.cardsInHand.filter((item) => item.id !== card.id),
           ],
           cardsOnBoard: [
             ...state.cardsOnBoard,
@@ -219,7 +224,7 @@ const useGameStore = create<gameStore>((set) => ({
 
       var newState = {
         ...state,
-        cardInHand: [...state.cardInHand, { ...card, isPlayed: false }],
+        cardsInHand: [...state.cardsInHand, { ...card, isPlayed: false }],
         cardsOnBoard: [
           ...state.cardsOnBoard.filter((item) => item.id !== card.id),
         ],
@@ -233,28 +238,89 @@ const useGameStore = create<gameStore>((set) => ({
 
       return newState;
     }),
-  discardCard: (cardId: string) =>
+  discardCard: (card: Card) =>
     set((state) => {
-      const cardToDiscard = state.cardInHand.find((card) => card.id === cardId);
+      const cardToDiscard = state.cardsInHand.find(
+        (item) => item.id === card.id
+      );
+      console.log("Card To Discard", cardToDiscard);
       if (cardToDiscard) {
-        return {
-          cardInHand: state.cardInHand.filter((card) => card.id !== cardId),
+        const newState = {
+          ...state,
+          cardsInHand: state.cardsInHand.filter((item) => item.id !== card.id),
           cardsOnTrash: [...state.cardsOnTrash, cardToDiscard],
+          bottomSlotPositions: state.bottomSlotPositions.map((slot) => {
+            if (slot.slotId === cardToDiscard.slot.slotId) {
+              return {
+                ...slot,
+                isActive: false,
+              };
+            } else {
+              return slot;
+            }
+          }),
         };
+        console.log("CardsOnGame", newState.cardsOnGame.length);
+        return newState;
       }
       return state;
     }),
 
-  calculateScore: () =>
+  calculateScore: (serialized, hasSameValue, hasSameColor, totalValue) =>
     set((state) => {
-      const cards = state.cardsOnBoard;
-      if (cards.length === 0) return state;
-
       let score = 0;
+      console.log("Serialized", serialized);
+      console.log("hasSameValue", hasSameValue);
+      console.log("hasSameColor", hasSameColor);
+      console.log("totalValue", totalValue);
 
-      return {
+      const scoreTable =
+        Points[hasSameColor ? "isSameColor" : "isDifferentColor"];
+      console.log("ScoreTable", scoreTable);
+      console.log("totalValue", totalValue);
+      score = scoreTable[totalValue];
+      console.log("Score!", score);
+
+      /*
+      
+        Oyundan kartlar çıkartılır: CardsOnBoard güncellenir
+        TopSlotları isActive i false yapılır; destinationSlotlara göre yada hepsi toptan,
+        bottomSlotları isActive i false yapılır, gelen slotId sine göre
+      */
+
+      const cardsOnBoardIds = state.cardsOnBoard.map((c) => c.id);
+      const cardsOnTrashIds = state.cardsOnTrash.map((c) => c.id);
+      const emptiedSlotsIds = state.cardsOnBoard.map((c) => c.slot.slotId);
+
+      const newState = {
         score: state.score + score,
+        cardsOnBoard: [],
+        cardsOnGame: state.cardsOnGame.filter(
+          (c) =>
+            !cardsOnBoardIds.includes(c.id) || cardsOnTrashIds.includes(c.id)
+        ),
+        topSlotPositions: state.topSlotPositions.map((slot) => ({
+          ...slot,
+          isActive: false,
+        })),
+        bottomSlotPositions: state.bottomSlotPositions.map((slot) => {
+          return {
+            ...slot,
+            isActive: emptiedSlotsIds.includes(slot.slotId) ? false : true,
+          };
+        }),
       };
+
+      console.log(
+        "Calculate bottomSlots",
+        newState.bottomSlotPositions.map((s) => s.isActive)
+      );
+      console.log(
+        "Calculate topSlots",
+        newState.topSlotPositions.map((s) => s.isActive)
+      );
+
+      return newState;
     }),
 
   populateDeck: () =>

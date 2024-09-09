@@ -15,6 +15,7 @@ const RenderCards = () => {
     cardsOnGame,
     setGamePhase,
     drawCard,
+    calculateScore,
   } = useGameStore();
 
   React.useEffect(() => {
@@ -52,10 +53,19 @@ const RenderCards = () => {
   React.useEffect(() => {
     if (cardsOnBoard.length === 3) {
       var serialized = isSerialized(cardsOnBoard);
-      var isSameColor = cardsOnBoard.every(
+      var hasSameValue = cardsOnBoard.every(
+        (item) => item.value === cardsOnBoard[0].value
+      );
+      var hasSameColor = cardsOnBoard.every(
         (item) => item.color === cardsOnBoard[0].color
       );
-      console.log("isSameColor", isSameColor);
+      var totalValue = cardsOnBoard.reduce((acc, cur) => {
+        return acc + cur.value;
+      }, 0);
+
+      if (serialized || hasSameValue) {
+        calculateScore(serialized, hasSameValue, hasSameColor, totalValue);
+      }
     }
   }, [cardsOnBoard.length]);
 

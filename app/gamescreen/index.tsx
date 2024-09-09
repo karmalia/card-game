@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import React, { useMemo, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, Card, Stack, Text, styled, View } from "tamagui";
@@ -21,6 +21,7 @@ import { useRouter } from "expo-router";
 import { randomUUID } from "expo-crypto";
 import { fillPlayersHand } from "@/components/utils";
 import RenderCards from "@/components/render-cards/render-cards";
+import Deck from "@/components/deck/deck";
 
 /**
  
@@ -38,7 +39,7 @@ const Index = () => {
     gamePhase,
     cardsInDeck,
     bottomSlotPositions,
-
+    score,
     setGamePhase,
     drawCard,
     populateDeck,
@@ -182,7 +183,7 @@ const Index = () => {
             }}
             width={"100%"}
           >
-            200
+            <Text>{score}</Text>
           </Button>
         </Stack>
         <Stack flexDirection="row" justifyContent="center" flex={1} gap="$4">
@@ -206,19 +207,7 @@ const Index = () => {
         </Stack>
       </Stack>
       <Stack flex={1} borderWidth={1} flexDirection="row">
-        <Stack
-          ref={deckPositionRef}
-          height={"$11"}
-          width={"$8"}
-          backgroundColor={"$deckColor"}
-          borderRadius={"$2"}
-          alignSelf="flex-end"
-          margin="$4"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Text>{cardsInDeck.length}</Text>
-        </Stack>
+        <Deck ref={deckPositionRef} />
         <Stack
           flex={1}
           flexDirection="row"

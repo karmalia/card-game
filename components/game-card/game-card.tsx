@@ -107,7 +107,8 @@ const GameCard = ({
     topSlotPositions,
     bottomSlotPositions,
     cardsOnBoard,
-    cardInHand,
+    cardsInHand,
+    discardCard,
   } = useGameStore();
 
   const sharedCardLocation = useSharedValue({
@@ -187,8 +188,17 @@ const GameCard = ({
         event.absoluteX > trashCanPosition.pageX &&
         event.absoluteY > trashCanPosition.pageY
       ) {
-        translateX.value = withSpring(trashCanPosition.pageX);
-        translateY.value = withSpring(trashCanPosition.pageY);
+        console.log("sendToThrash", trashCanPosition);
+        console.log("event.absoluteX", event.absoluteX);
+        console.log("event.absoluteY", event.absoluteY);
+        translateX.value = withSpring(trashCanPosition.pageX, springConfig);
+        translateY.value = withSpring(
+          trashCanPosition.pageY,
+          springConfig,
+          () => {
+            runOnJS(discardCard)(sharedCard.value);
+          }
+        );
       } else {
         translateX.value = withSpring(0);
         translateY.value = withSpring(0);
@@ -196,14 +206,6 @@ const GameCard = ({
     });
 
   const tap = Gesture.Tap().onStart(() => {
-    console.log(
-      "bottomSlotPositions",
-      bottomSlotPositions.map((s) => s.isActive)
-    );
-    console.log(
-      "topSlotPositions",
-      topSlotPositions.map((s) => s.isActive)
-    );
     try {
       if (sharedCard.value) {
         sharedCard.value.isPlayed = false;
@@ -232,7 +234,7 @@ const GameCard = ({
   });
 
   useEffect(() => {
-    const allCards = [...cardsOnBoard, ...cardInHand];
+    const allCards = [...cardsOnBoard, ...cardsInHand];
     const findOnTop = cardsOnBoard.find((c) => c.id === cardState.id);
     const findCard = allCards.find((c) => c.id === cardState.id);
 
@@ -244,7 +246,7 @@ const GameCard = ({
         destinationSlot: findCard.destinationSlot,
       }));
     }
-  }, [cardsOnBoard, cardInHand]);
+  }, [cardsOnBoard, cardsInHand]);
 
   //Starts at phase one
   useEffect(() => {
