@@ -4,8 +4,9 @@ import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import "react-native-reanimated";
 import tamaguiConfig from "@/tamagui.config";
-import { TamaguiProvider } from "tamagui";
+import { TamaguiProvider, Text } from "tamagui";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { StatusBar } from "expo-status-bar";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -24,6 +25,7 @@ export default function RootLayout() {
   const [loaded, error] = useFonts({
     Inter: require("@tamagui/font-inter/otf/Inter-Medium.otf"),
     InterBold: require("@tamagui/font-inter/otf/Inter-Bold.otf"),
+    DragonSlayer: require("@/assets/fonts/dragon-slayer/dragon-slayer.otf"),
   });
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
@@ -57,13 +59,26 @@ function RootLayoutNav() {
 
   return (
     <TamaguiProvider config={tamaguiConfig}>
-      <Stack initialRouteName="login/index">
+      <Text
+        style={{
+          position: "absolute",
+          color: "black",
+          fontFamily: "monospace",
+          top: 4,
+          fontSize: 12,
+          left: 140,
+          zIndex: 10,
+        }}
+      >
+        Alpha: 0.0.4
+      </Text>
+      <StatusBar hidden />
+      <Stack initialRouteName="home/index">
         <Stack.Screen
           name="gamescreen/index"
           options={{ headerShown: false }}
         />
-        <Stack.Screen name="login/index" options={{ headerShown: false }} />
-        <Stack.Screen name="movetable/index" options={{ headerShown: false }} />
+        <Stack.Screen name="home/index" options={{ headerShown: false }} />
       </Stack>
     </TamaguiProvider>
   );

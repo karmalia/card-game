@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View } from "react-native";
+import { ImageBackground, StyleSheet, Text, View } from "react-native";
 import React, { forwardRef } from "react";
-import { Stack } from "tamagui";
+import { Button, Stack } from "tamagui";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import useGameStore from "@/stores/game.store";
 
@@ -14,7 +14,6 @@ const Deck = forwardRef((props: Props, ref: any) => {
     cardsInHand,
     cardsOnBoard,
   } = useGameStore();
-  console.log("");
   return (
     <Stack
       ref={ref}
@@ -24,31 +23,42 @@ const Deck = forwardRef((props: Props, ref: any) => {
       borderRadius={"$2"}
       alignSelf="flex-end"
       margin="$4"
+      overflow="hidden"
     >
-      <TouchableOpacity
-        style={{
-          height: "100%",
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          borderWidth: 1,
-        }}
-        onPress={() => {
-          console.log("Deck cardsInHand.length", cardsInHand.length);
-          console.log("Deck cardsOnBoard.length", cardsOnBoard.length);
-
-          const totalCardOnGame = cardsInHand.length + cardsOnBoard.length;
-          if (totalCardOnGame == 5 || cardsInDeck.length === 0) return;
-
-          const findFirstBottomEmptySlot = bottomSlotPositions.find(
-            (slot) => !slot.isActive
-          );
-          if (findFirstBottomEmptySlot) drawCard(findFirstBottomEmptySlot);
-        }}
+      <ImageBackground
+        source={require("@/assets/card-backgrounds/CostimizedGreen.png")}
       >
-        <Text>{cardsInDeck.length}</Text>
-      </TouchableOpacity>
+        <Button
+          style={{
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "transparent",
+            borderWidth: 1,
+          }}
+          onPress={() => {
+            const totalCardOnGame = cardsInHand.length + cardsOnBoard.length;
+            if (totalCardOnGame == 5 || cardsInDeck.length === 0) return;
+
+            const findFirstBottomEmptySlot = bottomSlotPositions.find(
+              (slot) => !slot.isActive
+            );
+            if (findFirstBottomEmptySlot) drawCard(findFirstBottomEmptySlot);
+          }}
+        >
+          <Text
+            style={{
+              fontFamily: "DragonSlayer",
+              color: "white",
+              fontSize: 28,
+            }}
+          >
+            {cardsInDeck.length}
+          </Text>
+        </Button>
+      </ImageBackground>
     </Stack>
   );
 });

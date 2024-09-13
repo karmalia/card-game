@@ -1,7 +1,16 @@
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { ImageBackground, StyleSheet, TouchableOpacity } from "react-native";
 import React, { useMemo, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Button, Card, Stack, Text, styled, View } from "tamagui";
+import {
+  Button,
+  Card,
+  Stack,
+  Text,
+  styled,
+  View,
+  ButtonText,
+  Image,
+} from "tamagui";
 import GameCard from "@/components/game-card/game-card";
 import { Ionicons } from "@expo/vector-icons";
 import useGameStore from "@/stores/game.store";
@@ -22,6 +31,7 @@ import { randomUUID } from "expo-crypto";
 import { fillPlayersHand } from "@/components/utils";
 import RenderCards from "@/components/render-cards/render-cards";
 import Deck from "@/components/deck/deck";
+import Trash from "@/components/trash/trash";
 
 /**
  
@@ -163,81 +173,107 @@ const Index = () => {
   }, [reset]);
 
   return (
-    <SafeAreaStyled>
-      <Stack flexDirection="row" justifyContent="space-around" borderWidth={1}>
-        <Stack
-          backgroundColor="$yellow10"
-          height="$4"
-          width="$8"
-          borderRadius="$4"
-          justifyContent="center"
-          alignItems="center"
-          marginHorizontal="$4"
-        >
-          <Button
-            backgroundColor={"$yellow10"}
-            color="white"
-            onPress={() => {
-              setReset(!reset);
-              populateDeck();
-            }}
-            width={"100%"}
-          >
-            <Text>{score}</Text>
-          </Button>
-        </Stack>
-        <Stack flexDirection="row" justifyContent="center" flex={1} gap="$4">
-          <CardSlotStyled ref={topSlot1Ref}></CardSlotStyled>
-          <CardSlotStyled ref={topSlot2Ref}></CardSlotStyled>
-          <CardSlotStyled ref={topSlot3Ref}></CardSlotStyled>
-        </Stack>
-        <Stack>
+    <View style={styles.container}>
+      <ImageBackground
+        source={require("@/assets/gameboard-background/CostimizedBg.png")}
+        resizeMode="stretch"
+        style={styles.image}
+      >
+        <SafeAreaStyled>
           <Stack
-            backgroundColor="$red10"
-            height="$4"
-            width="$8"
-            borderRadius="$4"
-            justifyContent="center"
-            alignItems="center"
-            marginHorizontal="$4"
-            onPress={() => router.navigate("/login")}
+            flexDirection="row"
+            justifyContent="space-around"
+            borderWidth={1}
           >
-            <Text color="white">Exit</Text>
+            <Stack
+              backgroundColor="transparent"
+              height="$4"
+              width="$8"
+              borderRadius="$4"
+              justifyContent="center"
+              alignItems="center"
+              marginHorizontal="$4"
+            ></Stack>
+            <Stack
+              flexDirection="row"
+              justifyContent="center"
+              flex={1}
+              gap="$4"
+            >
+              <CardSlotStyled ref={topSlot1Ref}></CardSlotStyled>
+              <CardSlotStyled ref={topSlot2Ref}></CardSlotStyled>
+              <CardSlotStyled ref={topSlot3Ref}></CardSlotStyled>
+            </Stack>
+            <Stack>
+              <Stack
+                borderRadius="$4"
+                justifyContent="center"
+                alignItems="center"
+                marginHorizontal="$4"
+              >
+                <TouchableOpacity
+                  activeOpacity={1}
+                  style={{
+                    borderWidth: 1,
+                  }}
+                  onPress={() => {
+                    try {
+                      router.navigate("/home");
+                    } catch (error) {
+                      console.log("Error Message", error.message);
+                    }
+                  }}
+                >
+                  <Image
+                    height="$4"
+                    width="$4"
+                    resizeMethod="auto"
+                    source={require("@/assets/icons/settings.png")}
+                  />
+                </TouchableOpacity>
+              </Stack>
+            </Stack>
           </Stack>
-        </Stack>
-      </Stack>
-      <Stack flex={1} borderWidth={1} flexDirection="row">
-        <Deck ref={deckPositionRef} />
-        <Stack
-          flex={1}
-          flexDirection="row"
-          justifyContent="center"
-          gap="$2"
-          alignItems="flex-end"
-        >
-          <CardSlotStyled ref={bottomSlot1Ref}></CardSlotStyled>
-          <CardSlotStyled ref={bottomSlot2Ref}></CardSlotStyled>
-          <CardSlotStyled ref={bottomSlot3Ref}></CardSlotStyled>
-          <CardSlotStyled ref={bottomSlot4Ref}></CardSlotStyled>
-          <CardSlotStyled ref={bottomSlot5Ref}></CardSlotStyled>
-        </Stack>
-        <Stack
-          height={"$11"}
-          width={"$8"}
-          borderWidth="$1"
-          borderRadius={"$2"}
-          margin="$4"
-          alignSelf="flex-end"
-          alignItems="center"
-          justifyContent="center"
-          ref={thrashCanRef}
-        >
-          <Ionicons name="trash" size={52} />
-        </Stack>
-      </Stack>
-      <RenderCards />
-    </SafeAreaStyled>
+          <Stack flex={1} borderWidth={1} flexDirection="row">
+            <Deck ref={deckPositionRef} />
+            <Stack
+              flex={1}
+              flexDirection="row"
+              justifyContent="center"
+              gap="$2"
+              alignItems="flex-end"
+            >
+              <CardSlotStyled ref={bottomSlot1Ref}></CardSlotStyled>
+              <CardSlotStyled ref={bottomSlot2Ref}></CardSlotStyled>
+              <CardSlotStyled ref={bottomSlot3Ref}></CardSlotStyled>
+              <CardSlotStyled ref={bottomSlot4Ref}></CardSlotStyled>
+              <CardSlotStyled ref={bottomSlot5Ref}></CardSlotStyled>
+            </Stack>
+            <Trash ref={thrashCanRef} />
+          </Stack>
+          <RenderCards />
+        </SafeAreaStyled>
+      </ImageBackground>
+    </View>
   );
 };
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  image: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  text: {
+    color: "white",
+    fontSize: 42,
+    lineHeight: 84,
+    fontWeight: "bold",
+    textAlign: "center",
+    backgroundColor: "#000000c0",
+  },
+});
 
 export default Index;

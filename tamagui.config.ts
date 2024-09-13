@@ -22,7 +22,7 @@ const tamaguiConfig = createTamagui({
       cardForeground: "#FFFFFF",
       deckColor: "rgba(19, 106, 71, 255)",
       metinRed: "rgba(91, 34, 4, 255)",
-      cardText: "rgba(72, 51, 1, 255)",
+      cardText: "#FDFDFD",
     },
   },
 });

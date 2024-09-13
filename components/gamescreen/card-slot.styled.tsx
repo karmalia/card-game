@@ -5,11 +5,11 @@ const CardSlotStyled = styled(View, {
   minHeight: "$11",
   borderColor: "$red9",
   padding: 1,
-  backgroundColor: "$gray9",
+
   borderRadius: 4,
   alignItems: "center",
   justifyContent: "center",
-  borderWidth: 3,
+  borderWidth: 1,
 });
 
 export default CardSlotStyled;

@@ -1,4 +1,4 @@
-import { Dimensions, StyleSheet } from "react-native";
+import { Dimensions, ImageBackground, StyleSheet } from "react-native";
 import React, { useState, useEffect } from "react";
 import { View, Text, styled } from "tamagui";
 import useGameStore from "@/stores/game.store";
@@ -18,33 +18,11 @@ import { Card, TPos, TSlotPos } from "../types";
 
 const StyledCard = styled(View, {
   name: "GameCard",
-  variants: {
-    red: {
-      true: {
-        backgroundColor: "$cardRed",
-      },
-    },
-    yellow: {
-      true: {
-        backgroundColor: "$cardYellow",
-      },
-    },
-    blue: {
-      true: {
-        backgroundColor: "$cardBlue",
-      },
-    },
 
-    centered: {
-      true: {
-        alignItems: "center",
-        justifyContent: "center",
-      },
-    },
-  },
   height: "$11",
   width: "$8",
   borderRadius: "$2",
+  overflow: "hidden",
 });
 
 const part = Dimensions.get("screen").height / 3;
@@ -54,6 +32,7 @@ const CardNumber = styled(Text, {
   name: "CardNumber",
   fontSize: "$12",
   color: "$cardText",
+  fontFamily: "DragonSlayer",
 });
 
 type GameCardProps = {
@@ -79,6 +58,7 @@ const GameCard = ({
 }: GameCardProps) => {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
+  const [broken, setBroken] = useState(false);
 
   const [cardState, setCardState] = useState(card);
 
@@ -159,10 +139,21 @@ const GameCard = ({
     .onChange((event) => {
       translateX.value = event.translationX;
       translateY.value = event.translationY;
+
+      if (
+        event.absoluteX > trashCanPosition.pageX &&
+        event.absoluteY > trashCanPosition.pageY
+      ) {
+        runOnJS(setBroken)(true);
+      } else {
+        runOnJS(setBroken)(false);
+      }
     })
     .onEnd((event) => {
       console.log("DragEnd");
       if (event.absoluteY < middleCenterY) {
+        console.log("event.absoluteY", event.absoluteY),
+          console.log("middleCenterY", middleCenterY);
         try {
           if (sharedTopFirstEmptySlot.value) {
             const targetX =
@@ -188,9 +179,6 @@ const GameCard = ({
         event.absoluteX > trashCanPosition.pageX &&
         event.absoluteY > trashCanPosition.pageY
       ) {
-        console.log("sendToThrash", trashCanPosition);
-        console.log("event.absoluteX", event.absoluteX);
-        console.log("event.absoluteY", event.absoluteY);
         translateX.value = withSpring(trashCanPosition.pageX, springConfig);
         translateY.value = withSpring(
           trashCanPosition.pageY,
@@ -265,6 +253,12 @@ const GameCard = ({
     }
   }, []);
 
+  const bg = {
+    red: require("@/assets/card-backgrounds/CostimizedRedOne.png"),
+    blue: require("@/assets/card-backgrounds/CostimizedBlueOne.png"),
+    yellow: require("@/assets/card-backgrounds/CostimizedYellowOne.png"),
+  };
+
   return (
     <GestureDetector gesture={sharedCard.value.isPlayed ? tap : drag}>
       <Animated.View
@@ -283,14 +277,33 @@ const GameCard = ({
             );
           }}
           touchSoundDisabled
+          activeOpacity={1}
         >
-          <StyledCard
-            red={card.color === "red"}
-            blue={card.color === "blue"}
-            yellow={card.color === "yellow"}
-            centered
-          >
-            <CardNumber>{card.value || 0}</CardNumber>
+          <StyledCard>
+            <ImageBackground
+              source={bg[card.color]}
+              resizeMode="cover"
+              style={{
+                flex: 1,
+                width: "100%",
+              }}
+            >
+              <ImageBackground
+                source={
+                  broken
+                    ? require("@/assets/card-backgrounds/TrashCard2.png")
+                    : ""
+                }
+                style={{
+                  height: "100%",
+                  width: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <CardNumber>{card.value || 0}</CardNumber>
+              </ImageBackground>
+            </ImageBackground>
           </StyledCard>
         </TouchableOpacity>
       </Animated.View>
