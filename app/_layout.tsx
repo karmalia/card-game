@@ -70,7 +70,7 @@ function RootLayoutNav() {
           zIndex: 10,
         }}
       >
-        Alpha: 0.0.4
+        Alpha: 0.0.1
       </Text>
       <StatusBar hidden />
       <Stack initialRouteName="home/index">
