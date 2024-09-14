@@ -324,10 +324,14 @@ const useGameStore = create<gameStore>((set) => ({
     }),
 
   populateDeck: () =>
-    set(() => {
+    set((state) => {
       const deck = generateDeck();
       return {
         ...initialGameState,
+        topSlotPositions: state.topSlotPositions,
+        bottomSlotPositions: state.bottomSlotPositions,
+        trashCanPosition: state.trashCanPosition,
+        deckPosition: state.deckPosition,
         cardsInDeck: deck,
       };
     }),
