@@ -3,7 +3,7 @@ import React, { forwardRef } from "react";
 import { Button, Stack } from "tamagui";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import useGameStore from "@/stores/game.store";
-
+import * as Haptics from "expo-haptics";
 type Props = {};
 
 const Deck = forwardRef((props: Props, ref: any) => {
@@ -45,7 +45,10 @@ const Deck = forwardRef((props: Props, ref: any) => {
             const findFirstBottomEmptySlot = bottomSlotPositions.find(
               (slot) => !slot.isActive
             );
-            if (findFirstBottomEmptySlot) drawCard(findFirstBottomEmptySlot);
+            if (findFirstBottomEmptySlot) {
+              drawCard(findFirstBottomEmptySlot);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            }
           }}
         >
           <Text

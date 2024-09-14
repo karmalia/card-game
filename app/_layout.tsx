@@ -54,7 +54,7 @@ function RootLayoutNav() {
   const router = useRouter();
 
   React.useEffect(() => {
-    router.push("/gamescreen");
+    router.push("/home");
   }, []);
 
   return (

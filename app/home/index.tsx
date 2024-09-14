@@ -66,7 +66,7 @@ const Index = () => {
       }}
     >
       <ImageBackground
-        source={require("@/assets/gameboard-background/CostimizedBg.png")}
+        source={require("@/assets/backgrounds/canny_res_00522_.png")}
         resizeMode="stretch"
         style={styles.image}
       >
@@ -74,9 +74,7 @@ const Index = () => {
           style={{
             height: Dimensions.get("screen").height * 0.45,
           }}
-        >
-          <Text>PH1</Text>
-        </View>
+        ></View>
         <View
           style={{
             flex: 1,
@@ -100,6 +98,8 @@ const Index = () => {
                 width={"$20"}
                 padding="$0"
                 margin="$0"
+                borderRadius={"$12"}
+                overflow="hidden"
                 alignContent="flex-start"
                 justifyContent="center"
                 backgroundColor={"transparent"}

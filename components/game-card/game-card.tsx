@@ -2,6 +2,7 @@ import { Dimensions, ImageBackground, StyleSheet } from "react-native";
 import React, { useState, useEffect } from "react";
 import { View, Text, styled } from "tamagui";
 import useGameStore from "@/stores/game.store";
+import * as Haptics from "expo-haptics";
 import {
   Gesture,
   GestureDetector,
@@ -167,6 +168,7 @@ const GameCard = ({
             translateX.value = withSpring(targetX, springConfig);
             translateY.value = withSpring(targetY, springConfig, () => {
               runOnJS(placeOnBoard)(sharedCard.value);
+              runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
             });
           } else {
             translateX.value = withSpring(0, springConfig);
@@ -185,6 +187,7 @@ const GameCard = ({
           springConfig,
           () => {
             runOnJS(discardCard)(sharedCard.value);
+            runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
           }
         );
       } else {
@@ -200,6 +203,7 @@ const GameCard = ({
         translateX.value = withSpring(0, springConfig);
         translateY.value = withSpring(0, springConfig, () => {
           runOnJS(removeFromBoard)(sharedCard.value);
+          runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
         });
       } else {
         translateX.value = withSpring(0, springConfig);

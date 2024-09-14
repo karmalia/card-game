@@ -1,11 +1,49 @@
 import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import useGameStore from "@/stores/game.store";
 import GameCard from "../game-card/game-card";
 import { Card, TPos } from "../types";
 import { fillPlayersHand } from "../utils";
+import GameOverModal from "../modals/gameover/game-over-modal";
+
+function hasThreeOfAKind(cardList: Card[]) {
+  const valueCountMap = cardList.reduce((acc: any, card) => {
+    acc[card.value] = (acc[card.value] || 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.values(valueCountMap).some((count) => count === 3);
+}
+function isSequential(cardList: Card[]) {
+  if (cardList.length < 3) return false;
+  const sortedValues = cardList.map((card) => card.value).sort((a, b) => a - b);
+
+  let result = false;
+  cardList.forEach((card, index) => {
+    if (
+      (sortedValues[index] +
+        sortedValues[index + 1] +
+        sortedValues[index + 2]) /
+        3 ===
+      sortedValues[index] + 1
+    ) {
+      result = true;
+    }
+  });
+
+  return result || false;
+}
+
+function canStillPlay(cardsInHand: Card[]) {
+  const sequential = isSequential(cardsInHand);
+  const threeOfAKind = hasThreeOfAKind(cardsInHand);
+
+  return sequential || threeOfAKind || false;
+}
 
 const RenderCards = () => {
+  const [gameOver, setGameOver] = useState(false);
+
   const {
     gamePhase,
     cardsOnBoard,
@@ -16,15 +54,22 @@ const RenderCards = () => {
     setGamePhase,
     drawCard,
     calculateScore,
+    cardsInHand,
+    populateDeck,
   } = useGameStore();
 
   React.useEffect(() => {
+    console.log("GamePhase ", gamePhase);
+    console.log("bottomSlotPositions.length ", bottomSlotPositions.length);
+    console.log("cardsInDeck.length ", cardsInDeck.length);
+    console.log("GamePhase ", gamePhase);
     async function startGame() {
       if (
         bottomSlotPositions.length > 0 &&
         gamePhase == 1 &&
         cardsInDeck.length === 24
       ) {
+        console.log("Game Started");
         const result = await fillPlayersHand(drawCard, bottomSlotPositions);
         if (result) {
           setTimeout(() => {
@@ -37,29 +82,16 @@ const RenderCards = () => {
     if (gamePhase === 1) startGame();
   }, [gamePhase]); // Start the game after gamePhase is set to 1
 
-  function isSerialized(cardList: Card[]) {
-    const getNumbers = cardList.map((card) => card.value).sort((a, b) => a - b);
-    console.log("GetNumbers", getNumbers);
-    if (
-      getNumbers[0] + 1 == getNumbers[1] &&
-      getNumbers[1] + 1 == getNumbers[2]
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   React.useEffect(() => {
     if (cardsOnBoard.length === 3) {
-      var serialized = isSerialized(cardsOnBoard);
-      var hasSameValue = cardsOnBoard.every(
+      const serialized = isSequential(cardsOnBoard);
+      const hasSameValue = cardsOnBoard.every(
         (item) => item.value === cardsOnBoard[0].value
       );
-      var hasSameColor = cardsOnBoard.every(
+      const hasSameColor = cardsOnBoard.every(
         (item) => item.color === cardsOnBoard[0].color
       );
-      var totalValue = cardsOnBoard.reduce((acc, cur) => {
+      const totalValue = cardsOnBoard.reduce((acc, cur) => {
         return acc + cur.value;
       }, 0);
 
@@ -68,6 +100,20 @@ const RenderCards = () => {
       }
     }
   }, [cardsOnBoard.length]);
+
+  React.useEffect(() => {
+    console.log("CanStillPlay");
+    if (cardsInDeck.length === 0) {
+      const isGameOver = canStillPlay(cardsInHand);
+      setGameOver(isGameOver);
+    }
+  }, [cardsInHand.length]);
+
+  function restartGame() {
+    populateDeck();
+    setGamePhase(1);
+    setGameOver(false);
+  }
 
   return (
     <>
@@ -95,6 +141,7 @@ const RenderCards = () => {
             />
           );
         })}
+      {gameOver && <GameOverModal restartGame={restartGame} />}
     </>
   );
 };
