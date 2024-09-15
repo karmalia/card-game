@@ -1,19 +1,54 @@
 import { ImageBackground, StyleSheet, Text, View } from "react-native";
-import React, { forwardRef } from "react";
+import React, { forwardRef, useState } from "react";
 import { Button, Stack } from "tamagui";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import useGameStore from "@/stores/game.store";
 import * as Haptics from "expo-haptics";
-type Props = {};
+import { Audio } from "expo-av";
+import usePlaySound from "@/utils/hooks/usePlaySound";
 
 const Deck = forwardRef((props: Props, ref: any) => {
+  const { playDraw } = usePlaySound();
   const {
     drawCard,
     cardsInDeck,
     bottomSlotPositions,
     cardsInHand,
     cardsOnBoard,
+    removeFromBoard,
   } = useGameStore();
+
+  //RemoveFromBoard yapıldığında bile stale data bottomSlots kullanıyor.
+  //RemoveFromBaord yapıldığında findFirstBottomEmptySlot must be find the latest state.
+
+  const handleDraw = () => {
+    const totalCardOnGame = cardsInHand.length + cardsOnBoard.length;
+
+    //Eğer adam draw yaptığında boardda kart varsa ilk önnce boarddaki kartlar yerine döner, sonra kart çekilir
+
+    if (totalCardOnGame == 5 || cardsInDeck.length === 0) return;
+
+    //Burada retreat action yapılacak.
+
+    if (cardsOnBoard.length > 0) {
+      console.log("Cards Pulled Backed");
+      cardsOnBoard.map((card) => removeFromBoard(card));
+    }
+    console.log(
+      "bottomSlotPositions",
+      bottomSlotPositions.map((s) => s.isActive)
+    );
+    const findFirstBottomEmptySlot = bottomSlotPositions.find(
+      (slot) => !slot.isActive
+    );
+    console.log("findFirstBottomEmptySlot", findFirstBottomEmptySlot);
+    if (findFirstBottomEmptySlot) {
+      drawCard(findFirstBottomEmptySlot);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      playDraw();
+    }
+  };
+
   return (
     <Stack
       ref={ref}
@@ -38,18 +73,7 @@ const Deck = forwardRef((props: Props, ref: any) => {
             backgroundColor: "transparent",
             borderWidth: 1,
           }}
-          onPress={() => {
-            const totalCardOnGame = cardsInHand.length + cardsOnBoard.length;
-            if (totalCardOnGame == 5 || cardsInDeck.length === 0) return;
-
-            const findFirstBottomEmptySlot = bottomSlotPositions.find(
-              (slot) => !slot.isActive
-            );
-            if (findFirstBottomEmptySlot) {
-              drawCard(findFirstBottomEmptySlot);
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            }
-          }}
+          onPress={handleDraw}
         >
           <Text
             style={{

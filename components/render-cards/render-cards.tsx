@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import useGameStore from "@/stores/game.store";
 import GameCard from "../game-card/game-card";
 import { Card, TPos } from "../types";
-import { fillPlayersHand } from "../utils";
+import { fillPlayersHand } from "../../utils";
 import GameOverModal from "../modals/gameover/game-over-modal";
 
 function hasThreeOfAKind(cardList: Card[]) {
@@ -131,7 +131,7 @@ const RenderCards = () => {
       {gamePhase === 2 &&
         cardsOnGame.map((card, index) => {
           // log();
-
+          console.log("RenderCards!");
           return (
             <GameCard
               key={card.id + index}

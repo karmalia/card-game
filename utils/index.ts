@@ -1,4 +1,4 @@
-import { ArraySlots } from "../types";
+import { ArraySlots } from "../components/types";
 
 export async function fillPlayersHand(
   drawCard: any,

@@ -23,12 +23,12 @@ import {
   TPos,
   TSlotPos,
 } from "@/components/types";
-import { GameSlot } from "@/components/utils/slot-class";
+import { GameSlot } from "@/utils/slot-class";
 import SafeAreaStyled from "@/components/gamescreen/safe-area.styled";
 import CardSlotStyled from "@/components/gamescreen/card-slot.styled";
 import { useRouter } from "expo-router";
 import { randomUUID } from "expo-crypto";
-import { fillPlayersHand } from "@/components/utils";
+import { fillPlayersHand } from "@/utils";
 import RenderCards from "@/components/render-cards/render-cards";
 import Deck from "@/components/deck/deck";
 import Trash from "@/components/trash/trash";

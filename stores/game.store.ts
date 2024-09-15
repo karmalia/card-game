@@ -199,7 +199,9 @@ const useGameStore = create<gameStore>((set) => ({
               destinationSlot: firstEmptyTopSlot,
             },
           ],
-
+          cardsOnGame: state.cardsOnGame.map((item) =>
+            item.id === card.id ? { ...card, isPlayed: true } : item
+          ),
           topSlotPositions: state.topSlotPositions.map((slot) =>
             slot.slotId == firstEmptyTopSlot.slotId
               ? { ...slot, isActive: true }
@@ -228,12 +230,22 @@ const useGameStore = create<gameStore>((set) => ({
         cardsOnBoard: [
           ...state.cardsOnBoard.filter((item) => item.id !== card.id),
         ],
+        cardsOnGame: state.cardsOnGame.map((item) =>
+          item.id === card.id ? { ...card, isPlayed: false } : item
+        ),
 
         topSlotPositions: state.topSlotPositions.map((slot, index) =>
           card.destinationSlot?.slotId === slot.slotId
             ? { ...slot, isActive: false }
             : slot
         ),
+        bottomSlotPositions: state.bottomSlotPositions.map((item) => {
+          if (item.slotId == card.slot.slotId) {
+            return { ...item, isActive: true };
+          } else {
+            return item;
+          }
+        }),
       };
 
       return newState;
