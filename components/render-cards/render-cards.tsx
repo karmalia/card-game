@@ -38,7 +38,10 @@ function canStillPlay(cardsInHand: Card[]) {
   const sequential = isSequential(cardsInHand);
   const threeOfAKind = hasThreeOfAKind(cardsInHand);
 
-  return sequential || threeOfAKind || false;
+  console.log("sequencial", sequential);
+  console.log("threeOfAKind", threeOfAKind);
+
+  return !sequential || !threeOfAKind ? true : false;
 }
 
 const RenderCards = () => {
@@ -105,6 +108,7 @@ const RenderCards = () => {
     console.log("CanStillPlay");
     if (cardsInDeck.length === 0) {
       const isGameOver = canStillPlay(cardsInHand);
+      console.log("isGameOver", isGameOver);
       setGameOver(isGameOver);
     }
   }, [cardsInHand.length]);

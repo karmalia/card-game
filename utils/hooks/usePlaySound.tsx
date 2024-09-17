@@ -1,5 +1,6 @@
 import React from "react";
 import { Audio } from "expo-av";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const usePlaySound = () => {
   const [draw, setDraw] = React.useState();
@@ -50,7 +51,12 @@ const usePlaySound = () => {
     };
   }, [draw, deleteCard, pullBack, putOn]);
 
-  return { playDraw, playDelete, playPullBack, playPutOn };
+  return {
+    playDraw,
+    playDelete,
+    playPullBack,
+    playPutOn,
+  };
 };
 
 export default usePlaySound;

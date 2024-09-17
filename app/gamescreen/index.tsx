@@ -25,7 +25,7 @@ import {
 } from "@/components/types";
 import { GameSlot } from "@/utils/slot-class";
 import SafeAreaStyled from "@/components/gamescreen/safe-area.styled";
-import CardSlotStyled from "@/components/gamescreen/card-slot.styled";
+import Styled from "@/components/gamescreen/card-slots.styled";
 import { useRouter } from "expo-router";
 import { randomUUID } from "expo-crypto";
 import { fillPlayersHand } from "@/utils";
@@ -175,21 +175,16 @@ const Index = () => {
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require("@/assets/gameboard-background/CostimizedBg.png")}
+        source={require("@/assets/gameboard-background/CostimizedBg2.png")}
         resizeMode="stretch"
         style={styles.image}
       >
         <SafeAreaStyled>
-          <Stack
-            flexDirection="row"
-            justifyContent="space-around"
-            borderWidth={1}
-          >
+          <Stack flexDirection="row" justifyContent="space-around">
             <Stack
               backgroundColor="transparent"
               height="$4"
               width="$8"
-              borderRadius="$4"
               justifyContent="center"
               alignItems="center"
               marginHorizontal="$4"
@@ -198,24 +193,30 @@ const Index = () => {
               flexDirection="row"
               justifyContent="center"
               flex={1}
-              gap="$4"
+              gap="$8"
             >
-              <CardSlotStyled ref={topSlot1Ref}></CardSlotStyled>
-              <CardSlotStyled ref={topSlot2Ref}></CardSlotStyled>
-              <CardSlotStyled ref={topSlot3Ref}></CardSlotStyled>
+              <Styled.BoardSlotStyled
+                slotNumber={0}
+                ref={topSlot1Ref}
+              ></Styled.BoardSlotStyled>
+              <Styled.BoardSlotStyled
+                slotNumber={1}
+                ref={topSlot2Ref}
+              ></Styled.BoardSlotStyled>
+              <Styled.BoardSlotStyled
+                slotNumber={2}
+                ref={topSlot3Ref}
+              ></Styled.BoardSlotStyled>
             </Stack>
             <Stack>
               <Stack
                 borderRadius="$4"
                 justifyContent="center"
                 alignItems="center"
-                marginHorizontal="$4"
+                margin="$2"
               >
                 <TouchableOpacity
                   activeOpacity={1}
-                  style={{
-                    borderWidth: 1,
-                  }}
                   onPress={() => {
                     try {
                       router.navigate("/home");
@@ -234,7 +235,7 @@ const Index = () => {
               </Stack>
             </Stack>
           </Stack>
-          <Stack flex={1} borderWidth={1} flexDirection="row">
+          <Stack flex={1} flexDirection="row">
             <Deck ref={deckPositionRef} />
             <Stack
               flex={1}
@@ -243,11 +244,21 @@ const Index = () => {
               gap="$2"
               alignItems="flex-end"
             >
-              <CardSlotStyled ref={bottomSlot1Ref}></CardSlotStyled>
-              <CardSlotStyled ref={bottomSlot2Ref}></CardSlotStyled>
-              <CardSlotStyled ref={bottomSlot3Ref}></CardSlotStyled>
-              <CardSlotStyled ref={bottomSlot4Ref}></CardSlotStyled>
-              <CardSlotStyled ref={bottomSlot5Ref}></CardSlotStyled>
+              <Styled.CardSlotStyled
+                ref={bottomSlot1Ref}
+              ></Styled.CardSlotStyled>
+              <Styled.CardSlotStyled
+                ref={bottomSlot2Ref}
+              ></Styled.CardSlotStyled>
+              <Styled.CardSlotStyled
+                ref={bottomSlot3Ref}
+              ></Styled.CardSlotStyled>
+              <Styled.CardSlotStyled
+                ref={bottomSlot4Ref}
+              ></Styled.CardSlotStyled>
+              <Styled.CardSlotStyled
+                ref={bottomSlot5Ref}
+              ></Styled.CardSlotStyled>
             </Stack>
             <Trash ref={thrashCanRef} />
           </Stack>

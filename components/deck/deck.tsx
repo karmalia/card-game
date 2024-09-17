@@ -12,16 +12,23 @@ const Deck = forwardRef((props: Props, ref: any) => {
   const {
     drawCard,
     cardsInDeck,
-    bottomSlotPositions,
+
     cardsInHand,
     cardsOnBoard,
     removeFromBoard,
   } = useGameStore();
-
   //RemoveFromBoard yapıldığında bile stale data bottomSlots kullanıyor.
   //RemoveFromBaord yapıldığında findFirstBottomEmptySlot must be find the latest state.
 
   const handleDraw = () => {
+    console.log(
+      "cardsInHand",
+      cardsInHand.map((c) => ({ val: c.value, color: c.color }))
+    );
+    console.log(
+      "cardsOnBoard",
+      cardsOnBoard.map((c) => ({ val: c.value, color: c.color }))
+    );
     const totalCardOnGame = cardsInHand.length + cardsOnBoard.length;
 
     //Eğer adam draw yaptığında boardda kart varsa ilk önnce boarddaki kartlar yerine döner, sonra kart çekilir
@@ -31,17 +38,19 @@ const Deck = forwardRef((props: Props, ref: any) => {
     //Burada retreat action yapılacak.
 
     if (cardsOnBoard.length > 0) {
-      console.log("Cards Pulled Backed");
-      cardsOnBoard.map((card) => removeFromBoard(card));
+      cardsOnBoard.forEach((card) => removeFromBoard(card));
     }
-    console.log(
-      "bottomSlotPositions",
-      bottomSlotPositions.map((s) => s.isActive)
-    );
-    const findFirstBottomEmptySlot = bottomSlotPositions.find(
+
+    const updatedBottomSlotPositions =
+      useGameStore.getState().bottomSlotPositions;
+
+    const findFirstBottomEmptySlot = updatedBottomSlotPositions.find(
       (slot) => !slot.isActive
     );
-    console.log("findFirstBottomEmptySlot", findFirstBottomEmptySlot);
+    console.log(
+      "updatedBottomSlotPositions",
+      updatedBottomSlotPositions.map((c) => c.isActive)
+    );
     if (findFirstBottomEmptySlot) {
       drawCard(findFirstBottomEmptySlot);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -82,7 +91,7 @@ const Deck = forwardRef((props: Props, ref: any) => {
               fontSize: 28,
             }}
           >
-            {cardsInDeck.length}
+            {useGameStore.getState().cardsInDeck.length}
           </Text>
         </Button>
       </ImageBackground>

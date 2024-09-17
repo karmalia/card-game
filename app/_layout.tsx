@@ -45,7 +45,9 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView>
-      <RootLayoutNav />
+      <TamaguiProvider config={tamaguiConfig}>
+        <RootLayoutNav />
+      </TamaguiProvider>
     </GestureHandlerRootView>
   );
 }
@@ -54,23 +56,24 @@ function RootLayoutNav() {
   const router = useRouter();
 
   React.useEffect(() => {
-    router.push("/home");
+    router.push("/gamescreen");
   }, []);
 
   return (
-    <TamaguiProvider config={tamaguiConfig}>
+    <>
       <Text
         style={{
           position: "absolute",
           color: "black",
           fontFamily: "monospace",
-          top: 4,
+          top: 12,
           fontSize: 12,
           left: 140,
           zIndex: 10,
+          opacity: 0.5,
         }}
       >
-        Alpha: 0.0.1
+        Alpha: 0.0.2
       </Text>
       <StatusBar hidden />
       <Stack initialRouteName="home/index">
@@ -80,6 +83,6 @@ function RootLayoutNav() {
         />
         <Stack.Screen name="home/index" options={{ headerShown: false }} />
       </Stack>
-    </TamaguiProvider>
+    </>
   );
 }

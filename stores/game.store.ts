@@ -43,15 +43,8 @@ type gameStore = {
 };
 
 const Points = {
-  isDifferentColor: {
-    6: 10,
-    9: 20,
-    12: 30,
-    15: 40,
-    18: 50,
-    21: 60,
-  },
-  isSameColor: {
+  // Different Color, Same Value
+  hasSameValue: {
     3: 20,
     6: 30,
     9: 40,
@@ -60,6 +53,15 @@ const Points = {
     18: 70,
     21: 80,
     24: 90,
+  },
+  // Serialied same Color
+  isSameColor: {
+    6: 50,
+    9: 60,
+    12: 70,
+    15: 80,
+    18: 90,
+    21: 100,
   },
 };
 
@@ -285,20 +287,16 @@ const useGameStore = create<gameStore>((set) => ({
       console.log("hasSameValue", hasSameValue);
       console.log("hasSameColor", hasSameColor);
       console.log("totalValue", totalValue);
+      if (hasSameValue) {
+        score =
+          Points.hasSameValue[totalValue as keyof typeof Points.hasSameValue];
+      }
 
-      const scoreTable =
-        Points[hasSameColor ? "isSameColor" : "isDifferentColor"];
-      console.log("ScoreTable", scoreTable);
-      console.log("totalValue", totalValue);
-      score = scoreTable[totalValue];
-      console.log("Score!", score);
-
-      /*
-      
-        Oyundan kartlar çıkartılır: CardsOnBoard güncellenir
-        TopSlotları isActive i false yapılır; destinationSlotlara göre yada hepsi toptan,
-        bottomSlotları isActive i false yapılır, gelen slotId sine göre
-      */
+      if (serialized) {
+        score =
+          Points.isSameColor[totalValue as keyof typeof Points.isSameColor];
+        if (!hasSameColor) score -= 40;
+      }
 
       const cardsOnBoardIds = state.cardsOnBoard.map((c) => c.id);
       const cardsOnTrashIds = state.cardsOnTrash.map((c) => c.id);
@@ -322,15 +320,6 @@ const useGameStore = create<gameStore>((set) => ({
           };
         }),
       };
-
-      console.log(
-        "Calculate bottomSlots",
-        newState.bottomSlotPositions.map((s) => s.isActive)
-      );
-      console.log(
-        "Calculate topSlots",
-        newState.topSlotPositions.map((s) => s.isActive)
-      );
 
       return newState;
     }),
