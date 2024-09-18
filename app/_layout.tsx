@@ -53,12 +53,6 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const router = useRouter();
-
-  React.useEffect(() => {
-    router.push("/gamescreen");
-  }, []);
-
   return (
     <>
       <Text
@@ -76,12 +70,9 @@ function RootLayoutNav() {
         Alpha: 0.0.2
       </Text>
       <StatusBar hidden />
-      <Stack initialRouteName="home/index">
-        <Stack.Screen
-          name="gamescreen/index"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name="home/index" options={{ headerShown: false }} />
+      <Stack initialRouteName="gamescreen">
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="gamescreen" options={{ headerShown: false }} />
       </Stack>
     </>
   );

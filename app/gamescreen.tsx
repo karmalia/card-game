@@ -32,6 +32,7 @@ import { fillPlayersHand } from "@/utils";
 import RenderCards from "@/components/render-cards/render-cards";
 import Deck from "@/components/deck/deck";
 import Trash from "@/components/trash/trash";
+import HomeOptions from "@/components/modals/options/options";
 
 /**
  
@@ -43,20 +44,15 @@ import Trash from "@/components/trash/trash";
  */
 
 const Index = () => {
+  const [optionsVisible, setOptionsVisible] = useState(false);
   const router = useRouter();
-  const [reset, setReset] = useState(false);
   const {
-    gamePhase,
-    cardsInDeck,
-    bottomSlotPositions,
-    score,
     setGamePhase,
-    drawCard,
-    populateDeck,
     setTopSlotsPositions,
     setBottomSlotsPositions,
     setThrashCanPosition,
     setDeckPosition,
+    populateDeck,
   } = useGameStore();
 
   // For Top Slots
@@ -170,7 +166,20 @@ const Index = () => {
     };
 
     measureAll();
-  }, [reset]);
+  }, []);
+
+  function handleNavigation(type: "home" | "restart") {
+    if (type == "home") {
+      router.navigate("/");
+      populateDeck();
+      setGamePhase(0);
+    }
+    if (type == "restart") {
+      setOptionsVisible(false);
+      populateDeck();
+      setGamePhase(1);
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -179,6 +188,11 @@ const Index = () => {
         resizeMode="stretch"
         style={styles.image}
       >
+        <HomeOptions
+          visible={optionsVisible}
+          handleNavigation={handleNavigation}
+          onClose={() => setOptionsVisible(false)}
+        />
         <SafeAreaStyled>
           <Stack flexDirection="row" justifyContent="space-around">
             <Stack
@@ -218,11 +232,8 @@ const Index = () => {
                 <TouchableOpacity
                   activeOpacity={1}
                   onPress={() => {
-                    try {
-                      router.navigate("/home");
-                    } catch (error) {
-                      console.log("Error Message", error.message);
-                    }
+                    console.log("Test");
+                    setOptionsVisible(true);
                   }}
                 >
                   <Image

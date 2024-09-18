@@ -168,7 +168,7 @@ const GameOverModal = ({ restartGame }: { restartGame: () => void }) => {
                   }}
                   onPress={() => {
                     populateDeck();
-                    router.navigate("/home");
+                    router.navigate("/");
                   }}
                 >
                   <Text

@@ -16,7 +16,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { Card, TPos, TSlotPos } from "../types";
-import usePlaySound from "@/utils/hooks/usePlaySound";
+import usePlaySound from "@/hooks/usePlaySound";
 
 const StyledCard = styled(View, {
   name: "GameCard",

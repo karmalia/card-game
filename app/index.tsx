@@ -5,8 +5,7 @@ import { Image, Stack, View } from "tamagui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import HomeButtons from "@/components/home-buttons/home-buttons";
-import HomeOptions from "@/components/modals/options/home-options";
-import usePlaySound from "@/utils/hooks/usePlaySound";
+import HomeOptions from "@/components/modals/options/options";
 
 const Index = () => {
   const [optionsVisible, setOptionsVisible] = useState(false);
@@ -50,12 +49,12 @@ const Index = () => {
             </TouchableOpacity>
           </Stack>
         </View>
-        {optionsVisible && (
-          <HomeOptions
-            visible={optionsVisible}
-            onClose={() => setOptionsVisible(false)}
-          />
-        )}
+
+        <HomeOptions
+          visible={optionsVisible}
+          onClose={() => setOptionsVisible(false)}
+        />
+
         <HomeButtons />
       </ImageBackground>
     </SafeAreaView>

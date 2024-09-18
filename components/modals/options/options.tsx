@@ -12,26 +12,38 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import usePlaySound from "@/utils/hooks/usePlaySound";
-import { Checkbox } from "tamagui";
+import usePlaySound from "@/hooks/usePlaySound";
+import { Checkbox, Stack } from "tamagui";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
 import Icons from "@/components/icons";
+import { usePathname, useRouter } from "expo-router";
+import { TouchableOpacity } from "react-native-gesture-handler";
 type OptionsProps = {
   visible: boolean;
   onClose: () => void;
+  handleNavigation?: (type: "home" | "restart") => void;
 };
 const { width, height } = Dimensions.get("window");
 
-const HomeOptions = ({ visible, onClose }: OptionsProps) => {
+const Musics = {
+  "/": require("@/assets/background-musics/menu-music.mp3"),
+  "/gamescreen": require("@/assets/background-musics/gameplay-music-1.mp3"),
+};
+
+const HomeOptions = ({ visible, onClose, handleNavigation }: OptionsProps) => {
   const [menuMusic, setMenuMusic] = React.useState<{
     sound: Audio.Sound;
     isActive: boolean;
   } | null>(null);
 
+  const pathname = usePathname();
+  console.log("PathName", pathname);
+  const { navigate } = useRouter();
   const [gameSounds, setGameSounds] = React.useState<boolean>(true);
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(height);
+  const zIndex = useSharedValue(0);
 
   const handleMenuOptions = async (play: boolean, type: "Music" | "Sound") => {
     if (type === "Music") {
@@ -39,7 +51,7 @@ const HomeOptions = ({ visible, onClose }: OptionsProps) => {
         if (!menuMusic?.sound) {
           // Create the sound object only if it doesn't exist
           const { sound } = await Audio.Sound.createAsync(
-            require("@/assets/background-musics/menu-music.mp3"),
+            Musics[pathname as keyof typeof Musics],
             {
               shouldPlay: play,
               isLooping: true,
@@ -52,7 +64,6 @@ const HomeOptions = ({ visible, onClose }: OptionsProps) => {
             await sound.playAsync();
           }
         } else {
-          console.log("Else");
           if (play) {
             await menuMusic.sound.playAsync();
           } else {
@@ -126,17 +137,21 @@ const HomeOptions = ({ visible, onClose }: OptionsProps) => {
   if (visible) {
     opacity.value = withTiming(0.5, { duration: 300 });
     translateY.value = withTiming(0, { duration: 300 });
+    zIndex.value = withTiming(10, { duration: 300 });
   } else {
+    zIndex.value = withTiming(0, { duration: 300 });
     opacity.value = withTiming(0, { duration: 300 });
     translateY.value = withTiming(height, { duration: 300 });
   }
 
   const animatedBackgroundStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
+    zIndex: zIndex.value,
   }));
 
   const animatedModalStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
+    zIndex: zIndex.value,
   }));
 
   return (
@@ -214,6 +229,25 @@ const HomeOptions = ({ visible, onClose }: OptionsProps) => {
                 </Checkbox.Indicator>
               </Checkbox>
             </View>
+            {pathname === "/gamescreen" && handleNavigation && (
+              <Stack
+                direction="ltr"
+                marginVertical="$4"
+                flexDirection="row"
+                display="flex"
+              >
+                <View style={styles.optionsButton}>
+                  <TouchableOpacity onPress={() => handleNavigation("home")}>
+                    <Text style={styles.optionsText}>HOME</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.optionsButton}>
+                  <TouchableOpacity onPress={() => handleNavigation("restart")}>
+                    <Text style={styles.optionsText}>RESTART</Text>
+                  </TouchableOpacity>
+                </View>
+              </Stack>
+            )}
           </View>
         </ImageBackground>
       </Animated.View>
@@ -229,11 +263,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  openButton: {
-    padding: 15,
-    backgroundColor: "blue",
-    borderRadius: 10,
-  },
+
   openButtonText: {
     color: "white",
     fontSize: 16,
@@ -243,7 +273,6 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     backgroundColor: "black",
-    zIndex: 10,
   },
   modalContainer: {
     position: "absolute",
@@ -253,7 +282,6 @@ const styles = StyleSheet.create({
 
     alignSelf: "center",
     top: "30%",
-    zIndex: 20,
   },
   modalContent: {
     width: Dimensions.get("window").width * 0.3,
@@ -276,5 +304,16 @@ const styles = StyleSheet.create({
     color: "black",
     fontSize: 24,
     fontFamily: "DragonSlayer",
+  },
+  optionsButton: {
+    borderColor: "black",
+    flex: 1,
+  },
+  optionsText: {
+    fontFamily: "DragonSlayer",
+    fontSize: 22,
+    paddingVertical: 6,
+    letterSpacing: 1,
+    textAlign: "center",
   },
 });

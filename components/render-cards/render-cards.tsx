@@ -6,6 +6,8 @@ import { Card, TPos } from "../types";
 import { fillPlayersHand } from "../../utils";
 import GameOverModal from "../modals/gameover/game-over-modal";
 
+let handChecked = false;
+
 function hasThreeOfAKind(cardList: Card[]) {
   const valueCountMap = cardList.reduce((acc: any, card) => {
     acc[card.value] = (acc[card.value] || 0) + 1;
@@ -41,7 +43,7 @@ function canStillPlay(cardsInHand: Card[]) {
   console.log("sequencial", sequential);
   console.log("threeOfAKind", threeOfAKind);
 
-  return !sequential || !threeOfAKind ? true : false;
+  return sequential || threeOfAKind ? false : true;
 }
 
 const RenderCards = () => {
@@ -100,13 +102,16 @@ const RenderCards = () => {
 
       if (serialized || hasSameValue) {
         calculateScore(serialized, hasSameValue, hasSameColor, totalValue);
+        if (cardsInDeck.length == 0 && cardsInHand.length <= 2) {
+          setGameOver(true);
+        }
       }
     }
   }, [cardsOnBoard.length]);
 
   React.useEffect(() => {
-    console.log("CanStillPlay");
-    if (cardsInDeck.length === 0) {
+    if (cardsInDeck.length === 0 && !handChecked) {
+      handChecked = true;
       const isGameOver = canStillPlay(cardsInHand);
       console.log("isGameOver", isGameOver);
       setGameOver(isGameOver);
@@ -122,7 +127,7 @@ const RenderCards = () => {
   return (
     <>
       {gamePhase === 1 &&
-        cardsOnGame.map((card, index) => {
+        cardsOnGame.map((card) => {
           return (
             <GameCard
               key={card.id + "gamephase1"}
@@ -135,10 +140,9 @@ const RenderCards = () => {
       {gamePhase === 2 &&
         cardsOnGame.map((card, index) => {
           // log();
-          console.log("RenderCards!");
           return (
             <GameCard
-              key={card.id + index}
+              key={card.id + "gamephase2"}
               card={card}
               startingPosition={card.slot}
               endingPosition={null}

@@ -5,7 +5,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import useGameStore from "@/stores/game.store";
 import * as Haptics from "expo-haptics";
 import { Audio } from "expo-av";
-import usePlaySound from "@/utils/hooks/usePlaySound";
+import usePlaySound from "@/hooks/usePlaySound";
 
 const Deck = forwardRef((props: Props, ref: any) => {
   const { playDraw } = usePlaySound();
