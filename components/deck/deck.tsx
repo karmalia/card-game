@@ -1,6 +1,6 @@
 import { ImageBackground, StyleSheet, Text, View } from "react-native";
 import React, { forwardRef, useState } from "react";
-import { Button, Stack } from "tamagui";
+import { Button, Image, Stack } from "tamagui";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import useGameStore from "@/stores/game.store";
 import * as Haptics from "expo-haptics";
@@ -21,14 +21,6 @@ const Deck = forwardRef((props: Props, ref: any) => {
   //RemoveFromBaord yapıldığında findFirstBottomEmptySlot must be find the latest state.
 
   const handleDraw = () => {
-    console.log(
-      "cardsInHand",
-      cardsInHand.map((c) => ({ val: c.value, color: c.color }))
-    );
-    console.log(
-      "cardsOnBoard",
-      cardsOnBoard.map((c) => ({ val: c.value, color: c.color }))
-    );
     const totalCardOnGame = cardsInHand.length + cardsOnBoard.length;
 
     //Eğer adam draw yaptığında boardda kart varsa ilk önnce boarddaki kartlar yerine döner, sonra kart çekilir
@@ -67,7 +59,6 @@ const Deck = forwardRef((props: Props, ref: any) => {
       borderRadius={"$2"}
       alignSelf="flex-end"
       margin="$4"
-      overflow="hidden"
     >
       <ImageBackground
         source={require("@/assets/card-backgrounds/CostimizedGreen.png")}
@@ -95,6 +86,22 @@ const Deck = forwardRef((props: Props, ref: any) => {
           </Text>
         </Button>
       </ImageBackground>
+      {Array.from({ length: 4 })
+        .fill(0)
+        .map((_, index) => (
+          <View
+            style={{
+              position: "absolute",
+              height: "100%",
+              width: "100%",
+
+              backgroundColor: "rgba(0,0,0,0.4)",
+              top: index,
+              left: index,
+              zIndex: -1,
+            }}
+          />
+        ))}
     </Stack>
   );
 });

@@ -30,20 +30,17 @@ const initialState = {
 const BoardSlotStyled = forwardRef((props: any, ref: any) => {
   const [boardState, setBoardState] = React.useState(initialState);
   const { topSlotPositions, cardsOnBoard } = useGameStore();
-  console.log("boardState", boardState);
   const sharedStyle = useSharedValue("#383838"); // Initial color
 
   useEffect(() => {
     const findSlot = topSlotPositions[props.slotNumber];
     if (findSlot) {
-      console.log("FindSlotId", findSlot.slotId);
       if (!findSlot.isActive) {
         setBoardState(initialState);
       } else {
         const findCard = cardsOnBoard.find(
           (card) => card.destinationSlot?.slotId === findSlot.slotId
         );
-        console.log("FindCard cardsOnBoard", cardsOnBoard);
         setBoardState({
           value: findCard ? findCard.value : 0,
           isActive: findSlot.isActive,
@@ -54,7 +51,6 @@ const BoardSlotStyled = forwardRef((props: any, ref: any) => {
   }, [topSlotPositions[props.slotNumber]]);
 
   useEffect(() => {
-    console.log("boardState.color", boardState.color);
     sharedStyle.value = withTiming(boardState.color, {
       duration: 500, // Adjust duration as needed
     });

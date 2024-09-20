@@ -20,10 +20,10 @@ import usePlaySound from "@/hooks/usePlaySound";
 
 const StyledCard = styled(View, {
   name: "GameCard",
-
+  padding: 1,
   height: "$11",
   width: "$8",
-  borderRadius: "$2",
+
   overflow: "hidden",
 });
 

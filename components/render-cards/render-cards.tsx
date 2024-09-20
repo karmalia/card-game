@@ -23,11 +23,8 @@ function isSequential(cardList: Card[]) {
   let result = false;
   cardList.forEach((card, index) => {
     if (
-      (sortedValues[index] +
-        sortedValues[index + 1] +
-        sortedValues[index + 2]) /
-        3 ===
-      sortedValues[index] + 1
+      sortedValues[index] + 1 === sortedValues[index + 1] &&
+      sortedValues[index] + 2 === sortedValues[index + 2]
     ) {
       result = true;
     }
@@ -39,9 +36,6 @@ function isSequential(cardList: Card[]) {
 function canStillPlay(cardsInHand: Card[]) {
   const sequential = isSequential(cardsInHand);
   const threeOfAKind = hasThreeOfAKind(cardsInHand);
-
-  console.log("sequencial", sequential);
-  console.log("threeOfAKind", threeOfAKind);
 
   return sequential || threeOfAKind ? false : true;
 }
@@ -64,10 +58,6 @@ const RenderCards = () => {
   } = useGameStore();
 
   React.useEffect(() => {
-    console.log("GamePhase ", gamePhase);
-    console.log("bottomSlotPositions.length ", bottomSlotPositions.length);
-    console.log("cardsInDeck.length ", cardsInDeck.length);
-    console.log("GamePhase ", gamePhase);
     async function startGame() {
       if (
         bottomSlotPositions.length > 0 &&
@@ -122,6 +112,7 @@ const RenderCards = () => {
     populateDeck();
     setGamePhase(1);
     setGameOver(false);
+    handChecked = false;
   }
 
   return (
@@ -149,7 +140,9 @@ const RenderCards = () => {
             />
           );
         })}
-      {gameOver && <GameOverModal restartGame={restartGame} />}
+      {gameOver && (
+        <GameOverModal restartGame={restartGame} setGameOver={setGameOver} />
+      )}
     </>
   );
 };

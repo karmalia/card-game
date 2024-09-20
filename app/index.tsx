@@ -6,9 +6,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import HomeButtons from "@/components/home-buttons/home-buttons";
 import HomeOptions from "@/components/modals/options/options";
+import HowToPlay from "@/components/modals/how-to-play";
 
 const Index = () => {
   const [optionsVisible, setOptionsVisible] = useState(false);
+  const [instructionsVisible, setInstructuresVisible] = useState(false);
 
   return (
     <SafeAreaView
@@ -54,8 +56,12 @@ const Index = () => {
           visible={optionsVisible}
           onClose={() => setOptionsVisible(false)}
         />
+        <HowToPlay
+          visible={instructionsVisible}
+          onClose={() => setInstructuresVisible(false)}
+        />
 
-        <HomeButtons />
+        <HomeButtons setInstructuresVisible={setInstructuresVisible} />
       </ImageBackground>
     </SafeAreaView>
   );

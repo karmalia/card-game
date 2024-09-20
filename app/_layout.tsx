@@ -7,7 +7,9 @@ import tamaguiConfig from "@/tamagui.config";
 import { TamaguiProvider, Text } from "tamagui";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
-
+import { MusicProvider } from "@/hooks/MusicProvider";
+import { BackHandler } from "react-native";
+import * as NavigationBar from "expo-navigation-bar";
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -27,6 +29,11 @@ export default function RootLayout() {
     InterBold: require("@tamagui/font-inter/otf/Inter-Bold.otf"),
     DragonSlayer: require("@/assets/fonts/dragon-slayer/dragon-slayer.otf"),
   });
+  NavigationBar.setVisibilityAsync("hidden");
+
+  function handleBackButton() {
+    return true;
+  }
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
@@ -34,9 +41,14 @@ export default function RootLayout() {
   }, [error]);
 
   useEffect(() => {
+    BackHandler.addEventListener("hardwareBackPress", handleBackButton);
     if (loaded) {
       SplashScreen.hideAsync();
     }
+
+    return () => {
+      BackHandler.removeEventListener("hardwareBackPress", handleBackButton);
+    };
   }, [loaded]);
 
   if (!loaded) {
@@ -46,7 +58,9 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView>
       <TamaguiProvider config={tamaguiConfig}>
-        <RootLayoutNav />
+        <MusicProvider>
+          <RootLayoutNav />
+        </MusicProvider>
       </TamaguiProvider>
     </GestureHandlerRootView>
   );
@@ -67,10 +81,10 @@ function RootLayoutNav() {
           opacity: 0.5,
         }}
       >
-        Alpha: 0.0.2
+        Alpha: 0.0.3
       </Text>
       <StatusBar hidden />
-      <Stack initialRouteName="gamescreen">
+      <Stack initialRouteName="index">
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="gamescreen" options={{ headerShown: false }} />
       </Stack>

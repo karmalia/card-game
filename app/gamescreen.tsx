@@ -33,6 +33,7 @@ import RenderCards from "@/components/render-cards/render-cards";
 import Deck from "@/components/deck/deck";
 import Trash from "@/components/trash/trash";
 import HomeOptions from "@/components/modals/options/options";
+import GameScore from "@/components/gamescore/gamescore";
 
 /**
  
@@ -53,6 +54,7 @@ const Index = () => {
     setThrashCanPosition,
     setDeckPosition,
     populateDeck,
+    gamePhase,
   } = useGameStore();
 
   // For Top Slots
@@ -165,7 +167,7 @@ const Index = () => {
       setGamePhase(1);
     };
 
-    measureAll();
+    if (gamePhase == 0) measureAll();
   }, []);
 
   function handleNavigation(type: "home" | "restart") {
@@ -194,11 +196,12 @@ const Index = () => {
           onClose={() => setOptionsVisible(false)}
         />
         <SafeAreaStyled>
+          <GameScore />
           <Stack flexDirection="row" justifyContent="space-around">
             <Stack
               backgroundColor="transparent"
               height="$4"
-              width="$8"
+              width="$2"
               justifyContent="center"
               alignItems="center"
               marginHorizontal="$4"
@@ -207,7 +210,7 @@ const Index = () => {
               flexDirection="row"
               justifyContent="center"
               flex={1}
-              gap="$8"
+              gap="$4"
             >
               <Styled.BoardSlotStyled
                 slotNumber={0}

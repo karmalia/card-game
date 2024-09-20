@@ -27,7 +27,13 @@ function getScore(score: number) {
   }
 }
 
-const GameOverModal = ({ restartGame }: { restartGame: () => void }) => {
+const GameOverModal = ({
+  restartGame,
+  setGameOver,
+}: {
+  restartGame: () => void;
+  setGameOver: (value: boolean) => void;
+}) => {
   const router = useRouter();
   const sharedOpacity = useSharedValue(0);
   const sharedWidth = useSharedValue(0);

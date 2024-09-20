@@ -6,7 +6,7 @@ import {
   Text,
   View,
 } from "react-native";
-import React from "react";
+import React, { useContext } from "react";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -19,6 +19,7 @@ import { Audio } from "expo-av";
 import Icons from "@/components/icons";
 import { usePathname, useRouter } from "expo-router";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { Music } from "@/hooks/MusicProvider";
 type OptionsProps = {
   visible: boolean;
   onClose: () => void;
@@ -26,113 +27,16 @@ type OptionsProps = {
 };
 const { width, height } = Dimensions.get("window");
 
-const Musics = {
-  "/": require("@/assets/background-musics/menu-music.mp3"),
-  "/gamescreen": require("@/assets/background-musics/gameplay-music-1.mp3"),
-};
-
 const HomeOptions = ({ visible, onClose, handleNavigation }: OptionsProps) => {
-  const [menuMusic, setMenuMusic] = React.useState<{
-    sound: Audio.Sound;
-    isActive: boolean;
-  } | null>(null);
-
   const pathname = usePathname();
+  const { menuMusic, gameSounds, handleMusicChange, handleGameSoundChange } =
+    useContext<any>(Music);
+
   console.log("PathName", pathname);
   const { navigate } = useRouter();
-  const [gameSounds, setGameSounds] = React.useState<boolean>(true);
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(height);
   const zIndex = useSharedValue(0);
-
-  const handleMenuOptions = async (play: boolean, type: "Music" | "Sound") => {
-    if (type === "Music") {
-      try {
-        if (!menuMusic?.sound) {
-          // Create the sound object only if it doesn't exist
-          const { sound } = await Audio.Sound.createAsync(
-            Musics[pathname as keyof typeof Musics],
-            {
-              shouldPlay: play,
-              isLooping: true,
-            }
-          );
-
-          setMenuMusic({ sound: sound, isActive: play });
-
-          if (play) {
-            await sound.playAsync();
-          }
-        } else {
-          if (play) {
-            await menuMusic.sound.playAsync();
-          } else {
-            await menuMusic.sound.stopAsync();
-          }
-          setMenuMusic({ ...menuMusic, isActive: play });
-        }
-
-        // Save the preference
-        await AsyncStorage.setItem("musicOn", play ? "true" : "false");
-      } catch (error) {
-        console.error("Error handling menu music:", error);
-      }
-    }
-
-    if (type === "Sound") {
-      try {
-        // Save the preference
-        setGameSounds(play);
-        await AsyncStorage.setItem("gameSounds", play ? "true" : "false");
-      } catch (error) {
-        console.error("Error handling game sounds:", error);
-      }
-    }
-  };
-
-  // Check if it's the first entry or load the current music status
-  const checkFirstEntry = async () => {
-    try {
-      const firstEntry = await AsyncStorage.getItem("firstEntry");
-      if (firstEntry === null) {
-        await AsyncStorage.setItem("firstEntry", "true");
-        await AsyncStorage.setItem("musicOn", "true");
-        await AsyncStorage.setItem("gameSounds", "true");
-        handleMenuOptions(true, "Music");
-        handleMenuOptions(true, "Sound");
-      } else {
-        const musicOn = await AsyncStorage.getItem("musicOn");
-        const gameSounds = await AsyncStorage.getItem("gameSounds");
-        console.log("AsyncStorage musicOn", musicOn);
-        console.log("AsyncStorage gameSounds", gameSounds);
-        const isMusicOn = musicOn === "true";
-        const isGameSoundsOn = gameSounds === "true";
-        console.log("isMusicOn", isMusicOn);
-        console.log("isGameSoundsOn", isGameSoundsOn);
-        handleMenuOptions(isMusicOn, "Music");
-        handleMenuOptions(isGameSoundsOn, "Sound");
-      }
-    } catch (e) {
-      console.error("Error checking first entry or setting music:", e);
-    }
-  };
-
-  React.useEffect(() => {
-    checkFirstEntry();
-
-    return () => {
-      menuMusic && menuMusic.sound.unloadAsync();
-    };
-  }, []);
-
-  // Handle checkbox change
-  const handleMusicChange = (checked: boolean) => {
-    handleMenuOptions(checked, "Music");
-  };
-
-  const handleGameSoundChange = (checked: boolean) => {
-    handleMenuOptions(checked, "Sound");
-  };
 
   if (visible) {
     opacity.value = withTiming(0.5, { duration: 300 });

@@ -45,22 +45,35 @@ const menuButtons = [
       type: "modal",
       value: "credits",
     },
-    disabled: false,
+    disabled: true,
   },
 ];
 
-const HomeButtons = () => {
+const HomeButtons = ({
+  setInstructuresVisible,
+}: {
+  setInstructuresVisible: (value: boolean) => void;
+}) => {
   const router = useRouter();
   const opacity = useSharedValue(0);
 
   function handleAction(action: any) {
-    switch (action.type) {
-      case "route":
-        router.navigate(action.value);
-        break;
+    if (action.type === "route") {
+      router.navigate(action.value);
+    }
 
-      default:
-        break;
+    if (action.type === "modal") {
+      switch (action.value) {
+        case "how-to-play":
+          setInstructuresVisible(true);
+          break;
+        case "leaderboard":
+          break;
+        case "credits":
+          break;
+        default:
+          break;
+      }
     }
   }
 
@@ -101,7 +114,6 @@ const HomeButtons = () => {
           <Button
             height={"$3"}
             width={"$20"}
-            borderRadius={"$12"}
             alignContent="flex-start"
             justifyContent="center"
             backgroundColor={"transparent"}
