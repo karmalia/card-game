@@ -30,10 +30,6 @@ Matching Cards Game is a fun and strategic card game where players match high-sc
 
 - ismailsevgi95@gmail.com
 
-## How To Play
-
-<img src="./assets/img1.jpeg" alt="Game Scene" style="max-width: 600px; max-height: 500px;" />
-
 ## How to Play
 
 1. **Start the Game**:
