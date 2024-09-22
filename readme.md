@@ -26,10 +26,6 @@ Matching Cards Game is a fun and strategic card game where players match high-sc
 **Flux v1 Schnell AI with Compfy UI**: For generating game assets.
 **Suno AI**: Provides dynamic and immersive gameplay music.
 
-## Contact
-
-- ismailsevgi95@gmail.com
-
 ## How to Play
 
 1. **Start the Game**:
@@ -60,7 +56,7 @@ Good luck and have fun playing :)
 
 ## Download recent version 0.0.3
 
-<a data-testid="artifact-download-button" download="matching-cards-0-0-3" type="button" href="https://expo.dev/artifacts/eas/n8LuMSnqGrufERSBUWzNsj.apk"><span><div class="transition-opacity">Latest Version</div></span></a>
+[Latest Version](https://expo.dev/artifacts/eas/n8LuMSnqGrufERSBUWzNsj.apk)
 
 ## Contact
 
