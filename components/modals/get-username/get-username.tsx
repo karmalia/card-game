@@ -17,6 +17,7 @@ import { TextArea } from "tamagui";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
 import * as NavigationBar from "expo-navigation-bar";
+import firestore from "@react-native-firebase/firestore";
 
 const initialPlaceholder = {
   value: "Enter your username",
@@ -31,6 +32,9 @@ const GetUsernameModal = ({
   onClose: () => void;
 }) => {
   const { width, height } = Dimensions.get("screen");
+  const usersCollection = firestore().collection("users");
+
+  console.log("users", usersCollection);
 
   const [isError, setIsError] = React.useState(false);
   const [placeholder, setPlaceholder] = React.useState(initialPlaceholder);
