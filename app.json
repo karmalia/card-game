@@ -2,7 +2,7 @@
   "expo": {
     "name": "Elemental Cards",
     "slug": "metin-the-card-game",
-    "version": "0.0.1",
+    "version": "0.0.4",
     "orientation": "landscape",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -30,11 +30,7 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [
-      "expo-router",
-      "@react-native-firebase/app",
-      "@react-native-firebase/firestore"
-    ],
+    "plugins": ["expo-router"],
     "experiments": {
       "typedRoutes": true
     },

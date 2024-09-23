@@ -18,6 +18,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
 import * as NavigationBar from "expo-navigation-bar";
 import firestore from "@react-native-firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const initialPlaceholder = {
   value: "Enter your username",
@@ -32,9 +33,6 @@ const GetUsernameModal = ({
   onClose: () => void;
 }) => {
   const { width, height } = Dimensions.get("screen");
-  const usersCollection = firestore().collection("users");
-
-  console.log("users", usersCollection);
 
   const [isError, setIsError] = React.useState(false);
   const [placeholder, setPlaceholder] = React.useState(initialPlaceholder);
@@ -82,19 +80,38 @@ const GetUsernameModal = ({
     }
   }, [visible]);
 
-  function handleDone() {
+  async function handleDone() {
     console.log("Triggered!");
+    try {
+      const userSnapshot = await firestore()
+        .collection("users")
+        .where("nickname", "==", username)
+        .get();
+      const users = userSnapshot.docs.map((doc) => doc.data());
+
+      if (users.length === 0) {
+        await firestore().collection("users").add({
+          nickname: username,
+          score: 0,
+        });
+        await AsyncStorage.setItem("username", username);
+        onClose();
+        return;
+      }
+
+      console.log("Users", users);
+    } catch (error) {
+      console.log("Error", error.message);
+    }
+
     if (username === "") return;
+
     setIsError(true);
     setPlaceholder({
       value: `${username} already exists`,
       color: "red",
     });
     setUsername("");
-    //Check firebase for username if it exists
-    //If it exists, write error message
-    //If it doesn't exist, write username to firebase
-    //Close modal
   }
 
   const wrapperAnimated = useAnimatedStyle(() => ({

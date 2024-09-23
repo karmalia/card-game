@@ -78,7 +78,7 @@ function RootLayoutNav() {
           opacity: 0.5,
         }}
       >
-        Alpha: 0.0.3
+        Alpha: 0.0.4
       </Text>
       <StatusBar hidden />
       <Stack initialRouteName="index">
