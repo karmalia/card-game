@@ -17,6 +17,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { Card, TPos, TSlotPos } from "../types";
 import usePlaySound from "@/hooks/usePlaySound";
+import { TapGesture } from "react-native-gesture-handler/lib/typescript/handlers/gestures/tapGesture";
+import { PanGesture } from "react-native-gesture-handler/lib/typescript/handlers/gestures/panGesture";
+import { set } from "@react-native-firebase/database";
 
 const StyledCard = styled(View, {
   name: "GameCard",
@@ -41,6 +44,8 @@ type GameCardProps = {
   card: Card;
   startingPosition: TPos;
   endingPosition: TPos | null;
+  isAnimationGoing: boolean;
+  setIsAnimationGoing: (value: boolean) => void;
 };
 
 const springConfig = {
@@ -53,10 +58,18 @@ const springConfig = {
   reduceMotion: ReduceMotion.System,
 };
 
+const bg = {
+  red: require("@/assets/card-backgrounds/CostimizedRedOne.png"),
+  blue: require("@/assets/card-backgrounds/CostimizedBlueOne.png"),
+  yellow: require("@/assets/card-backgrounds/CostimizedYellowOne.png"),
+};
+
 const GameCard = ({
   card,
   startingPosition,
   endingPosition,
+  isAnimationGoing,
+  setIsAnimationGoing,
 }: GameCardProps) => {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -142,13 +155,15 @@ const GameCard = ({
           : null,
     };
   }, [cardState]);
+
   const drag = Gesture.Pan()
     .onStart((event) => {
-      console.log("DragStart");
+      if (isAnimationGoing) return;
       event.x = translateX.value;
       event.y = translateY.value;
     })
     .onChange((event) => {
+      if (isAnimationGoing) return;
       translateX.value = event.translationX;
       translateY.value = event.translationY;
 
@@ -162,11 +177,10 @@ const GameCard = ({
       }
     })
     .onEnd((event) => {
-      console.log("DragEnd");
+      if (isAnimationGoing) return;
       if (event.absoluteY < middleCenterY) {
-        console.log("event.absoluteY", event.absoluteY),
-          console.log("middleCenterY", middleCenterY);
         try {
+          runOnJS(setIsAnimationGoing)(true);
           if (sharedTopFirstEmptySlot.value) {
             const targetX =
               sharedTopFirstEmptySlot.value.pageX -
@@ -180,6 +194,7 @@ const GameCard = ({
             translateX.value = withSpring(targetX, springConfig);
             translateY.value = withSpring(targetY, springConfig, () => {
               runOnJS(placeOnBoard)(sharedCard.value);
+              runOnJS(setIsAnimationGoing)(false);
             });
           } else {
             translateX.value = withSpring(0, springConfig);
@@ -270,12 +285,38 @@ const GameCard = ({
     }
   }, []);
 
-  const bg = {
-    red: require("@/assets/card-backgrounds/CostimizedRedOne.png"),
-    blue: require("@/assets/card-backgrounds/CostimizedBlueOne.png"),
-    yellow: require("@/assets/card-backgrounds/CostimizedYellowOne.png"),
-  };
+  return (
+    <GesturedCard
+      {...{
+        card,
+        CardAnimationStyles,
+        sharedCard,
+        broken,
+        tap,
+        drag,
+        isAnimationGoing,
+      }}
+    />
+  );
+};
 
+const GesturedCard = ({
+  card,
+  CardAnimationStyles,
+  sharedCard,
+  broken,
+  tap,
+  drag,
+  isAnimationGoing,
+}: {
+  card: Card;
+  CardAnimationStyles: any;
+  sharedCard: any;
+  broken: boolean;
+  isAnimationGoing: boolean;
+  tap: TapGesture;
+  drag: PanGesture;
+}) => {
   return (
     <GestureDetector gesture={sharedCard.value.isPlayed ? tap : drag}>
       <Animated.View

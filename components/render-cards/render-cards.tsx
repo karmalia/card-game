@@ -5,6 +5,7 @@ import GameCard from "../game-card/game-card";
 import { Card, TPos } from "../types";
 import { fillPlayersHand } from "../../utils";
 import GameOverModal from "../modals/gameover/game-over-modal";
+import { useSharedValue } from "react-native-reanimated";
 
 let handChecked = false;
 
@@ -42,7 +43,7 @@ function canStillPlay(cardsInHand: Card[]) {
 
 const RenderCards = () => {
   const [gameOver, setGameOver] = useState(false);
-
+  const [isAnimationGoing, setIsAnimationGoing] = useState(false);
   const {
     gamePhase,
     cardsOnBoard,
@@ -125,6 +126,8 @@ const RenderCards = () => {
               card={card}
               startingPosition={deckPosition}
               endingPosition={card.slot}
+              isAnimationGoing={isAnimationGoing}
+              setIsAnimationGoing={setIsAnimationGoing}
             />
           );
         })}
@@ -137,6 +140,8 @@ const RenderCards = () => {
               card={card}
               startingPosition={card.slot}
               endingPosition={null}
+              isAnimationGoing={isAnimationGoing}
+              setIsAnimationGoing={setIsAnimationGoing}
             />
           );
         })}

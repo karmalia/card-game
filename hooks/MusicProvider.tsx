@@ -21,7 +21,7 @@ type Props = {
 
 const Musics = {
   "/": require("@/assets/background-musics/menu-music.mp3"),
-  "/gamescreen": require("@/assets/background-musics/gameplay-music-1.mp3"),
+  "/gamescreen": require("@/assets/background-musics/gameplay-music-2.mp3"),
 };
 
 const MusicProvider = ({ children }: Props) => {

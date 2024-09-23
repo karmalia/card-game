@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "255972137850",
+    "project_id": "matchingcards-26af3",
+    "storage_bucket": "matchingcards-26af3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:255972137850:android:b2dd186a2fe04dcd1f14c3",
+        "android_client_info": {
+          "package_name": "com.karmalia.elementalcards"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFGcWiisiGFI0ikSKHMkfGtpZTuHq_0gk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

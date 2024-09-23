@@ -7,10 +7,24 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import HomeButtons from "@/components/home-buttons/home-buttons";
 import HomeOptions from "@/components/modals/options/options";
 import HowToPlay from "@/components/modals/how-to-play";
+import GetUsernameModal from "@/components/modals/get-username/get-username";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Index = () => {
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [instructionsVisible, setInstructuresVisible] = useState(false);
+  const [getusername, setGetusername] = useState(false);
+
+  useEffect(() => {
+    async function checkIfUserExists() {
+      const user = await AsyncStorage.getItem("username");
+      if (!user) {
+        setGetusername(true);
+      }
+    }
+
+    // checkIfUserExists();
+  }, []);
 
   return (
     <SafeAreaView
@@ -55,6 +69,10 @@ const Index = () => {
         <HomeOptions
           visible={optionsVisible}
           onClose={() => setOptionsVisible(false)}
+        />
+        <GetUsernameModal
+          visible={getusername}
+          onClose={() => setGetusername(false)}
         />
         <HowToPlay
           visible={instructionsVisible}

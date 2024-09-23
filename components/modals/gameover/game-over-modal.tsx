@@ -39,8 +39,8 @@ const GameOverModal = ({
   const sharedWidth = useSharedValue(0);
   const sharedHeight = useSharedValue(0);
   const { score, populateDeck } = useGameStore();
-  const modalWidth = Math.min(Dimensions.get("window").width * 0.3, 250);
-  const modalHeight = Math.min(Dimensions.get("window").height * 0.8, 300);
+  const modalWidth = Math.min(Dimensions.get("screen").width * 0.3, 250);
+  const modalHeight = Math.min(Dimensions.get("screen").height * 0.8, 300);
 
   React.useEffect(() => {
     sharedOpacity.value = withTiming(1, {
