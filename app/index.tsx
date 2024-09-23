@@ -23,7 +23,7 @@ const Index = () => {
       }
     }
 
-    // checkIfUserExists();
+    checkIfUserExists();
   }, []);
 
   return (
