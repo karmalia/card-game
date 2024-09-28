@@ -1,4 +1,4 @@
-# Matching Card Game
+## Matching Card Game
 
 Matching Cards Game is a fun and strategic card game where players match high-scoring cards to maximize their points. Sharpen your tactics and aim for the highest score!
 
