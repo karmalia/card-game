@@ -20,6 +20,7 @@
     "@react-native-firebase/database": "^20.5.0",
     "@react-native-firebase/firestore": "^20.5.0",
     "@react-navigation/native": "^6.0.2",
+    "@shopify/react-native-skia": "1.2.3",
     "@tamagui/config": "^1.110.1",
     "@tamagui/lucide-icons": "^1.111.7",
     "expo": "~51.0.28",

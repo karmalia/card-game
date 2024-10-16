@@ -1,48 +1,20 @@
 import { ImageBackground, StyleSheet, TouchableOpacity } from "react-native";
-import React, { useMemo, useRef, useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  Button,
-  Card,
-  Stack,
-  Text,
-  styled,
-  View,
-  ButtonText,
-  Image,
-} from "tamagui";
+import React, { useRef, useState } from "react";
+import { Stack, View, Image } from "tamagui";
 import GameCard from "@/components/game-card/game-card";
 import { Ionicons } from "@expo/vector-icons";
 import useGameStore from "@/stores/game.store";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { widths } from "@tamagui/config";
-import {
-  ArraySlots,
-  IBottomSlots,
-  ITopSlots,
-  TPos,
-  TSlotPos,
-} from "@/components/types";
+import { ArraySlots, TSlotPos } from "@/components/types";
 import { GameSlot } from "@/utils/slot-class";
 import SafeAreaStyled from "@/components/gamescreen/safe-area.styled";
 import Styled from "@/components/gamescreen/card-slots.styled";
 import { useRouter } from "expo-router";
 import { randomUUID } from "expo-crypto";
-import { fillPlayersHand } from "@/utils";
 import RenderCards from "@/components/render-cards/render-cards";
 import Deck from "@/components/deck/deck";
 import Trash from "@/components/trash/trash";
 import HomeOptions from "@/components/modals/options/options";
 import GameScore from "@/components/gamescore/gamescore";
-
-/**
- 
-  her kartın bir slot id si olacak. ve ona bağlı olacak
-  böylece kartlar hep aynı slota geri dönebilecek
-  draw card yapıldığında. eldeki kart sayısına göre bottomSlotda 
-  en yakın olana aktarılacak. Aktarıldığı slotun datası da verilecek
-
- */
 
 const Index = () => {
   const [optionsVisible, setOptionsVisible] = useState(false);

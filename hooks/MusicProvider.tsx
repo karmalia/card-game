@@ -2,6 +2,7 @@ import { createContext, useEffect, useState } from "react";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { usePathname } from "expo-router";
+import { set } from "@react-native-firebase/database";
 
 interface MusicContext {
   menuMusic: {
@@ -60,42 +61,12 @@ const MusicProvider = ({ children }: Props) => {
     }
   };
 
-  const checkFirstEntry = async () => {
-    try {
-      const firstEntry = await AsyncStorage.getItem("firstEntry");
-      const { sound } = await Audio.Sound.createAsync(
-        Musics[pathname as keyof typeof Musics],
-        {
-          shouldPlay: true,
-          isLooping: true,
-        }
-      );
-      if (firstEntry === null) {
-        await AsyncStorage.setItem("firstEntry", "true");
-        await AsyncStorage.setItem("musicOn", "true");
-        await AsyncStorage.setItem("gameSounds", "true");
-        handleMenuOptions(true, "Music");
-        handleMenuOptions(true, "Sound");
-        setMenuMusic({ sound, isActive: true });
-      } else {
-        const musicOn = await AsyncStorage.getItem("musicOn");
-        const gameSounds = await AsyncStorage.getItem("gameSounds");
-        const isMusicOn = musicOn === "true";
-        const isGameSoundsOn = gameSounds === "true";
-
-        setMenuMusic({ sound, isActive: isMusicOn });
-
-        handleMenuOptions(isMusicOn, "Music");
-        handleMenuOptions(isGameSoundsOn, "Sound");
-      }
-    } catch (error) {
-      console.error("Error checking first entry or setting music:", error);
-    }
-  };
-
   useEffect(() => {
     let isMounted = true; // To handle async operations on unmounted component
+
     const loadAndPlayMusic = async () => {
+      const isMusicOn = await AsyncStorage.getItem("musicOn");
+
       if (menuMusic.sound !== null) {
         // Clean up the previous sound
         await menuMusic.sound.unloadAsync();
@@ -105,12 +76,12 @@ const MusicProvider = ({ children }: Props) => {
         const { sound } = await Audio.Sound.createAsync(
           Musics[pathname as keyof typeof Musics],
           {
-            shouldPlay: true,
+            shouldPlay: isMusicOn === "true",
             isLooping: true,
           }
         );
         if (isMounted) {
-          setMenuMusic({ sound, isActive: true });
+          setMenuMusic({ sound, isActive: isMusicOn === "true" });
         }
       } catch (error) {
         console.error("Error loading music:", error);

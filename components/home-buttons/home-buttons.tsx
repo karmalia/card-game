@@ -12,7 +12,7 @@ import Animated, {
 const menuButtons = [
   {
     title: "START",
-    imgUrl: require("@/assets/home/MenuButtonDistortOne.png"),
+    imgUrl: require("@/assets/home/TransparentMenuButton.png"),
     action: {
       type: "route",
       value: "/gamescreen",
@@ -21,7 +21,7 @@ const menuButtons = [
   },
   {
     title: "HOW TO PLAY",
-    imgUrl: require("@/assets/home/MenuButtonDistortOne.png"),
+    imgUrl: require("@/assets/home/TransparentMenuButton.png"),
     action: {
       type: "modal",
       value: "how-to-play",
@@ -30,7 +30,7 @@ const menuButtons = [
   },
   {
     title: "LEADERBOARD",
-    imgUrl: require("@/assets/home/MenuButtonDistortOne.png"),
+    imgUrl: require("@/assets/home/TransparentMenuButton.png"),
     action: {
       type: "modal",
       value: "leaderboard",
@@ -40,7 +40,7 @@ const menuButtons = [
 
   {
     title: "CREDITS",
-    imgUrl: require("@/assets/home/MenuButtonDistortOne.png"),
+    imgUrl: require("@/assets/home/TransparentMenuButton.png"),
     action: {
       type: "modal",
       value: "credits",
@@ -130,6 +130,7 @@ const HomeButtons = ({
                 textShadowColor: "rgba(0, 0, 0, 0.55)",
                 textShadowOffset: { width: 0, height: 1 },
                 textShadowRadius: 10,
+                color: "white",
               }}
             >
               {button.title}
@@ -143,13 +144,6 @@ const HomeButtons = ({
 
 export const styles = StyleSheet.create({
   button: {
-    shadowColor: "black",
-    elevation: 70,
-    shadowOffset: {
-      width: 4,
-      height: 4,
-    },
-    shadowOpacity: 1,
     borderWidth: 1,
     borderColor: "transparent",
   },

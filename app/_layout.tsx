@@ -69,13 +69,13 @@ function RootLayoutNav() {
       <Text
         style={{
           position: "absolute",
-          color: "black",
           fontFamily: "monospace",
           top: 12,
           fontSize: 12,
           left: 140,
           zIndex: 10,
           opacity: 0.5,
+          color: "white",
         }}
       >
         Alpha: 0.0.4

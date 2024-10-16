@@ -12,10 +12,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import usePlaySound from "@/hooks/usePlaySound";
 import { Checkbox, Stack } from "tamagui";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Audio } from "expo-av";
 import Icons from "@/components/icons";
 import { usePathname, useRouter } from "expo-router";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -32,8 +29,6 @@ const HomeOptions = ({ visible, onClose, handleNavigation }: OptionsProps) => {
   const { menuMusic, gameSounds, handleMusicChange, handleGameSoundChange } =
     useContext<any>(Music);
 
-  console.log("PathName", pathname);
-  const { navigate } = useRouter();
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(height);
   const zIndex = useSharedValue(0);
