@@ -13,8 +13,8 @@ const Icons = {
       >
         <Polyline
           fill="none"
-          stroke="#000000"
-          strokeWidth="2"
+          stroke="#fff"
+          strokeWidth="4"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeMiterlimit="10"

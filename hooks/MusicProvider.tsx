@@ -46,7 +46,6 @@ const MusicProvider = ({ children }: Props) => {
 
         setMenuMusic((prev) => ({ ...prev, isActive: play }));
 
-        // Save preference to AsyncStorage
         await AsyncStorage.setItem("musicOn", play ? "true" : "false");
       } catch (error) {
         console.error("Error handling menu music:", error);
@@ -101,10 +100,12 @@ const MusicProvider = ({ children }: Props) => {
   }, [pathname]);
 
   const handleMusicChange = (checked: boolean) => {
+    console.log("handleMusicChange", checked);
     handleMenuOptions(checked, "Music");
   };
 
   const handleGameSoundChange = (checked: boolean) => {
+    console.log("handleGameSoundChange", checked);
     handleMenuOptions(checked, "Sound");
   };
 

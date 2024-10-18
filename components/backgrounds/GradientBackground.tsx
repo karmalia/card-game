@@ -1,48 +1,31 @@
 import React, { useEffect } from "react";
-import {
-  Canvas,
-  Rect,
-  LinearGradient,
-  vec,
-  Path,
-} from "@shopify/react-native-skia";
+import { Canvas, Rect, LinearGradient, vec } from "@shopify/react-native-skia";
 import { Dimensions } from "react-native";
 import {
-  useDerivedValue,
   useSharedValue,
   withTiming,
   withRepeat,
   Easing,
 } from "react-native-reanimated";
 
-const AnimatedGradientBackground = () => {
-  const { width, height } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
-  // Scale değerini yönetmek için SharedValue
-  const starScale1 = useSharedValue(1); // Başlangıçta 1x ölçek
-  const starScale2 = useSharedValue(3); // Başlangıçta 1x ölçek
+const AnimatedGradientBackground = React.memo(() => {
+  const starScale1 = useSharedValue(1);
+  const starScale2 = useSharedValue(3);
 
-  // Scale animasyonu başlatılıyor
   useEffect(() => {
     starScale1.value = withRepeat(
-      withTiming(3, {
-        duration: 1500,
-        easing: Easing.inOut(Easing.ease), // Yumuşak geçiş
-      }),
-      -1, // Sonsuz döngü
-      true // Yoyo: Geri dönüş yapar
+      withTiming(3, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
     );
     starScale2.value = withRepeat(
-      withTiming(1, {
-        duration: 1500,
-        easing: Easing.inOut(Easing.ease), // Yumuşak geçiş
-      }),
-      -1, // Sonsuz döngü
-      true // Yoyo: Geri dönüş yapar
+      withTiming(1, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
     );
   }, []);
-
-  // DerivedValue ile Path'e bağlıyoruz
 
   return (
     <Canvas
@@ -56,7 +39,6 @@ const AnimatedGradientBackground = () => {
         zIndex: -1,
       }}
     >
-      {/* Animasyonlu Degrade Arka Plan */}
       <Rect x={0} y={0} width={width} height={height}>
         <LinearGradient
           start={vec(0, 0)}
@@ -64,11 +46,9 @@ const AnimatedGradientBackground = () => {
           colors={["#000010", "#000020", "#000030", "#000040", "#000050"]}
         />
       </Rect>
-
-      {/* Yıldız Tozu Efekti */}
       {Array.from({ length: 25 }).map((_, index) => (
         <Rect
-          key={index}
+          key={`star-1-${index}`}
           x={Math.random() * width}
           y={Math.random() * height}
           width={starScale1}
@@ -79,7 +59,7 @@ const AnimatedGradientBackground = () => {
       ))}
       {Array.from({ length: 25 }).map((_, index) => (
         <Rect
-          key={index}
+          key={`star-2-${index}`}
           x={Math.random() * width}
           y={Math.random() * height}
           width={starScale2}
@@ -90,6 +70,6 @@ const AnimatedGradientBackground = () => {
       ))}
     </Canvas>
   );
-};
+});
 
 export default AnimatedGradientBackground;

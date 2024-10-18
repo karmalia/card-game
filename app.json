@@ -8,7 +8,7 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/backgrounds/canny_res_00522_.png",
+      "image": "./assets/backgrounds/SpaceBackground.png",
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },

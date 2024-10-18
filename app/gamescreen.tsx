@@ -158,15 +158,11 @@ const Index = () => {
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require("@/assets/gameboard-background/CostimizedBg2.png")}
+        source={require("@/assets/backgrounds/GameplayBackground.png")}
         resizeMode="stretch"
         style={styles.image}
       >
-        <HomeOptions
-          visible={optionsVisible}
-          handleNavigation={handleNavigation}
-          onClose={() => setOptionsVisible(false)}
-        />
+        <HomeOptions handleNavigation={handleNavigation} />
         <SafeAreaStyled>
           <GameScore />
           <Stack flexDirection="row" justifyContent="space-around">
@@ -197,29 +193,7 @@ const Index = () => {
                 ref={topSlot3Ref}
               ></Styled.BoardSlotStyled>
             </Stack>
-            <Stack>
-              <Stack
-                borderRadius="$4"
-                justifyContent="center"
-                alignItems="center"
-                margin="$2"
-              >
-                <TouchableOpacity
-                  activeOpacity={1}
-                  onPress={() => {
-                    console.log("Test");
-                    setOptionsVisible(true);
-                  }}
-                >
-                  <Image
-                    height="$4"
-                    width="$4"
-                    resizeMethod="auto"
-                    source={require("@/assets/icons/settings.png")}
-                  />
-                </TouchableOpacity>
-              </Stack>
-            </Stack>
+            <Stack></Stack>
           </Stack>
           <Stack flex={1} flexDirection="row">
             <Deck ref={deckPositionRef} />

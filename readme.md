@@ -1,6 +1,6 @@
-## Matching Card Game
+## Space Cards Game
 
-Matching Cards Game is a fun and strategic card game where players match high-scoring cards to maximize their points. Sharpen your tactics and aim for the highest score!
+Space Cards Game is a fun and strategic card game where players match high-scoring cards to maximize their points. Sharpen your tactics and aim for the highest score!
 
 ## Version
 

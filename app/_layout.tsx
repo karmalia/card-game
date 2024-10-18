@@ -81,7 +81,7 @@ function RootLayoutNav() {
         Alpha: 0.0.4
       </Text>
       <StatusBar hidden />
-      <Stack initialRouteName="index">
+      <Stack initialRouteName="gamescreen">
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="gamescreen" options={{ headerShown: false }} />
       </Stack>

@@ -6,25 +6,24 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { Checkbox, Stack } from "tamagui";
+import { Checkbox, Image, Label, Stack } from "tamagui";
 import Icons from "@/components/icons";
 import { usePathname, useRouter } from "expo-router";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Music } from "@/hooks/MusicProvider";
 type OptionsProps = {
-  visible: boolean;
-  onClose: () => void;
   handleNavigation?: (type: "home" | "restart") => void;
 };
 const { width, height } = Dimensions.get("window");
 
-const HomeOptions = ({ visible, onClose, handleNavigation }: OptionsProps) => {
+const HomeOptions = ({ handleNavigation }: OptionsProps) => {
+  const [optionsVisible, setOptionsVisible] = useState(false);
   const pathname = usePathname();
   const { menuMusic, gameSounds, handleMusicChange, handleGameSoundChange } =
     useContext<any>(Music);
@@ -33,7 +32,7 @@ const HomeOptions = ({ visible, onClose, handleNavigation }: OptionsProps) => {
   const translateY = useSharedValue(height);
   const zIndex = useSharedValue(0);
 
-  if (visible) {
+  if (optionsVisible) {
     opacity.value = withTiming(0.5, { duration: 300 });
     translateY.value = withTiming(0, { duration: 300 });
     zIndex.value = withTiming(10, { duration: 300 });
@@ -55,10 +54,38 @@ const HomeOptions = ({ visible, onClose, handleNavigation }: OptionsProps) => {
 
   return (
     <>
+      <View
+        style={{
+          position: "absolute",
+          top: 14,
+          right: 0,
+        }}
+      >
+        <Stack
+          borderRadius="$4"
+          justifyContent="center"
+          alignItems="center"
+          marginHorizontal="$4"
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => {
+              setOptionsVisible((prev) => !prev);
+            }}
+          >
+            <Image
+              height="$4"
+              width="$4"
+              resizeMethod="auto"
+              source={require("@/assets/icons/settings3.png")}
+            />
+          </TouchableOpacity>
+        </Stack>
+      </View>
       <Animated.View style={[styles.background, animatedBackgroundStyle]} />
       <Animated.View style={[styles.modalContainer, animatedModalStyle]}>
         <ImageBackground
-          source={require("@/assets/modals/options-modal.png")}
+          source={require("@/assets/modals/options-modal2.png")}
           resizeMethod="auto"
           resizeMode="stretch"
         >
@@ -67,67 +94,138 @@ const HomeOptions = ({ visible, onClose, handleNavigation }: OptionsProps) => {
               style={{
                 width: "100%",
                 flexDirection: "row",
+                justifyContent: "center",
               }}
             >
               <Text style={styles.modalText}>OPTIONS</Text>
-              <Pressable style={styles.closeButton} onPress={onClose}>
-                <Text style={styles.closeButtonText}>X</Text>
-              </Pressable>
             </View>
             <View
               style={{
                 flexDirection: "row",
                 gap: 12,
-                height: 24,
                 alignItems: "center",
               }}
             >
               <Text
                 style={{
                   fontFamily: "DragonSlayer",
-                  fontSize: 22,
+                  fontSize: 28,
                   letterSpacing: 1,
+                  color: "white",
+                  width: "50%",
                 }}
               >
                 MUSIC
               </Text>
               <Checkbox
                 size={"$4"}
+                id="music"
                 checked={menuMusic?.isActive}
                 onCheckedChange={handleMusicChange}
+                display="none"
+              />
+
+              <ImageBackground
+                resizeMode="contain"
+                width={24}
+                height={24}
+                source={require("@/assets/icons/panel-checkbox.png")}
               >
-                <Checkbox.Indicator>
-                  {menuMusic?.isActive && <Icons.Check width={12} />}
-                </Checkbox.Indicator>
-              </Checkbox>
+                <Label
+                  style={{
+                    width: 24,
+                    height: 24,
+                    padding: 0,
+                    margin: 0,
+                    justifyContent: "center",
+                    alignItems: "center",
+
+                    backgroundColor: "transparent",
+                    zIndex: 10,
+                  }}
+                  htmlFor="music"
+                />
+                {menuMusic?.isActive && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      width: 24,
+                      height: 24,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      top: 0,
+                      left: 0,
+                      zIndex: -10,
+                    }}
+                  >
+                    <Icons.Check width={12} height={12} />
+                  </View>
+                )}
+              </ImageBackground>
             </View>
             <View
               style={{
                 flexDirection: "row",
                 gap: 12,
-                height: 24,
                 alignItems: "center",
               }}
             >
               <Text
                 style={{
                   fontFamily: "DragonSlayer",
-                  fontSize: 22,
+                  fontSize: 28,
                   letterSpacing: 1,
+                  color: "white",
+                  width: "50%",
                 }}
               >
                 SOUNDS
               </Text>
               <Checkbox
                 size={"$4"}
+                id="sounds"
                 checked={gameSounds}
                 onCheckedChange={handleGameSoundChange}
+                display="none"
+              />
+
+              <ImageBackground
+                resizeMode="contain"
+                source={require("@/assets/icons/panel-checkbox.png")}
               >
-                <Checkbox.Indicator>
-                  {gameSounds && <Icons.Check width={12} />}
-                </Checkbox.Indicator>
-              </Checkbox>
+                <Label
+                  style={{
+                    width: 24,
+                    height: 24,
+                    padding: 0,
+                    margin: 0,
+                    justifyContent: "center",
+                    alignItems: "center",
+
+                    backgroundColor: "transparent",
+                    zIndex: 10,
+                  }}
+                  htmlFor="sounds"
+                />
+                {gameSounds && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      width: 24,
+                      height: 24,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      top: 0,
+                      left: 0,
+                      zIndex: -10,
+                    }}
+                  >
+                    <Icons.Check width={12} height={12} />
+                  </View>
+                )}
+              </ImageBackground>
             </View>
+
             {pathname === "/gamescreen" && handleNavigation && (
               <Stack
                 direction="ltr"
@@ -146,6 +244,15 @@ const HomeOptions = ({ visible, onClose, handleNavigation }: OptionsProps) => {
                   </TouchableOpacity>
                 </View>
               </Stack>
+            )}
+            {pathname === "/" && (
+              <Pressable
+                style={styles.closeButton}
+                onPress={() => setOptionsVisible(false)}
+                hitSlop={10}
+              >
+                <Text style={styles.closeButtonText}>CLOSE</Text>
+              </Pressable>
             )}
           </View>
         </ImageBackground>
@@ -169,39 +276,43 @@ const styles = StyleSheet.create({
   },
   background: {
     position: "absolute",
-    width: "100%",
+    width: Dimensions.get("window").width,
     height: "100%",
     backgroundColor: "black",
   },
   modalContainer: {
     position: "absolute",
     maxWidth: Dimensions.get("window").width * 0.3,
-    backgroundColor: "transparent",
-    borderRadius: 10,
+    backgroundColor: "rgba(0, 0, 20, 0.8)",
 
     alignSelf: "center",
-    top: "30%",
+    top: "20%",
   },
   modalContent: {
     width: Dimensions.get("window").width * 0.3,
+    height: Dimensions.get("window").height * 0.6,
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 20,
+    gap: 12,
+    justifyContent: "space-between",
   },
   modalText: {
-    fontSize: 26,
-    letterSpacing: 1,
-    marginVertical: 10,
+    fontSize: 28,
+    color: "white",
+    letterSpacing: 4,
     fontFamily: "DragonSlayer",
     flex: 1,
     textAlign: "center",
   },
   closeButton: {
     padding: 10,
-    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "white",
   },
   closeButtonText: {
-    color: "black",
+    color: "white",
     fontSize: 24,
+    textAlign: "center",
     fontFamily: "DragonSlayer",
   },
   optionsButton: {
@@ -214,5 +325,6 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     letterSpacing: 1,
     textAlign: "center",
+    color: "white",
   },
 });

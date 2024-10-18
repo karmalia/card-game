@@ -96,6 +96,8 @@ const HomeButtons = ({
           flex: 1,
           gap: 8,
           zIndex: 0,
+          justifyContent: "flex-end",
+          paddingBottom: 16,
         },
       ]}
     >

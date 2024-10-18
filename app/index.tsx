@@ -1,6 +1,12 @@
-import { Dimensions, ImageBackground, StyleSheet } from "react-native";
+import {
+  Dimensions,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import React, { useEffect, useState } from "react";
-import { Image, Stack, View } from "tamagui";
+import { Image, Stack, Text as TamaguiText } from "tamagui";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -10,16 +16,28 @@ import HowToPlay from "@/components/modals/how-to-play";
 import GetUsernameModal from "@/components/modals/get-username/get-username";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import GradientBackground from "@/components/backgrounds/GradientBackground";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 const Index = () => {
-  const [optionsVisible, setOptionsVisible] = useState(false);
   const [instructionsVisible, setInstructuresVisible] = useState(false);
   const [getusername, setGetusername] = useState(false);
+  const testOpacity = useSharedValue(0);
+
+  const animatedStyles = useAnimatedStyle(() => {
+    return {
+      opacity: testOpacity.value,
+    };
+  });
 
   useEffect(() => {
     async function checkIfUserExists() {
       const user = await AsyncStorage.getItem("username");
-      if (!user) {
+      const isProd = process.env.NODE_ENV === "production";
+      if (!user && isProd) {
         setGetusername(true);
       } else {
         console.log("user exists", user);
@@ -27,43 +45,42 @@ const Index = () => {
     }
 
     checkIfUserExists();
+
+    testOpacity.value = withTiming(1, {
+      duration: 1000,
+    });
   }, []);
 
   return (
     <SafeAreaView style={styles.container}>
-      <View
-        style={{
-          height: Dimensions.get("screen").height * 0.45,
-          alignSelf: "flex-end",
-          marginTop: 12,
-        }}
-      >
-        <Stack
-          borderRadius="$4"
-          justifyContent="center"
-          alignItems="center"
-          marginHorizontal="$4"
-        >
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={() => {
-              setOptionsVisible((prev) => !prev);
-            }}
-          >
-            <Image
-              height="$4"
-              width="$4"
-              resizeMethod="auto"
-              source={require("@/assets/icons/settings2.png")}
-            />
-          </TouchableOpacity>
-        </Stack>
-      </View>
+      <HomeOptions />
 
-      <HomeOptions
-        visible={optionsVisible}
-        onClose={() => setOptionsVisible(false)}
-      />
+      <Animated.View
+        style={[
+          {
+            position: "absolute",
+            top: Dimensions.get("screen").height * 0.1,
+            left: 12,
+            right: 0,
+            zIndex: 1,
+
+            padding: 16,
+          },
+          animatedStyles,
+        ]}
+      >
+        <TamaguiText
+          color="white"
+          fontFamily={"DragonSlayer"}
+          fontSize={"$12"}
+          lineHeight={84}
+          textAlign="left"
+          letterSpacing={4}
+        >
+          SPACE CARDS
+        </TamaguiText>
+      </Animated.View>
+
       <GetUsernameModal
         visible={getusername}
         onClose={() => setGetusername(false)}
