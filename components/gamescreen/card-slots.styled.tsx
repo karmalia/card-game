@@ -11,7 +11,7 @@ const CardSlotStyled = forwardRef((props: any, ref: any) => {
   const StyledView = styled(View, {
     minWidth: "$8",
     minHeight: "$11",
-    borderColor: "beige",
+    borderColor: "transparent",
     padding: 1,
 
     borderRadius: 4,

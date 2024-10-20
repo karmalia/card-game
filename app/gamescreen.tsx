@@ -15,6 +15,7 @@ import Deck from "@/components/deck/deck";
 import Trash from "@/components/trash/trash";
 import HomeOptions from "@/components/modals/options/options";
 import GameScore from "@/components/gamescore/gamescore";
+import AnimatedGameBackground from "@/components/backgrounds/GameBackground";
 
 const Index = () => {
   const [optionsVisible, setOptionsVisible] = useState(false);
@@ -157,74 +158,54 @@ const Index = () => {
 
   return (
     <View style={styles.container}>
-      <ImageBackground
-        source={require("@/assets/backgrounds/GameplayBackground.png")}
-        resizeMode="stretch"
-        style={styles.image}
-      >
-        <HomeOptions handleNavigation={handleNavigation} />
-        <SafeAreaStyled>
-          <GameScore />
-          <Stack flexDirection="row" justifyContent="space-around">
-            <Stack
-              backgroundColor="transparent"
-              height="$4"
-              width="$2"
-              justifyContent="center"
-              alignItems="center"
-              marginHorizontal="$4"
-            ></Stack>
-            <Stack
-              flexDirection="row"
-              justifyContent="center"
-              flex={1}
-              gap="$4"
-            >
-              <Styled.BoardSlotStyled
-                slotNumber={0}
-                ref={topSlot1Ref}
-              ></Styled.BoardSlotStyled>
-              <Styled.BoardSlotStyled
-                slotNumber={1}
-                ref={topSlot2Ref}
-              ></Styled.BoardSlotStyled>
-              <Styled.BoardSlotStyled
-                slotNumber={2}
-                ref={topSlot3Ref}
-              ></Styled.BoardSlotStyled>
-            </Stack>
-            <Stack></Stack>
+      <HomeOptions handleNavigation={handleNavigation} />
+      <SafeAreaStyled>
+        <GameScore />
+        <Stack flexDirection="row" justifyContent="space-around">
+          <Stack
+            backgroundColor="transparent"
+            height="$4"
+            width="$2"
+            justifyContent="center"
+            alignItems="center"
+            marginHorizontal="$4"
+          ></Stack>
+          <Stack flexDirection="row" justifyContent="center" flex={1} gap="$4">
+            <Styled.BoardSlotStyled
+              slotNumber={0}
+              ref={topSlot1Ref}
+            ></Styled.BoardSlotStyled>
+            <Styled.BoardSlotStyled
+              slotNumber={1}
+              ref={topSlot2Ref}
+            ></Styled.BoardSlotStyled>
+            <Styled.BoardSlotStyled
+              slotNumber={2}
+              ref={topSlot3Ref}
+            ></Styled.BoardSlotStyled>
           </Stack>
-          <Stack flex={1} flexDirection="row">
-            <Deck ref={deckPositionRef} />
-            <Stack
-              flex={1}
-              flexDirection="row"
-              justifyContent="center"
-              gap="$2"
-              alignItems="flex-end"
-            >
-              <Styled.CardSlotStyled
-                ref={bottomSlot1Ref}
-              ></Styled.CardSlotStyled>
-              <Styled.CardSlotStyled
-                ref={bottomSlot2Ref}
-              ></Styled.CardSlotStyled>
-              <Styled.CardSlotStyled
-                ref={bottomSlot3Ref}
-              ></Styled.CardSlotStyled>
-              <Styled.CardSlotStyled
-                ref={bottomSlot4Ref}
-              ></Styled.CardSlotStyled>
-              <Styled.CardSlotStyled
-                ref={bottomSlot5Ref}
-              ></Styled.CardSlotStyled>
-            </Stack>
-            <Trash ref={thrashCanRef} />
+          <Stack></Stack>
+        </Stack>
+        <Stack flex={1} flexDirection="row">
+          <Deck ref={deckPositionRef} />
+          <Stack
+            flex={1}
+            flexDirection="row"
+            justifyContent="center"
+            gap="$2"
+            alignItems="flex-end"
+          >
+            <Styled.CardSlotStyled ref={bottomSlot1Ref}></Styled.CardSlotStyled>
+            <Styled.CardSlotStyled ref={bottomSlot2Ref}></Styled.CardSlotStyled>
+            <Styled.CardSlotStyled ref={bottomSlot3Ref}></Styled.CardSlotStyled>
+            <Styled.CardSlotStyled ref={bottomSlot4Ref}></Styled.CardSlotStyled>
+            <Styled.CardSlotStyled ref={bottomSlot5Ref}></Styled.CardSlotStyled>
           </Stack>
-          <RenderCards />
-        </SafeAreaStyled>
-      </ImageBackground>
+          <Trash ref={thrashCanRef} />
+        </Stack>
+        <RenderCards />
+      </SafeAreaStyled>
+      <AnimatedGameBackground />
     </View>
   );
 };

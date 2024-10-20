@@ -1,21 +1,14 @@
-import {
-  Dimensions,
-  ImageBackground,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Dimensions, StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Image, Stack, Text as TamaguiText } from "tamagui";
+import { Text as TamaguiText } from "tamagui";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import HomeButtons from "@/components/home-buttons/home-buttons";
 import HomeOptions from "@/components/modals/options/options";
 import HowToPlay from "@/components/modals/how-to-play";
 import GetUsernameModal from "@/components/modals/get-username/get-username";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import GradientBackground from "@/components/backgrounds/GradientBackground";
+import SpaceBackground from "@/components/backgrounds/SpaceBackground";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -92,7 +85,7 @@ const Index = () => {
 
       <HomeButtons setInstructuresVisible={setInstructuresVisible} />
 
-      <GradientBackground />
+      <SpaceBackground />
     </SafeAreaView>
   );
 };

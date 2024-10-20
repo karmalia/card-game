@@ -12,7 +12,7 @@ import Animated, {
 const menuButtons = [
   {
     title: "START",
-    imgUrl: require("@/assets/home/TransparentMenuButton.png"),
+    imgUrl: require("@/assets/home/TransparentMenuButton2.png"),
     action: {
       type: "route",
       value: "/gamescreen",
@@ -21,7 +21,7 @@ const menuButtons = [
   },
   {
     title: "HOW TO PLAY",
-    imgUrl: require("@/assets/home/TransparentMenuButton.png"),
+    imgUrl: require("@/assets/home/TransparentMenuButton2.png"),
     action: {
       type: "modal",
       value: "how-to-play",
@@ -30,7 +30,7 @@ const menuButtons = [
   },
   {
     title: "LEADERBOARD",
-    imgUrl: require("@/assets/home/TransparentMenuButton.png"),
+    imgUrl: require("@/assets/home/TransparentMenuButton2.png"),
     action: {
       type: "modal",
       value: "leaderboard",
@@ -40,7 +40,7 @@ const menuButtons = [
 
   {
     title: "CREDITS",
-    imgUrl: require("@/assets/home/TransparentMenuButton.png"),
+    imgUrl: require("@/assets/home/TransparentMenuButton2.png"),
     action: {
       type: "modal",
       value: "credits",

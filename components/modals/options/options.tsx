@@ -6,7 +6,7 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -20,7 +20,7 @@ import { Music } from "@/hooks/MusicProvider";
 type OptionsProps = {
   handleNavigation?: (type: "home" | "restart") => void;
 };
-const { width, height } = Dimensions.get("window");
+const { height } = Dimensions.get("window");
 
 const HomeOptions = ({ handleNavigation }: OptionsProps) => {
   const [optionsVisible, setOptionsVisible] = useState(false);
@@ -51,6 +51,12 @@ const HomeOptions = ({ handleNavigation }: OptionsProps) => {
     transform: [{ translateY: translateY.value }],
     zIndex: zIndex.value,
   }));
+
+  useEffect(() => {
+    if (optionsVisible) {
+      setOptionsVisible(false);
+    }
+  }, [pathname]);
 
   return (
     <>

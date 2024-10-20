@@ -23,7 +23,6 @@ import { set } from "@react-native-firebase/database";
 
 const StyledCard = styled(View, {
   name: "GameCard",
-  padding: 1,
   height: "$11",
   width: "$8",
 
@@ -59,9 +58,9 @@ const springConfig = {
 };
 
 const bg = {
-  red: require("@/assets/card-backgrounds/CostimizedRedOne.png"),
-  blue: require("@/assets/card-backgrounds/CostimizedBlueOne.png"),
-  yellow: require("@/assets/card-backgrounds/CostimizedYellowOne.png"),
+  red: require("@/assets/card-backgrounds/RedBgOpacity2.png"),
+  blue: require("@/assets/card-backgrounds/BlueBgOpacity2.png"),
+  yellow: require("@/assets/card-backgrounds/YellowBgOpacity2.png"),
 };
 
 const GameCard = ({
@@ -327,40 +326,20 @@ const GesturedCard = ({
           CardAnimationStyles,
         ]}
       >
-        <TouchableOpacity
-          onPress={() => {
-            console.log(
-              "Card pressed:",
-              sharedCard.value.isPlayed ? "Board" : "Hand"
-            );
-          }}
-          touchSoundDisabled
-          activeOpacity={1}
-        >
+        <TouchableOpacity touchSoundDisabled activeOpacity={1}>
           <StyledCard>
             <ImageBackground
               source={bg[card.color]}
-              resizeMode="cover"
+              resizeMode="stretch"
               style={{
                 flex: 1,
                 width: "100%",
+                height: "100%",
+                justifyContent: "center",
+                alignItems: "center",
               }}
             >
-              <ImageBackground
-                source={
-                  broken
-                    ? require("@/assets/card-backgrounds/TrashCard2.png")
-                    : ""
-                }
-                style={{
-                  height: "100%",
-                  width: "100%",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <CardNumber>{card.value || 0}</CardNumber>
-              </ImageBackground>
+              <CardNumber>{card.value || 0}</CardNumber>
             </ImageBackground>
           </StyledCard>
         </TouchableOpacity>

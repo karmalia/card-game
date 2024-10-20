@@ -2,7 +2,6 @@ import { createContext, useEffect, useState } from "react";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { usePathname } from "expo-router";
-import { set } from "@react-native-firebase/database";
 
 interface MusicContext {
   menuMusic: {
@@ -21,8 +20,8 @@ type Props = {
 };
 
 const Musics = {
-  "/": require("@/assets/background-musics/menu-music.mp3"),
-  "/gamescreen": require("@/assets/background-musics/gameplay-music-2.mp3"),
+  "/": require("@/assets/background-musics/galactic-whisper.mp3"),
+  "/gamescreen": require("@/assets/background-musics/galactic-whisper.mp3"),
 };
 
 const MusicProvider = ({ children }: Props) => {

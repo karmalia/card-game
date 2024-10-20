@@ -1,41 +1,44 @@
-import { StyleSheet, Text, View } from "react-native";
+import { ImageBackground, Text } from "react-native";
 import React from "react";
 import useGameStore from "@/stores/game.store";
 import { Stack } from "tamagui";
 
-type Props = {};
-
-const GameScore = (props: Props) => {
+const GameScore = () => {
   const { score } = useGameStore();
   return (
     <Stack
-      backgroundColor="#3E4E28"
-      borderRadius={10}
-      paddingHorizontal="$3"
       height={"$3"}
       alignItems="center"
       justifyContent="center"
-      paddingVertical="$2"
-      marginHorizontal="$4"
       position="absolute"
       top={"$6"}
-      left={10}
+      left={"$5"}
     >
-      <Text
+      <ImageBackground
+        source={require("@/assets/backgrounds/ScoreBoard.png")}
+        resizeMode="stretch"
         style={{
-          color: "#F5F5DC",
-          fontSize: 18,
-          fontFamily: "DragonSlayer",
-          textAlign: "center",
-          letterSpacing: 1,
+          width: "100%",
+          height: "100%",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        Score: {score}
-      </Text>
+        <Text
+          style={{
+            color: "#F5F5DC",
+            fontSize: 20,
+            fontFamily: "DragonSlayer",
+            textAlign: "center",
+            letterSpacing: 1,
+            paddingHorizontal: 24,
+          }}
+        >
+          Score: {score}
+        </Text>
+      </ImageBackground>
     </Stack>
   );
 };
 
 export default GameScore;
-
-const styles = StyleSheet.create({});

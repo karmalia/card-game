@@ -39,10 +39,7 @@ const Deck = forwardRef((props: Props, ref: any) => {
     const findFirstBottomEmptySlot = updatedBottomSlotPositions.find(
       (slot) => !slot.isActive
     );
-    console.log(
-      "updatedBottomSlotPositions",
-      updatedBottomSlotPositions.map((c) => c.isActive)
-    );
+
     if (findFirstBottomEmptySlot) {
       drawCard(findFirstBottomEmptySlot);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -55,13 +52,14 @@ const Deck = forwardRef((props: Props, ref: any) => {
       ref={ref}
       height={"$11"}
       width={"$8"}
-      backgroundColor={"$deckColor"}
       borderRadius={"$2"}
       alignSelf="flex-end"
       margin="$4"
+      position="relative"
     >
       <ImageBackground
-        source={require("@/assets/card-backgrounds/CostimizedGreen.png")}
+        source={require("@/assets/card-backgrounds/TrashCardOpacity.png")}
+        resizeMode="stretch"
       >
         <Button
           style={{
@@ -86,22 +84,27 @@ const Deck = forwardRef((props: Props, ref: any) => {
           </Text>
         </Button>
       </ImageBackground>
-      {Array.from({ length: 4 })
-        .fill(0)
-        .map((_, index) => (
-          <View
-            style={{
-              position: "absolute",
-              height: "100%",
-              width: "100%",
-
-              backgroundColor: "rgba(0,0,0,0.4)",
-              top: index,
-              left: index,
-              zIndex: -1,
-            }}
-          />
-        ))}
+      <Stack
+        width={"$8"}
+        padding="$2"
+        position="absolute"
+        top={-35}
+        left="0%"
+        alignItems="center"
+        justifyContent="center"
+        backgroundColor="transparent"
+      >
+        <Text
+          style={{
+            color: "white",
+            fontFamily: "DragonSlayer",
+            letterSpacing: 4,
+            fontSize: 18,
+          }}
+        >
+          DECK
+        </Text>
+      </Stack>
     </Stack>
   );
 });
