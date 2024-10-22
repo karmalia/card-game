@@ -4,8 +4,6 @@ import {
   ArraySlots,
   Card,
   CardColors,
-  IBottomSlots,
-  ITopSlots,
   TPos,
   TSlotPos,
 } from "@/components/types";
@@ -13,6 +11,7 @@ import {
 type gameStore = {
   gamePhase: number;
   score: number;
+  time: number;
   topSlotPositions: ArraySlots;
   bottomSlotPositions: ArraySlots;
   firstEmptySlotId: string;
@@ -40,6 +39,7 @@ type gameStore = {
     totalValue: number
   ) => void;
   populateDeck: () => void;
+  increaseTime: () => void;
 };
 
 const Points = {
@@ -115,6 +115,7 @@ const generateDeck = (): Card[] => {
 const initialGameState = {
   gamePhase: 0,
   score: 0,
+  time: 0,
   topSlotPositions: [],
   bottomSlotPositions: [],
   firstEmptySlotId: "",
@@ -335,6 +336,10 @@ const useGameStore = create<gameStore>((set) => ({
         deckPosition: state.deckPosition,
         cardsInDeck: deck,
       };
+    }),
+  increaseTime: () =>
+    set((state) => {
+      return { ...state, time: state.time + 1 };
     }),
 }));
 

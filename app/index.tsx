@@ -4,7 +4,7 @@ import { Text as TamaguiText } from "tamagui";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 import HomeButtons from "@/components/home-buttons/home-buttons";
-import HomeOptions from "@/components/modals/options/options";
+import Options from "@/components/modals/options/options";
 import HowToPlay from "@/components/modals/how-to-play";
 import GetUsernameModal from "@/components/modals/get-username/get-username";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -46,7 +46,7 @@ const Index = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <HomeOptions />
+      <Options />
 
       <Animated.View
         style={[

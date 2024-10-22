@@ -4,7 +4,7 @@ Space Cards Game is a fun and strategic card game where players match high-scori
 
 ## Version
 
-0.0.3 (Latest Release)
+0.0.4 (Latest Release)
 
 ## Features
 

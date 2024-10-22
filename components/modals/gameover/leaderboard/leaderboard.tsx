@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     height: "27%",
     marginTop: Dimensions.get("window").height * 0.18,
     marginHorizontal: "8%",
-    backgroundColor: "white",
+    backgroundColor: "transparent",
   },
   header: {
     textAlign: "center",
@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     letterSpacing: 1,
     textDecorationLine: "underline",
+    color: "white",
   },
   row: {
     flexDirection: "row",
@@ -72,15 +73,18 @@ const styles = StyleSheet.create({
     flex: 0.5,
     fontSize,
     fontFamily,
+    color: "white",
   },
   name: {
     flex: 2,
     fontSize,
     fontFamily,
+    color: "white",
   },
   points: {
     flex: 1,
     fontSize,
     fontFamily,
+    color: "white",
   },
 });

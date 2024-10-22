@@ -81,7 +81,14 @@ function RootLayoutNav() {
         Alpha: 0.0.4
       </Text>
       <StatusBar hidden />
-      <Stack initialRouteName="gamescreen">
+      <Stack
+        initialRouteName="gamescreen"
+        screenListeners={{
+          blur: () => {
+            console.log("blur");
+          },
+        }}
+      >
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="gamescreen" options={{ headerShown: false }} />
       </Stack>

@@ -10,10 +10,12 @@ import Animated, {
 } from "react-native-reanimated";
 import useGameStore from "@/stores/game.store";
 import { Button, ScrollView } from "tamagui";
-import Leaderboard from "@/components/leaderboard/leaderboard";
+import Leaderboard from "@/components/modals/gameover/leaderboard/leaderboard";
 import { green } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
+import Stars from "./Stars/Stars";
+import { ConvertToMinuteString } from "@/utils";
 
 function getScore(score: number) {
   if (score < 300) {
@@ -27,18 +29,12 @@ function getScore(score: number) {
   }
 }
 
-const GameOverModal = ({
-  restartGame,
-  setGameOver,
-}: {
-  restartGame: () => void;
-  setGameOver: (value: boolean) => void;
-}) => {
+const GameOverModal = ({ restartGame }: { restartGame: () => void }) => {
   const router = useRouter();
   const sharedOpacity = useSharedValue(0);
   const sharedWidth = useSharedValue(0);
-  const sharedHeight = useSharedValue(0);
-  const { score, populateDeck } = useGameStore();
+
+  const { score, populateDeck, time } = useGameStore();
   const modalWidth = Math.min(Dimensions.get("screen").width * 0.3, 250);
   const modalHeight = Math.min(Dimensions.get("screen").height * 0.8, 300);
 
@@ -47,13 +43,7 @@ const GameOverModal = ({
       duration: 200,
       easing: Easing.linear,
     });
-    sharedHeight.value = withDelay(
-      200,
-      withTiming(modalHeight, {
-        duration: 200,
-        easing: Easing.bounce,
-      })
-    );
+
     sharedWidth.value = withDelay(
       200,
       withTiming(modalWidth, {
@@ -63,27 +53,18 @@ const GameOverModal = ({
     );
   }, []);
 
-  const ModalBg = {
-    bronze: require("@/assets/modals/OneStarModal.png"),
-    silver: require("@/assets/modals/TwoStarModal.png"),
-    gold: require("@/assets/modals/ThreeStarModal.png"),
-  };
-
   const wrapperAnimated = useAnimatedStyle(() => ({
     opacity: sharedOpacity.value,
   }));
   const scoreBoardAnimated = useAnimatedStyle(() => ({
     width: sharedWidth.value,
-    height: sharedHeight.value,
   }));
   return (
     <Animated.View
       style={[
-        wrapperAnimated,
         {
           width: Dimensions.get("window").width,
           height: Dimensions.get("window").height,
-          backgroundColor: "rgba(0,0,0,0.4)",
           position: "absolute",
           top: 0,
           left: 0,
@@ -91,153 +72,129 @@ const GameOverModal = ({
           justifyContent: "center",
           alignItems: "center",
         },
+        wrapperAnimated,
       ]}
     >
-      <Animated.View
-        style={[
-          {
-            backgroundColor: "transparent",
-            width: 0,
-            height: 0,
-            elevation: 50,
-            shadowColor: "rgba(255,255,255,1)",
-            shadowOffset: {
-              width: 12,
-              height: 12,
-            },
-            shadowOpacity: 1,
-            shadowRadius: 2,
-            padding: 0,
-          },
-          scoreBoardAnimated,
-        ]}
+      <ImageBackground
+        source={require("@/assets/modals/TransparentGameover.png")}
+        resizeMode="stretch"
+        style={{
+          height: modalHeight,
+          width: modalWidth,
+          paddingVertical: 20,
+        }}
       >
-        <ImageBackground
-          source={ModalBg[getScore(score)]}
-          resizeMode="stretch"
+        <Animated.View
+          style={[
+            scoreBoardAnimated,
+            {
+              height: "30%",
+            },
+          ]}
+        >
+          <Stars starCount={2} />
+        </Animated.View>
+        <View
           style={{
-            height: "100%",
+            flex: 1,
+            justifyContent: "space-around",
             width: "100%",
-            position: "relative",
           }}
         >
-          <Leaderboard />
-          <View
+          <Text
             style={{
-              position: "absolute",
-              bottom: 0,
+              fontFamily: "DragonSlayer",
+              fontWeight: 600,
+              textAlignVertical: "center",
+              fontSize: 42,
+              color: "white",
+              textAlign: "center",
+              letterSpacing: 2,
+            }}
+          >
+            SCORE{" "}
+            <Text
+              style={{
+                letterSpacing: 4,
+              }}
+            >
+              {score}
+            </Text>
+          </Text>
 
-              height: "40%",
+          <Text
+            style={{
+              fontFamily: "DragonSlayer",
+              fontWeight: 600,
+              textAlignVertical: "center",
+              fontSize: 42,
+              color: "white",
+              textAlign: "center",
+              letterSpacing: 2,
+            }}
+          >
+            TIME{" "}
+            <Text style={{ letterSpacing: 4 }}>
+              {ConvertToMinuteString(time)}
+            </Text>
+          </Text>
+        </View>
+        <View
+          style={{
+            paddingTop: 14,
 
-              width: "100%",
+            paddingHorizontal: 20,
+            flexDirection: "row",
+            justifyContent: "center",
+            gap: 18,
+          }}
+        >
+          <TouchableOpacity
+            style={{
+              height: 40,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            onPress={() => {
+              populateDeck();
+              router.navigate("/");
             }}
           >
             <Text
               style={{
                 fontFamily: "DragonSlayer",
-                fontWeight: 600,
-                height: 40,
-                textAlignVertical: "center",
-                fontSize: 22,
-                color: "white",
-                textAlign: "center",
+                color: "#efefef",
+                fontSize: 28,
+                paddingBottom: 2,
+                letterSpacing: 2,
               }}
             >
-              SCORE {score}
+              HOME
             </Text>
+          </TouchableOpacity>
 
-            <View
+          <TouchableOpacity
+            style={{
+              height: 40,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            onPress={restartGame}
+          >
+            <Text
               style={{
-                paddingTop: 14,
-
-                paddingHorizontal: 20,
-                flexDirection: "row",
-                borderColor: "red",
-                justifyContent: "center",
-                gap: 14,
+                fontFamily: "DragonSlayer",
+                color: "#efefef",
+                fontSize: 28,
+                paddingBottom: 2,
+                letterSpacing: 2,
               }}
             >
-              <ImageBackground
-                source={require("@/assets/buttons/modalbutton.png")}
-                resizeMethod="auto"
-                resizeMode="stretch"
-                style={{
-                  width: 70,
-                  height: 40,
-                }}
-              >
-                <TouchableOpacity
-                  style={{
-                    paddingTop: 6,
-
-                    height: "100%",
-                  }}
-                  onPress={() => {
-                    populateDeck();
-                    router.navigate("/");
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontFamily: "DragonSlayer",
-                      color: "#efefef",
-                      textShadowColor: "rgba(0,0,0,0.4)",
-                      textShadowRadius: 1,
-                      textShadowOffset: {
-                        width: 1,
-                        height: 1,
-                      },
-
-                      letterSpacing: 1,
-                      fontSize: 17,
-                      textAlign: "center",
-                    }}
-                  >
-                    HOME
-                  </Text>
-                </TouchableOpacity>
-              </ImageBackground>
-              <ImageBackground
-                source={require("@/assets/buttons/modalbutton.png")}
-                resizeMethod="auto"
-                resizeMode="stretch"
-                style={{
-                  width: 70,
-                  height: 40,
-                }}
-              >
-                <TouchableOpacity
-                  style={{
-                    paddingTop: 6,
-
-                    height: "100%",
-                  }}
-                  onPress={restartGame}
-                >
-                  <Text
-                    style={{
-                      fontFamily: "DragonSlayer",
-                      color: "#efefef",
-                      textShadowColor: "rgba(0,0,0,0.4)",
-                      textShadowRadius: 1,
-                      textShadowOffset: {
-                        width: 1,
-                        height: 1,
-                      },
-
-                      letterSpacing: 1,
-                      fontSize: 17,
-                      textAlign: "center",
-                    }}
-                  >
-                    REPLAY
-                  </Text>
-                </TouchableOpacity>
-              </ImageBackground>
-            </View>
-          </View>
-        </ImageBackground>
-      </Animated.View>
+              REPLAY
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ImageBackground>
     </Animated.View>
   );
 };

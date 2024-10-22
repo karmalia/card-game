@@ -1,13 +1,9 @@
-import { StyleSheet, Text, View } from "react-native";
 import React, { useState } from "react";
 import useGameStore from "@/stores/game.store";
 import GameCard from "../game-card/game-card";
-import { Card, TPos } from "../types";
+import { Card } from "../types";
 import { fillPlayersHand } from "../../utils";
 import GameOverModal from "../modals/gameover/game-over-modal";
-import { useSharedValue } from "react-native-reanimated";
-
-let handChecked = false;
 
 function hasThreeOfAKind(cardList: Card[]) {
   const valueCountMap = cardList.reduce((acc: any, card) => {
@@ -22,7 +18,7 @@ function isSequential(cardList: Card[]) {
   const sortedValues = cardList.map((card) => card.value).sort((a, b) => a - b);
 
   let result = false;
-  cardList.forEach((card, index) => {
+  cardList.forEach((_, index) => {
     if (
       sortedValues[index] + 1 === sortedValues[index + 1] &&
       sortedValues[index] + 2 === sortedValues[index + 2]
@@ -37,12 +33,12 @@ function isSequential(cardList: Card[]) {
 function canStillPlay(cardsInHand: Card[]) {
   const sequential = isSequential(cardsInHand);
   const threeOfAKind = hasThreeOfAKind(cardsInHand);
-
-  return sequential || threeOfAKind ? false : true;
+  console.log("sequential", sequential);
+  console.log("threeOfAKind", threeOfAKind);
+  return !sequential || !threeOfAKind ? false : true;
 }
 
 const RenderCards = () => {
-  const [gameOver, setGameOver] = useState(false);
   const [isAnimationGoing, setIsAnimationGoing] = useState(false);
   const {
     gamePhase,
@@ -65,7 +61,6 @@ const RenderCards = () => {
         gamePhase == 1 &&
         cardsInDeck.length === 24
       ) {
-        console.log("Game Started");
         const result = await fillPlayersHand(drawCard, bottomSlotPositions);
         if (result) {
           setTimeout(() => {
@@ -75,7 +70,9 @@ const RenderCards = () => {
       }
     }
 
-    if (gamePhase === 1) startGame();
+    if (gamePhase === 1) {
+      startGame();
+    }
   }, [gamePhase]); // Start the game after gamePhase is set to 1
 
   React.useEffect(() => {
@@ -101,19 +98,22 @@ const RenderCards = () => {
   }, [cardsOnBoard.length]);
 
   React.useEffect(() => {
-    if (cardsInDeck.length === 0 && !handChecked) {
-      handChecked = true;
-      const isGameOver = canStillPlay(cardsInHand);
-      console.log("isGameOver", isGameOver);
-      setGameOver(isGameOver);
+    if (cardsInDeck.length === 0) {
+      const canContinue = canStillPlay([...cardsInHand, ...cardsOnBoard]);
+      console.log("canContinue", canContinue);
+      console.log(
+        "cardsInHand",
+        cardsInHand.map((card) => card.value)
+      );
+      console.log("cardsOnBoard", cardsOnBoard.length);
+      if (!canContinue) setGamePhase(3);
     }
   }, [cardsInHand.length]);
 
   function restartGame() {
     populateDeck();
+    console.log("game phase", gamePhase);
     setGamePhase(1);
-    setGameOver(false);
-    handChecked = false;
   }
 
   return (
@@ -145,9 +145,7 @@ const RenderCards = () => {
             />
           );
         })}
-      {gameOver && (
-        <GameOverModal restartGame={restartGame} setGameOver={setGameOver} />
-      )}
+      {gamePhase === 3 && <GameOverModal restartGame={restartGame} />}
     </>
   );
 };

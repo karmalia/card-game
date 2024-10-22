@@ -6,7 +6,7 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useId, useState } from "react";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -17,14 +17,30 @@ import Icons from "@/components/icons";
 import { usePathname, useRouter } from "expo-router";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Music } from "@/hooks/MusicProvider";
-type OptionsProps = {
-  handleNavigation?: (type: "home" | "restart") => void;
-};
+import useGameStore from "@/stores/game.store";
+
 const { height } = Dimensions.get("window");
 
-const HomeOptions = ({ handleNavigation }: OptionsProps) => {
+const Options = () => {
   const [optionsVisible, setOptionsVisible] = useState(false);
+  const router = useRouter();
+  const { setGamePhase, populateDeck } = useGameStore();
+  const musicId = useId();
+  const soundsId = useId();
   const pathname = usePathname();
+
+  function handleNavigation(type: "home" | "restart") {
+    if (type == "home") {
+      router.navigate("/");
+      populateDeck();
+      setGamePhase(0);
+    }
+    if (type == "restart") {
+      populateDeck();
+      setGamePhase(1);
+    }
+  }
+
   const { menuMusic, gameSounds, handleMusicChange, handleGameSoundChange } =
     useContext<any>(Music);
 
@@ -125,7 +141,7 @@ const HomeOptions = ({ handleNavigation }: OptionsProps) => {
               </Text>
               <Checkbox
                 size={"$4"}
-                id="music"
+                id={musicId}
                 checked={menuMusic?.isActive}
                 onCheckedChange={handleMusicChange}
                 display="none"
@@ -149,7 +165,7 @@ const HomeOptions = ({ handleNavigation }: OptionsProps) => {
                     backgroundColor: "transparent",
                     zIndex: 10,
                   }}
-                  htmlFor="music"
+                  htmlFor={musicId}
                 />
                 {menuMusic?.isActive && (
                   <View
@@ -189,7 +205,7 @@ const HomeOptions = ({ handleNavigation }: OptionsProps) => {
               </Text>
               <Checkbox
                 size={"$4"}
-                id="sounds"
+                id={soundsId}
                 checked={gameSounds}
                 onCheckedChange={handleGameSoundChange}
                 display="none"
@@ -211,7 +227,7 @@ const HomeOptions = ({ handleNavigation }: OptionsProps) => {
                     backgroundColor: "transparent",
                     zIndex: 10,
                   }}
-                  htmlFor="sounds"
+                  htmlFor={soundsId}
                 />
                 {gameSounds && (
                   <View
@@ -267,7 +283,7 @@ const HomeOptions = ({ handleNavigation }: OptionsProps) => {
   );
 };
 
-export default HomeOptions;
+export default Options;
 
 const styles = StyleSheet.create({
   container: {

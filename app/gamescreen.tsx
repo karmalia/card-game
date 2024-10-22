@@ -13,12 +13,11 @@ import { randomUUID } from "expo-crypto";
 import RenderCards from "@/components/render-cards/render-cards";
 import Deck from "@/components/deck/deck";
 import Trash from "@/components/trash/trash";
-import HomeOptions from "@/components/modals/options/options";
 import GameScore from "@/components/gamescore/gamescore";
 import AnimatedGameBackground from "@/components/backgrounds/GameBackground";
+import Options from "@/components/modals/options/options";
 
 const Index = () => {
-  const [optionsVisible, setOptionsVisible] = useState(false);
   const router = useRouter();
   const {
     setGamePhase,
@@ -143,24 +142,11 @@ const Index = () => {
     if (gamePhase == 0) measureAll();
   }, []);
 
-  function handleNavigation(type: "home" | "restart") {
-    if (type == "home") {
-      router.navigate("/");
-      populateDeck();
-      setGamePhase(0);
-    }
-    if (type == "restart") {
-      setOptionsVisible(false);
-      populateDeck();
-      setGamePhase(1);
-    }
-  }
-
   return (
     <View style={styles.container}>
-      <HomeOptions handleNavigation={handleNavigation} />
+      <Options />
+      <GameScore />
       <SafeAreaStyled>
-        <GameScore />
         <Stack flexDirection="row" justifyContent="space-around">
           <Stack
             backgroundColor="transparent"

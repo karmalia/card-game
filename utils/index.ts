@@ -20,3 +20,10 @@ export async function fillPlayersHand(
     return false; // If any drawCard call fails
   }
 }
+
+export function ConvertToMinuteString(time: number) {
+  const minutes = Math.floor(time / 60);
+  const seconds = time % 60;
+
+  return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+}
