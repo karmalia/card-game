@@ -1,12 +1,6 @@
 import { create } from "zustand";
-import * as Crypto from "expo-crypto";
-import {
-  ArraySlots,
-  Card,
-  CardColors,
-  TPos,
-  TSlotPos,
-} from "@/components/types";
+import { ArraySlots, Card, TPos, TSlotPos } from "@/components/types";
+import { generateTestDeck } from "@/utils/generateDeck";
 
 type gameStore = {
   gamePhase: number;
@@ -81,37 +75,6 @@ Different 3-4-5: 30
 
 */
 
-const generateDeck = (): Card[] => {
-  const colors: CardColors[] = ["red", "yellow", "blue"];
-  const deck: Card[] = [];
-
-  for (let color of colors) {
-    for (let value = 1; value <= 8; value++) {
-      deck.push({
-        id: Crypto.randomUUID(),
-        value,
-        color,
-        isPlayed: false,
-        isDeleted: false,
-        slot: {
-          slotId: "",
-          pageX: 0,
-          pageY: 0,
-        },
-        destinationSlot: null,
-      });
-    }
-  }
-
-  // Shuffle the deck using Fisher-Yates algorithm
-  for (let i = deck.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [deck[i], deck[j]] = [deck[j], deck[i]];
-  }
-
-  return deck;
-};
-
 const initialGameState = {
   gamePhase: 0,
   score: 0,
@@ -132,7 +95,7 @@ const initialGameState = {
   cardsOnBoard: [],
   cardsOnGame: [],
   cardsOnTrash: [],
-  cardsInDeck: generateDeck(),
+  cardsInDeck: generateTestDeck(),
 };
 const useGameStore = create<gameStore>((set) => ({
   ...initialGameState,
@@ -327,7 +290,7 @@ const useGameStore = create<gameStore>((set) => ({
 
   populateDeck: () =>
     set((state) => {
-      const deck = generateDeck();
+      const deck = generateTestDeck();
       return {
         ...initialGameState,
         topSlotPositions: state.topSlotPositions,

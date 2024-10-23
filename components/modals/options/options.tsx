@@ -30,14 +30,17 @@ const Options = () => {
   const pathname = usePathname();
 
   function handleNavigation(type: "home" | "restart") {
-    if (type == "home") {
-      router.navigate("/");
-      populateDeck();
-      setGamePhase(0);
-    }
-    if (type == "restart") {
-      populateDeck();
-      setGamePhase(1);
+    switch (type) {
+      case "home":
+        router.navigate("/");
+        populateDeck();
+        setGamePhase(0);
+        break;
+      case "restart":
+        console.log("restart");
+        populateDeck();
+        setGamePhase(1);
+        break;
     }
   }
 

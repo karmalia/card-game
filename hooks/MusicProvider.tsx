@@ -65,6 +65,11 @@ const MusicProvider = ({ children }: Props) => {
     const loadAndPlayMusic = async () => {
       const isMusicOn = await AsyncStorage.getItem("musicOn");
 
+      if (!pathname) {
+        console.log("No Pathname");
+        return;
+      }
+
       if (menuMusic.sound !== null) {
         // Clean up the previous sound
         await menuMusic.sound.unloadAsync();

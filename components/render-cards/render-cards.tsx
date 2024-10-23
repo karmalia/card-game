@@ -15,7 +15,8 @@ function hasThreeOfAKind(cardList: Card[]) {
 }
 function isSequential(cardList: Card[]) {
   if (cardList.length < 3) return false;
-  const sortedValues = cardList.map((card) => card.value).sort((a, b) => a - b);
+  const uniqueValues = Array.from(new Set(cardList.map((card) => card.value)));
+  const sortedValues = uniqueValues.map((value) => value).sort((a, b) => a - b);
 
   let result = false;
   cardList.forEach((_, index) => {
@@ -27,6 +28,9 @@ function isSequential(cardList: Card[]) {
     }
   });
 
+  console.log("sortedValues", sortedValues);
+  console.log("result", result);
+
   return result || false;
 }
 
@@ -35,7 +39,7 @@ function canStillPlay(cardsInHand: Card[]) {
   const threeOfAKind = hasThreeOfAKind(cardsInHand);
   console.log("sequential", sequential);
   console.log("threeOfAKind", threeOfAKind);
-  return !sequential || !threeOfAKind ? false : true;
+  return sequential || threeOfAKind ? true : false;
 }
 
 const RenderCards = () => {
@@ -56,11 +60,7 @@ const RenderCards = () => {
 
   React.useEffect(() => {
     async function startGame() {
-      if (
-        bottomSlotPositions.length > 0 &&
-        gamePhase == 1 &&
-        cardsInDeck.length === 24
-      ) {
+      if (bottomSlotPositions.length > 0 && gamePhase == 1) {
         const result = await fillPlayersHand(drawCard, bottomSlotPositions);
         if (result) {
           setTimeout(() => {
@@ -91,7 +91,7 @@ const RenderCards = () => {
       if (serialized || hasSameValue) {
         calculateScore(serialized, hasSameValue, hasSameColor, totalValue);
         if (cardsInDeck.length == 0 && cardsInHand.length <= 2) {
-          setGameOver(true);
+          setGamePhase(3);
         }
       }
     }
