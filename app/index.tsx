@@ -1,4 +1,4 @@
-import { Dimensions, StyleSheet } from "react-native";
+import { Dimensions, StyleSheet, Text } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Text as TamaguiText } from "tamagui";
 
@@ -7,7 +7,6 @@ import HomeButtons from "@/components/home-buttons/home-buttons";
 import Options from "@/components/modals/options/options";
 import HowToPlay from "@/components/modals/how-to-play";
 import GetUsernameModal from "@/components/modals/get-username/get-username";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import SpaceBackground from "@/components/backgrounds/SpaceBackground";
 import Animated, {
   useAnimatedStyle,
@@ -17,7 +16,6 @@ import Animated, {
 
 const Index = () => {
   const [instructionsVisible, setInstructuresVisible] = useState(false);
-  const [getusername, setGetusername] = useState(false);
   const testOpacity = useSharedValue(0);
 
   const animatedStyles = useAnimatedStyle(() => {
@@ -27,27 +25,11 @@ const Index = () => {
   });
 
   useEffect(() => {
-    async function checkIfUserExists() {
-      const user = await AsyncStorage.getItem("username");
-      const isProd = process.env.NODE_ENV === "production";
-      if (!user && isProd) {
-        setGetusername(true);
-      } else {
-        console.log("user exists", user);
-      }
-    }
-
-    checkIfUserExists();
-
-    testOpacity.value = withTiming(1, {
-      duration: 1000,
-    });
+    testOpacity.value = withTiming(1, { duration: 1000 });
   }, []);
 
   return (
     <SafeAreaView style={styles.container}>
-      <Options />
-
       <Animated.View
         style={[
           {
@@ -68,16 +50,15 @@ const Index = () => {
           fontSize={"$12"}
           lineHeight={84}
           textAlign="left"
-          letterSpacing={4}
+          letterSpacing={8}
         >
           SPACE CARDS
         </TamaguiText>
       </Animated.View>
 
-      <GetUsernameModal
-        visible={getusername}
-        onClose={() => setGetusername(false)}
-      />
+      <Options />
+
+      <GetUsernameModal />
       <HowToPlay
         visible={instructionsVisible}
         onClose={() => setInstructuresVisible(false)}

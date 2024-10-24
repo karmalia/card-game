@@ -6,38 +6,41 @@ import {
   View,
   TouchableOpacity,
 } from "react-native";
-import React from "react";
+import React, { useRef, useState } from "react";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
 import { Image, ScrollView } from "tamagui";
+import {
+  BottomLeft,
+  BottomRight,
+  TopLeft,
+  TopRight,
+} from "../skia-components/corners";
 
-type OptionsProps = {
+type HowToPlayProps = {
   visible: boolean;
   onClose: () => void;
-  handleNavigation?: (type: "home" | "restart") => void;
 };
-const { height } = Dimensions.get("window");
-
-const HowToPlay = ({ visible, onClose, handleNavigation }: OptionsProps) => {
-  const opacity = useSharedValue(0);
-  const translateY = useSharedValue(height);
+const { height: screenHeight } = Dimensions.get("screen");
+const HowToPlay = ({ visible, onClose }: HowToPlayProps) => {
+  const translateY = useSharedValue(screenHeight);
+  const [scrollHeight, setScrollHeight] = useState(0);
   const zIndex = useSharedValue(0);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const sharedIndicator = useSharedValue(0);
 
   if (visible) {
-    opacity.value = withTiming(0.5, { duration: 300 });
     translateY.value = withTiming(0, { duration: 300 });
-    zIndex.value = withTiming(10, { duration: 300 });
+    zIndex.value = withTiming(1, { duration: 300 });
   } else {
     zIndex.value = withTiming(0, { duration: 300 });
-    opacity.value = withTiming(0, { duration: 300 });
-    translateY.value = withTiming(height, { duration: 300 });
+    translateY.value = withTiming(screenHeight, { duration: 300 });
   }
 
   const animatedBackgroundStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
     zIndex: zIndex.value,
   }));
 
@@ -46,18 +49,100 @@ const HowToPlay = ({ visible, onClose, handleNavigation }: OptionsProps) => {
     zIndex: zIndex.value,
   }));
 
+  const animatedIndicator = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateY: sharedIndicator.value * 20,
+        },
+      ],
+    };
+  });
+
+  const handleScroll = (event: any) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+
+    sharedIndicator.value = (offsetY / scrollHeight) * 8;
+  };
+
   return (
     <>
-      <Animated.View style={[styles.background, animatedBackgroundStyle]} />
-      <Animated.View style={[styles.modalContainer, animatedModalStyle]}>
-        <ImageBackground
-          source={require("@/assets/modals/options-modal.png")}
-          resizeMethod="auto"
-          resizeMode="stretch"
-        >
-          <View style={styles.container}>
-            <ScrollView style={styles.modalContent}>
-              <Text style={styles.modalTitle}>How to Play</Text>
+      <Animated.View style={[styles.background, animatedBackgroundStyle]}>
+        <Animated.View style={[styles.modalContainer, animatedModalStyle]}>
+          <TopLeft size={8} />
+          <TopRight size={8} />
+          <BottomLeft size={8} />
+          <BottomRight size={8} />
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+              borderBottomColor: "white",
+              borderBottomWidth: 1,
+              alignItems: "center",
+              padding: 20,
+            }}
+          >
+            <Text style={styles.modalTitle}>How to Play</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <View
+                style={{
+                  width: 40,
+                  height: 40,
+                  position: "relative",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <TopLeft size={8} />
+                <TopRight size={8} />
+                <BottomLeft size={8} />
+                <BottomRight size={8} />
+                <Text
+                  style={{
+                    fontFamily: "inter",
+                    fontSize: 22,
+                    color: "white",
+                  }}
+                >
+                  X
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          <View
+            style={{
+              position: "relative",
+              paddingTop: 5,
+            }}
+          >
+            <Animated.View
+              id={"indicator"}
+              style={[
+                {
+                  width: 12,
+                  height: 100,
+                  backgroundColor: "transparent",
+                  borderWidth: 1,
+                  borderColor: "white",
+                  position: "absolute",
+                  right: 5,
+                  top: 25,
+                  zIndex: 12,
+                },
+                animatedIndicator,
+              ]}
+            />
+            <ScrollView
+              style={styles.modalContent}
+              showsVerticalScrollIndicator={false}
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
+              ref={scrollViewRef}
+              onContentSizeChange={(_, height) => setScrollHeight(height)}
+            >
               <Text style={styles.modalText}>
                 1. At the start of the game, 5 cards are drawn automatically
                 from the deck of 24 cards.
@@ -155,17 +240,7 @@ const HowToPlay = ({ visible, onClose, handleNavigation }: OptionsProps) => {
               </Text>
             </ScrollView>
           </View>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Text
-              style={{
-                fontFamily: "DragonSlayer",
-                fontSize: 30,
-              }}
-            >
-              X
-            </Text>
-          </TouchableOpacity>
-        </ImageBackground>
+        </Animated.View>
       </Animated.View>
     </>
   );
@@ -176,53 +251,45 @@ export default HowToPlay;
 const styles = StyleSheet.create({
   background: {
     position: "absolute",
-    width: "100%",
-    height: "100%",
-    backgroundColor: "black",
-  },
-  container: {
-    flex: 1,
-    paddingVertical: 20,
+    top: 0,
+    left: 0,
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
   },
+
   modalContainer: {
-    position: "absolute",
-    maxWidth: Dimensions.get("window").width * 0.6,
-    backgroundColor: "transparent",
-    borderRadius: 10,
-    alignSelf: "center",
-    top: "20%",
+    height: Dimensions.get("window").height * 0.8,
+    width: Dimensions.get("window").width * 0.6,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    overflow: "hidden",
   },
   modalContent: {
     width: "100%",
+    height: "100%",
     gap: 0,
+    paddingVertical: 20,
     display: "flex",
     flexDirection: "column",
     paddingHorizontal: 40,
-
-    height: Dimensions.get("window").height * 0.6,
   },
   modalTitle: {
     fontFamily: "DragonSlayer",
     fontSize: 30,
-    letterSpacing: 1,
-    marginBottom: 20,
-    textAlign: "center",
+    letterSpacing: 2,
+    color: "white",
   },
   modalText: {
     fontSize: 18,
     marginBottom: 15,
     textAlign: "left",
+    color: "white",
   },
   closeButton: {
     position: "absolute",
-    top: 20,
-    right: 30,
-  },
-  closeButtonText: {
-    color: "black",
-    fontSize: 20,
-    fontWeight: "bold",
+    top: 15,
+    right: 15,
   },
 });

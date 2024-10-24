@@ -1,5 +1,6 @@
 import {
   Dimensions,
+  ImageBackground,
   KeyboardAvoidingView,
   Platform,
   Text,
@@ -19,35 +20,36 @@ import { useRouter } from "expo-router";
 import * as NavigationBar from "expo-navigation-bar";
 import firestore from "@react-native-firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  BottomLeft,
+  BottomRight,
+  TopLeft,
+  TopRight,
+} from "@/components/skia-components/corners";
 
 const initialPlaceholder = {
   value: "Enter your username",
-  color: "gray",
+  color: "white",
 };
 
-const GetUsernameModal = ({
-  visible,
-  onClose,
-}: {
-  visible: boolean;
-  onClose: () => void;
-}) => {
+const GetUsernameModal = () => {
   const { width, height } = Dimensions.get("screen");
-
+  const [visible, setVisible] = React.useState(false);
   const [isError, setIsError] = React.useState(false);
   const [placeholder, setPlaceholder] = React.useState(initialPlaceholder);
   const [username, setUsername] = React.useState("");
-  const router = useRouter();
   const sharedOpacity = useSharedValue(0);
   const sharedWidth = useSharedValue(0);
   const sharedHeight = useSharedValue(0);
 
   useEffect(() => {
-    NavigationBar.setVisibilityAsync("visible");
+    async function getUsername() {
+      const username = await AsyncStorage.getItem("username");
+      console.log("Username", username);
+      setVisible(username ? false : true);
+    }
 
-    return () => {
-      NavigationBar.setVisibilityAsync("hidden");
-    };
+    getUsername();
   }, []);
 
   useEffect(() => {
@@ -81,7 +83,13 @@ const GetUsernameModal = ({
   }, [visible]);
 
   async function handleDone() {
-    console.log("Triggered!");
+    if (username.length < 3) {
+      setIsError(true);
+      setPlaceholder({
+        value: "Username must be at least 3 characters",
+        color: "red",
+      });
+    }
     try {
       const userSnapshot = await firestore()
         .collection("users")
@@ -95,8 +103,14 @@ const GetUsernameModal = ({
           score: 0,
         });
         await AsyncStorage.setItem("username", username);
-        onClose();
+        setVisible(false);
         return;
+      } else {
+        setIsError(true);
+        setPlaceholder({
+          value: `${username} already exists`,
+          color: "red",
+        });
       }
 
       console.log("Users", users);
@@ -139,12 +153,11 @@ const GetUsernameModal = ({
       <KeyboardAvoidingView behavior="padding">
         <View
           style={{
-            width: 350,
             height: 50,
             display: "flex",
             flexDirection: "row",
             position: "relative",
-            backgroundColor: "beige",
+            backgroundColor: "rgba(0,0,0,0.4)",
             alignSelf: "center",
             marginTop: height / 2 - 25,
           }}
@@ -157,6 +170,10 @@ const GetUsernameModal = ({
               position: "relative",
             }}
           >
+            <TopLeft size={10} />
+            <TopRight size={10} />
+            <BottomLeft size={10} />
+            <BottomRight size={10} />
             <TextArea
               placeholder={placeholder.value}
               placeholderTextColor={placeholder.color}
@@ -164,9 +181,12 @@ const GetUsernameModal = ({
               style={{
                 width: "100%",
                 height: "100%",
+
                 backgroundColor: "transparent",
-                color: "black",
+                color: "white",
                 fontSize: 18,
+                borderWidth: 0,
+                borderColor: "transparent",
 
                 padding: 10,
               }}
@@ -180,26 +200,30 @@ const GetUsernameModal = ({
               numberOfLines={1}
               blurOnSubmit={true}
               multiline={false}
+              maxLength={20}
             />
           </View>
 
           <TouchableOpacity
             onPress={handleDone} // Add close action
             style={{
-              padding: 10,
               alignItems: "center",
               justifyContent: "center",
               width: 100,
               height: 50,
-              borderLeftWidth: 2,
-              borderColor: "black",
+              position: "relative",
               zIndex: 101,
             }}
           >
+            <TopLeft size={10} />
+            <TopRight size={10} />
+            <BottomLeft size={10} />
+            <BottomRight size={10} />
             <Text
               style={{
-                color: "black",
+                color: "white",
                 fontSize: 18,
+                letterSpacing: 2,
                 fontFamily: "DragonSlayer",
               }}
             >
