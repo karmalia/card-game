@@ -35,7 +35,7 @@ const menuButtons = [
       type: "modal",
       value: "leaderboard",
     },
-    disabled: true,
+    disabled: false,
   },
 
   {
@@ -51,8 +51,10 @@ const menuButtons = [
 
 const HomeButtons = ({
   setInstructuresVisible,
+  setLeaderboardVisible,
 }: {
   setInstructuresVisible: (value: boolean) => void;
+  setLeaderboardVisible: (value: boolean) => void;
 }) => {
   const router = useRouter();
   const opacity = useSharedValue(0);
@@ -68,6 +70,7 @@ const HomeButtons = ({
           setInstructuresVisible(true);
           break;
         case "leaderboard":
+          setLeaderboardVisible(true);
           break;
         case "credits":
           break;

@@ -5,7 +5,7 @@ import { Stack, View } from "tamagui";
 import { ConvertToMinuteString } from "@/utils";
 
 const GameScore = () => {
-  const { score, time, increaseTime, gamePhase } = useGameStore();
+  const { point, time, increaseTime, gamePhase } = useGameStore();
 
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -44,7 +44,7 @@ const GameScore = () => {
               paddingHorizontal: 24,
             }}
           >
-            Score: {score}
+            Points: {point}
           </Text>
         </ImageBackground>
       </Stack>

@@ -13,9 +13,11 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import Leaderboard from "@/components/modals/leaderboard/leaderboard";
 
 const Index = () => {
   const [instructionsVisible, setInstructuresVisible] = useState(false);
+  const [leaderboardVisible, setLeaderboardVisible] = useState(true);
   const testOpacity = useSharedValue(0);
 
   const animatedStyles = useAnimatedStyle(() => {
@@ -63,8 +65,15 @@ const Index = () => {
         visible={instructionsVisible}
         onClose={() => setInstructuresVisible(false)}
       />
+      <Leaderboard
+        visible={leaderboardVisible}
+        onClose={() => setLeaderboardVisible(false)}
+      />
 
-      <HomeButtons setInstructuresVisible={setInstructuresVisible} />
+      <HomeButtons
+        setInstructuresVisible={setInstructuresVisible}
+        setLeaderboardVisible={setLeaderboardVisible}
+      />
 
       <SpaceBackground />
     </SafeAreaView>

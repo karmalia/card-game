@@ -162,7 +162,7 @@ const HowToPlay = ({ visible, onClose }: HowToPlayProps) => {
               </View>
               <Text style={styles.modalText}>
                 2. The goal is to place cards either in a sequence or with the
-                same color to score points.
+                same color to get points.
               </Text>
               <View
                 style={{
@@ -198,7 +198,7 @@ const HowToPlay = ({ visible, onClose }: HowToPlayProps) => {
               </View>
               {/* Same Color Squence */}
               <Text style={styles.modalText}>
-                4. Another way to score is by placing 3 cards with the same
+                4. Another way to points is by placing 3 cards with the same
                 number (like 8-8-8) with different colors.
               </Text>
               <View

@@ -10,19 +10,20 @@ import Animated, {
 } from "react-native-reanimated";
 import useGameStore from "@/stores/game.store";
 import { Button, ScrollView } from "tamagui";
-import Leaderboard from "@/components/modals/gameover/leaderboard/leaderboard";
 import { green } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
 import Stars from "./Stars/Stars";
 import { ConvertToMinuteString } from "@/utils";
-
-function getScore(score: number) {
-  if (score < 300) {
+import calculateTotalScore from "@/utils/calculateTotalScore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import firestore from "@react-native-firebase/firestore";
+function getScore(point: number) {
+  if (point < 300) {
     return "bronze";
-  } else if (score >= 300 && score <= 399) {
+  } else if (point >= 300 && point <= 399) {
     return "silver";
-  } else if (score >= 400) {
+  } else if (point >= 400) {
     return "gold";
   } else {
     return "bronze";
@@ -34,7 +35,7 @@ const GameOverModal = ({ restartGame }: { restartGame: () => void }) => {
   const sharedOpacity = useSharedValue(0);
   const sharedWidth = useSharedValue(0);
 
-  const { score, populateDeck, time } = useGameStore();
+  const { point, populateDeck, time, gamePhase } = useGameStore();
   const modalWidth = Math.min(Dimensions.get("screen").width * 0.3, 250);
   const modalHeight = Math.min(Dimensions.get("screen").height * 0.8, 300);
 
@@ -51,7 +52,54 @@ const GameOverModal = ({ restartGame }: { restartGame: () => void }) => {
         easing: Easing.bounce,
       })
     );
-  }, []);
+
+    async function checkAndUpdateScore() {
+      try {
+        const bestScore = await AsyncStorage.getItem("bestScore");
+        const userId = await AsyncStorage.getItem("userId");
+        const username = await AsyncStorage.getItem("username");
+        const totalScore = calculateTotalScore(point, time);
+
+        if (userId) {
+          const userRef = firestore().collection("users").doc(userId);
+
+          const userDoc = await userRef.get();
+          if (userDoc.exists) {
+            const best = bestScore ? JSON.parse(bestScore) : 0;
+
+            if (totalScore > best) {
+              await AsyncStorage.setItem(
+                "bestScore",
+                JSON.stringify(totalScore)
+              );
+
+              await userRef.update({
+                point,
+                time,
+                score: totalScore,
+              });
+            }
+          } else {
+            console.error("User document not found.");
+          }
+        } else {
+          const newUserRef = await firestore().collection("users").add({
+            nickname: username,
+            point,
+            time,
+            score: totalScore,
+          });
+
+          // Store the new document ID in AsyncStorage
+          await AsyncStorage.setItem("userId", newUserRef.id);
+        }
+      } catch (error) {
+        console.error("Error updating score:", error);
+      }
+    }
+
+    gamePhase === 3 && checkAndUpdateScore();
+  }, [gamePhase]);
 
   const wrapperAnimated = useAnimatedStyle(() => ({
     opacity: sharedOpacity.value,
@@ -106,19 +154,19 @@ const GameOverModal = ({ restartGame }: { restartGame: () => void }) => {
               fontFamily: "DragonSlayer",
               fontWeight: 600,
               textAlignVertical: "center",
-              fontSize: 42,
+              fontSize: 32,
               color: "white",
               textAlign: "center",
               letterSpacing: 2,
             }}
           >
-            SCORE{" "}
+            point{" "}
             <Text
               style={{
                 letterSpacing: 4,
               }}
             >
-              {score}
+              {point}
             </Text>
           </Text>
 
@@ -127,7 +175,7 @@ const GameOverModal = ({ restartGame }: { restartGame: () => void }) => {
               fontFamily: "DragonSlayer",
               fontWeight: 600,
               textAlignVertical: "center",
-              fontSize: 42,
+              fontSize: 32,
               color: "white",
               textAlign: "center",
               letterSpacing: 2,
@@ -136,6 +184,22 @@ const GameOverModal = ({ restartGame }: { restartGame: () => void }) => {
             TIME{" "}
             <Text style={{ letterSpacing: 4 }}>
               {ConvertToMinuteString(time)}
+            </Text>
+          </Text>
+          <Text
+            style={{
+              fontFamily: "DragonSlayer",
+              fontWeight: 600,
+              textAlignVertical: "center",
+              fontSize: 32,
+              color: "white",
+              textAlign: "center",
+              letterSpacing: 2,
+            }}
+          >
+            SCORE{" "}
+            <Text style={{ letterSpacing: 4 }}>
+              {calculateTotalScore(point, time)}
             </Text>
           </Text>
         </View>

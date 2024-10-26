@@ -16,8 +16,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { TextArea } from "tamagui";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { useRouter } from "expo-router";
-import * as NavigationBar from "expo-navigation-bar";
+
 import firestore from "@react-native-firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
@@ -45,7 +44,6 @@ const GetUsernameModal = () => {
   useEffect(() => {
     async function getUsername() {
       const username = await AsyncStorage.getItem("username");
-      console.log("Username", username);
       setVisible(username ? false : true);
     }
 
@@ -54,7 +52,6 @@ const GetUsernameModal = () => {
 
   useEffect(() => {
     if (visible) {
-      // Animate the modal to appear
       sharedOpacity.value = withTiming(1, {
         duration: 200,
         easing: Easing.linear,
@@ -74,7 +71,6 @@ const GetUsernameModal = () => {
         })
       );
     } else {
-      // Animate the modal to disappear
       sharedOpacity.value = withTiming(0, {
         duration: 200,
         easing: Easing.linear,
@@ -91,29 +87,30 @@ const GetUsernameModal = () => {
       });
     }
     try {
-      const userSnapshot = await firestore()
+      const userExists = await firestore()
         .collection("users")
         .where("nickname", "==", username)
         .get();
-      const users = userSnapshot.docs.map((doc) => doc.data());
 
-      if (users.length === 0) {
-        await firestore().collection("users").add({
+      if (userExists.empty) {
+        const addedUser = await firestore().collection("users").add({
           nickname: username,
+          point: 0,
+          time: 0,
           score: 0,
         });
         await AsyncStorage.setItem("username", username);
+        await AsyncStorage.setItem("bestScore", "0");
+        await AsyncStorage.setItem("userId", addedUser.id);
         setVisible(false);
         return;
       } else {
         setIsError(true);
         setPlaceholder({
-          value: `${username} already exists`,
+          value: `This nickname already exists`,
           color: "red",
         });
       }
-
-      console.log("Users", users);
     } catch (error) {
       console.log("Error", error.message);
     }

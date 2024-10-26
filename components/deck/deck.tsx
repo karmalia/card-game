@@ -102,7 +102,7 @@ const Deck = forwardRef((props: Props, ref: any) => {
             fontSize: 18,
           }}
         >
-          DECK
+          DRAW
         </Text>
       </Stack>
     </Stack>

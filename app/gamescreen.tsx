@@ -148,14 +148,6 @@ const Index = () => {
       <GameScore />
       <SafeAreaStyled>
         <Stack flexDirection="row" justifyContent="space-around">
-          <Stack
-            backgroundColor="transparent"
-            height="$4"
-            width="$2"
-            justifyContent="center"
-            alignItems="center"
-            marginHorizontal="$4"
-          ></Stack>
           <Stack flexDirection="row" justifyContent="center" flex={1} gap="$4">
             <Styled.BoardSlotStyled
               slotNumber={0}
@@ -170,9 +162,8 @@ const Index = () => {
               ref={topSlot3Ref}
             ></Styled.BoardSlotStyled>
           </Stack>
-          <Stack></Stack>
         </Stack>
-        <Stack flex={1} flexDirection="row">
+        <Stack flex={1} flexDirection="row" justifyContent="space-around">
           <Deck ref={deckPositionRef} />
           <Stack
             flex={1}

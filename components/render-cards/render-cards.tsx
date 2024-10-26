@@ -53,7 +53,7 @@ const RenderCards = () => {
     cardsOnGame,
     setGamePhase,
     drawCard,
-    calculateScore,
+    calculatePoint,
     cardsInHand,
     populateDeck,
   } = useGameStore();
@@ -89,7 +89,7 @@ const RenderCards = () => {
       }, 0);
 
       if (serialized || hasSameValue) {
-        calculateScore(serialized, hasSameValue, hasSameColor, totalValue);
+        calculatePoint(serialized, hasSameValue, hasSameColor, totalValue);
         if (cardsInDeck.length == 0 && cardsInHand.length <= 2) {
           setGamePhase(3);
         }
@@ -100,12 +100,7 @@ const RenderCards = () => {
   React.useEffect(() => {
     if (cardsInDeck.length === 0) {
       const canContinue = canStillPlay([...cardsInHand, ...cardsOnBoard]);
-      console.log("canContinue", canContinue);
-      console.log(
-        "cardsInHand",
-        cardsInHand.map((card) => card.value)
-      );
-      console.log("cardsOnBoard", cardsOnBoard.length);
+
       if (!canContinue) setGamePhase(3);
     }
   }, [cardsInHand.length]);

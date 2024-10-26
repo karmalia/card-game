@@ -32,9 +32,10 @@ const Options = () => {
   function handleNavigation(type: "home" | "restart") {
     switch (type) {
       case "home":
-        router.navigate("/");
         populateDeck();
         setGamePhase(0);
+        router.navigate("/");
+
         break;
       case "restart":
         console.log("restart");
@@ -42,6 +43,7 @@ const Options = () => {
         setGamePhase(1);
         break;
     }
+    setOptionsVisible(false);
   }
 
   const { menuMusic, gameSounds, handleMusicChange, handleGameSoundChange } =

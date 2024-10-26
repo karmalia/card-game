@@ -1,10 +1,10 @@
 import { create } from "zustand";
 import { ArraySlots, Card, TPos, TSlotPos } from "@/components/types";
-import { generateTestDeck } from "@/utils/generateDeck";
+import { generateTestDeck, generateDeck } from "@/utils/generateDeck";
 
 type gameStore = {
   gamePhase: number;
-  score: number;
+  point: number;
   time: number;
   topSlotPositions: ArraySlots;
   bottomSlotPositions: ArraySlots;
@@ -26,7 +26,7 @@ type gameStore = {
   placeOnBoard: (card: Card) => void;
   removeFromBoard: (card: Card) => void;
   discardCard: (card: Card) => void;
-  calculateScore: (
+  calculatePoint: (
     serialized: boolean,
     hasSameValue: boolean,
     hasSameColor: boolean,
@@ -77,7 +77,7 @@ Different 3-4-5: 30
 
 const initialGameState = {
   gamePhase: 0,
-  score: 0,
+  point: 0,
   time: 0,
   topSlotPositions: [],
   bottomSlotPositions: [],
@@ -244,22 +244,19 @@ const useGameStore = create<gameStore>((set) => ({
       return state;
     }),
 
-  calculateScore: (serialized, hasSameValue, hasSameColor, totalValue) =>
+  calculatePoint: (serialized, hasSameValue, hasSameColor, totalValue) =>
     set((state) => {
-      let score = 0;
-      console.log("Serialized", serialized);
-      console.log("hasSameValue", hasSameValue);
-      console.log("hasSameColor", hasSameColor);
-      console.log("totalValue", totalValue);
+      let point = 0;
+
       if (hasSameValue) {
-        score =
+        point =
           Points.hasSameValue[totalValue as keyof typeof Points.hasSameValue];
       }
 
       if (serialized) {
-        score =
+        point =
           Points.isSameColor[totalValue as keyof typeof Points.isSameColor];
-        if (!hasSameColor) score -= 40;
+        if (!hasSameColor) point -= 40;
       }
 
       const cardsOnBoardIds = state.cardsOnBoard.map((c) => c.id);
@@ -267,7 +264,7 @@ const useGameStore = create<gameStore>((set) => ({
       const emptiedSlotsIds = state.cardsOnBoard.map((c) => c.slot.slotId);
 
       const newState = {
-        score: state.score + score,
+        point: state.point + point,
         cardsOnBoard: [],
         cardsOnGame: state.cardsOnGame.filter(
           (c) =>
