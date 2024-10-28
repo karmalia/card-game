@@ -24,41 +24,25 @@ export default function RootLayout() {
     InterBold: require("@tamagui/font-inter/otf/Inter-Bold.otf"),
     DragonSlayer: require("@/assets/fonts/dragon-slayer/dragon-slayer.otf"),
   });
-  NavigationBar.setVisibilityAsync("hidden");
-
-  function handleBackButton() {
-    return true;
-  }
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
 
-  useEffect(() => {
-    BackHandler.addEventListener("hardwareBackPress", handleBackButton);
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-
-    return () => {
-      BackHandler.removeEventListener("hardwareBackPress", handleBackButton);
-    };
-  }, [loaded]);
-
   if (!loaded) {
     return null;
+  } else {
+    return (
+      <GestureHandlerRootView>
+        <TamaguiProvider config={tamaguiConfig}>
+          <MusicProvider>
+            <RootLayoutNav />
+          </MusicProvider>
+        </TamaguiProvider>
+      </GestureHandlerRootView>
+    );
   }
-
-  return (
-    <GestureHandlerRootView>
-      <TamaguiProvider config={tamaguiConfig}>
-        <MusicProvider>
-          <RootLayoutNav />
-        </MusicProvider>
-      </TamaguiProvider>
-    </GestureHandlerRootView>
-  );
 }
 
 function RootLayoutNav() {

@@ -44,7 +44,7 @@ const GetUsernameModal = () => {
   useEffect(() => {
     async function getUsername() {
       const username = await AsyncStorage.getItem("username");
-      setVisible(username ? false : true);
+      if (!username) setVisible(true);
     }
 
     getUsername();
@@ -85,6 +85,7 @@ const GetUsernameModal = () => {
         value: "Username must be at least 3 characters",
         color: "red",
       });
+      return;
     }
     try {
       const userExists = await firestore()
@@ -110,19 +111,11 @@ const GetUsernameModal = () => {
           value: `This nickname already exists`,
           color: "red",
         });
+        setUsername("");
       }
     } catch (error) {
       console.log("Error", error.message);
     }
-
-    if (username === "") return;
-
-    setIsError(true);
-    setPlaceholder({
-      value: `${username} already exists`,
-      color: "red",
-    });
-    setUsername("");
   }
 
   const wrapperAnimated = useAnimatedStyle(() => ({
@@ -144,6 +137,8 @@ const GetUsernameModal = () => {
           left: 0,
 
           zIndex: 100,
+          justifyContent: "center",
+          alignItems: "center",
         },
       ]}
     >
@@ -156,7 +151,6 @@ const GetUsernameModal = () => {
             position: "relative",
             backgroundColor: "rgba(0,0,0,0.4)",
             alignSelf: "center",
-            marginTop: height / 2 - 25,
           }}
         >
           <View

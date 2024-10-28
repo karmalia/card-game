@@ -28,22 +28,17 @@ function isSequential(cardList: Card[]) {
     }
   });
 
-  console.log("sortedValues", sortedValues);
-  console.log("result", result);
-
   return result || false;
 }
 
 function canStillPlay(cardsInHand: Card[]) {
   const sequential = isSequential(cardsInHand);
   const threeOfAKind = hasThreeOfAKind(cardsInHand);
-  console.log("sequential", sequential);
-  console.log("threeOfAKind", threeOfAKind);
   return sequential || threeOfAKind ? true : false;
 }
 
 const RenderCards = () => {
-  const [isAnimationGoing, setIsAnimationGoing] = useState(false);
+  const [animatedCard, setAnimatedCard] = useState<null | string>(null);
   const {
     gamePhase,
     cardsOnBoard,
@@ -107,7 +102,6 @@ const RenderCards = () => {
 
   function restartGame() {
     populateDeck();
-    console.log("game phase", gamePhase);
     setGamePhase(1);
   }
 
@@ -121,8 +115,8 @@ const RenderCards = () => {
               card={card}
               startingPosition={deckPosition}
               endingPosition={card.slot}
-              isAnimationGoing={isAnimationGoing}
-              setIsAnimationGoing={setIsAnimationGoing}
+              animatedCard={animatedCard}
+              setAnimatedCard={setAnimatedCard}
             />
           );
         })}
@@ -135,8 +129,8 @@ const RenderCards = () => {
               card={card}
               startingPosition={card.slot}
               endingPosition={null}
-              isAnimationGoing={isAnimationGoing}
-              setIsAnimationGoing={setIsAnimationGoing}
+              animatedCard={animatedCard}
+              setAnimatedCard={setAnimatedCard}
             />
           );
         })}

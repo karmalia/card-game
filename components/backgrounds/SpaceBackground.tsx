@@ -43,7 +43,7 @@ const AnimatedGradientBackground = React.memo(() => {
         <LinearGradient
           start={vec(0, 0)}
           end={vec(width, height)}
-          colors={["#000010", "#000020", "#000030", "#000040", "#000050"]}
+          colors={["#000040", "#000050", "#000060", "#000070", "#000080"]}
         />
       </Rect>
       {Array.from({ length: 25 }).map((_, index) => (

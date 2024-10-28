@@ -1,8 +1,11 @@
-import { Card, CardColors } from "@/components/types";
+import { Card, CardColor } from "@/components/types";
 import * as Crypto from "expo-crypto";
-
+const colors: CardColor[] = [
+  { name: "red", value: "rgba(137,94, 94, 0.5)" },
+  { name: "yellow", value: "rgba(102,103,64, 0.5)" },
+  { name: "blue", value: "rgba(16, 5, 137, 0.5)" },
+];
 const generateTestDeck = (): Card[] => {
-  const colors: CardColors[] = ["red", "yellow", "blue"];
   const deck: Card[] = [];
 
   for (let color of colors) {
@@ -33,7 +36,6 @@ const generateTestDeck = (): Card[] => {
 };
 
 const generateDeck = (): Card[] => {
-  const colors: CardColors[] = ["red", "yellow", "blue"];
   const deck: Card[] = [];
 
   for (let color of colors) {

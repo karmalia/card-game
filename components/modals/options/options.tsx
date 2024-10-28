@@ -86,6 +86,7 @@ const Options = () => {
           position: "absolute",
           top: 14,
           right: 0,
+          zIndex: 20,
         }}
       >
         <Stack
@@ -131,6 +132,7 @@ const Options = () => {
                 flexDirection: "row",
                 gap: 12,
                 alignItems: "center",
+                justifyContent: "space-between",
               }}
             >
               <Text
@@ -139,7 +141,7 @@ const Options = () => {
                   fontSize: 28,
                   letterSpacing: 1,
                   color: "white",
-                  width: "50%",
+                  flex: 1,
                 }}
               >
                 MUSIC
@@ -195,6 +197,7 @@ const Options = () => {
                 flexDirection: "row",
                 gap: 12,
                 alignItems: "center",
+                justifyContent: "space-between",
               }}
             >
               <Text
@@ -203,7 +206,7 @@ const Options = () => {
                   fontSize: 28,
                   letterSpacing: 1,
                   color: "white",
-                  width: "50%",
+                  flex: 1,
                 }}
               >
                 SOUNDS

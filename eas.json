@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 10.2.3"
+    "version": ">= 10.2.3",
+    "appVersionSource": "remote"
   },
   "build": {
     "development": {
@@ -14,7 +15,10 @@
     },
     "production": {
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "env": {
+          "GOOGLE_SERVICES_JSON_FILE": "@GOOGLE_SERVICES_JSON_FILE"
+        }
       },
       "autoIncrement": true
     }

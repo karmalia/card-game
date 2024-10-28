@@ -101,7 +101,6 @@ const HowToPlay = ({ visible, onClose }: HowToPlayProps) => {
                 <BottomRight size={8} />
                 <Text
                   style={{
-                    fontFamily: "inter",
                     fontSize: 22,
                     color: "white",
                   }}

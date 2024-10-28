@@ -50,7 +50,6 @@ const Leaderboard = ({ visible, onClose }: LeaderboardProps) => {
   const zIndex = useSharedValue(0);
   const [players, setPlayers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const scrollViewRef = useRef<ScrollView>(null);
 
   if (visible) {
     translateY.value = withTiming(0, { duration: 300 });
@@ -84,11 +83,9 @@ const Leaderboard = ({ visible, onClose }: LeaderboardProps) => {
         }));
         //if it is production, use the data from firestore, else use the dummy data
         if (process.env.NODE_ENV === "production") {
-          console.log("isProduction");
           setPlayers(playersList);
         } else {
-          console.log("isNotProduction");
-          setPlayers(dummyPlayers);
+          setPlayers(playersList);
         }
       } catch (error) {
         console.error("Error fetching leaderboard:", error);
@@ -142,7 +139,15 @@ const Leaderboard = ({ visible, onClose }: LeaderboardProps) => {
           <Text style={styles.modalTitle}>LEADERBOARD</Text>
           <View style={styles.divider} />
           {loading ? (
-            <ActivityIndicator size="large" color="white" />
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <ActivityIndicator size="large" color="white" />
+            </View>
           ) : (
             <FlatList
               data={players}
@@ -223,7 +228,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontFamily: "DragonSlayer",
-    fontSize: 18,
+    fontSize: 16,
     color: "white",
     letterSpacing: 2,
     width: "20%",

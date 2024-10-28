@@ -95,7 +95,7 @@ const initialGameState = {
   cardsOnBoard: [],
   cardsOnGame: [],
   cardsOnTrash: [],
-  cardsInDeck: generateTestDeck(),
+  cardsInDeck: generateDeck(),
 };
 const useGameStore = create<gameStore>((set) => ({
   ...initialGameState,
@@ -287,7 +287,7 @@ const useGameStore = create<gameStore>((set) => ({
 
   populateDeck: () =>
     set((state) => {
-      const deck = generateTestDeck();
+      const deck = generateDeck();
       return {
         ...initialGameState,
         topSlotPositions: state.topSlotPositions,

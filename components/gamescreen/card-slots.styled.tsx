@@ -44,7 +44,7 @@ const BoardSlotStyled = forwardRef((props: any, ref: any) => {
         setBoardState({
           value: findCard ? findCard.value : 0,
           isActive: findSlot.isActive,
-          color: findCard ? findCard.color : "#383838",
+          color: findCard ? findCard.color.value : "#383838",
         });
       }
     }
@@ -52,7 +52,7 @@ const BoardSlotStyled = forwardRef((props: any, ref: any) => {
 
   useEffect(() => {
     sharedStyle.value = withTiming(boardState.color, {
-      duration: 500, // Adjust duration as needed
+      duration: 500,
     });
   }, [boardState.color]);
 

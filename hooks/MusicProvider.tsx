@@ -29,7 +29,7 @@ const MusicProvider = ({ children }: Props) => {
   const [menuMusic, setMenuMusic] = useState<{
     sound: Audio.Sound | null;
     isActive: boolean;
-  }>({ sound: null, isActive: false });
+  }>({ sound: null, isActive: true });
   const [gameSounds, setGameSounds] = useState<boolean>(true);
 
   const handleMenuOptions = async (play: boolean, type: "Music" | "Sound") => {

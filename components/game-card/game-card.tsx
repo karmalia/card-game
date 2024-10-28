@@ -43,8 +43,8 @@ type GameCardProps = {
   card: Card;
   startingPosition: TPos;
   endingPosition: TPos | null;
-  isAnimationGoing: boolean;
-  setIsAnimationGoing: (value: boolean) => void;
+  animatedCard: string | null;
+  setAnimatedCard: (value: string | null) => void;
 };
 
 const springConfig = {
@@ -67,8 +67,8 @@ const GameCard = ({
   card,
   startingPosition,
   endingPosition,
-  isAnimationGoing,
-  setIsAnimationGoing,
+  animatedCard,
+  setAnimatedCard,
 }: GameCardProps) => {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -157,29 +157,38 @@ const GameCard = ({
 
   const drag = Gesture.Pan()
     .onStart((event) => {
-      if (isAnimationGoing) return;
-      event.x = translateX.value;
-      event.y = translateY.value;
-    })
-    .onChange((event) => {
-      if (isAnimationGoing) return;
-      translateX.value = event.translationX;
-      translateY.value = event.translationY;
+      //Return if the card is already animated
+      if (animatedCard === null) {
+        runOnJS(setAnimatedCard)(card.id);
+      }
 
-      if (
-        event.absoluteX > trashCanPosition.pageX &&
-        event.absoluteY > trashCanPosition.pageY
-      ) {
-        runOnJS(setBroken)(true);
-      } else {
-        runOnJS(setBroken)(false);
+      if (animatedCard === card.id) {
+        event.x = translateX.value;
+        event.y = translateY.value;
       }
     })
+    .onChange((event) => {
+      if (animatedCard !== card.id) {
+        return;
+      } else {
+        translateX.value = event.translationX;
+        translateY.value = event.translationY;
+      }
+
+      // if (
+      //   event.absoluteX > trashCanPosition.pageX &&
+      //   event.absoluteY > trashCanPosition.pageY
+      // ) {
+      //   runOnJS(setBroken)(true);
+      // } else {
+      //   runOnJS(setBroken)(false);
+      // }
+    })
     .onEnd((event) => {
-      if (isAnimationGoing) return;
+      if (animatedCard !== card.id) return;
       if (event.absoluteY < middleCenterY) {
         try {
-          runOnJS(setIsAnimationGoing)(true);
+          runOnJS(setAnimatedCard)(null);
           if (sharedTopFirstEmptySlot.value) {
             const targetX =
               sharedTopFirstEmptySlot.value.pageX -
@@ -193,7 +202,6 @@ const GameCard = ({
             translateX.value = withSpring(targetX, springConfig);
             translateY.value = withSpring(targetY, springConfig, () => {
               runOnJS(placeOnBoard)(sharedCard.value);
-              runOnJS(setIsAnimationGoing)(false);
             });
           } else {
             translateX.value = withSpring(0, springConfig);
@@ -293,7 +301,7 @@ const GameCard = ({
         broken,
         tap,
         drag,
-        isAnimationGoing,
+        animatedCard,
       }}
     />
   );
@@ -306,13 +314,13 @@ const GesturedCard = ({
   broken,
   tap,
   drag,
-  isAnimationGoing,
+  animatedCard,
 }: {
   card: Card;
   CardAnimationStyles: any;
   sharedCard: any;
   broken: boolean;
-  isAnimationGoing: boolean;
+  animatedCard: string | null;
   tap: TapGesture;
   drag: PanGesture;
 }) => {
@@ -329,7 +337,7 @@ const GesturedCard = ({
         <TouchableOpacity touchSoundDisabled activeOpacity={1}>
           <StyledCard>
             <ImageBackground
-              source={bg[card.color]}
+              source={bg[card.color.name]}
               resizeMode="stretch"
               style={{
                 flex: 1,

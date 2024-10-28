@@ -1,5 +1,11 @@
-import { ImageBackground, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import {
+  ImageBackground,
+  Keyboard,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 import { Button } from "tamagui";
 import { useRouter } from "expo-router";
 import Animated, {
@@ -56,6 +62,21 @@ const HomeButtons = ({
   setInstructuresVisible: (value: boolean) => void;
   setLeaderboardVisible: (value: boolean) => void;
 }) => {
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
+      setIsKeyboardVisible(true);
+    });
+    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
+      setIsKeyboardVisible(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
   const router = useRouter();
   const opacity = useSharedValue(0);
 
@@ -80,7 +101,7 @@ const HomeButtons = ({
     }
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     opacity.value = withTiming(1, {
       duration: 600,
       easing: Easing.linear,
@@ -90,6 +111,8 @@ const HomeButtons = ({
   const animatedStyles = useAnimatedStyle(() => ({
     opacity: opacity.value,
   }));
+
+  if (isKeyboardVisible) return null;
 
   return (
     <Animated.View

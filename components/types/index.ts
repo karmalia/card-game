@@ -21,11 +21,15 @@ export interface IBottomSlots extends ITopSlots {
   5: TSlotPos;
 }
 
-export type CardColors = "red" | "yellow" | "blue";
+export type CardColor = {
+  name: "red" | "yellow" | "blue";
+  value: string;
+};
+
 export type Card = {
   id: string;
   value: number;
-  color: CardColors;
+  color: CardColor;
   isPlayed: boolean;
   isDeleted: boolean;
   slot: Omit<TSlotPos, "isActive">;

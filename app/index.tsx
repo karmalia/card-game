@@ -17,7 +17,7 @@ import Leaderboard from "@/components/modals/leaderboard/leaderboard";
 
 const Index = () => {
   const [instructionsVisible, setInstructuresVisible] = useState(false);
-  const [leaderboardVisible, setLeaderboardVisible] = useState(true);
+  const [leaderboardVisible, setLeaderboardVisible] = useState(false);
   const testOpacity = useSharedValue(0);
 
   const animatedStyles = useAnimatedStyle(() => {

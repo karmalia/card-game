@@ -11,7 +11,9 @@ const GameScore = () => {
     const interval = setInterval(() => {
       if (gamePhase === 3) {
         clearInterval(interval);
-      } else {
+      }
+
+      if (gamePhase === 2) {
         increaseTime();
       }
     }, 1000);
