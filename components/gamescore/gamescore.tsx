@@ -2,7 +2,7 @@ import { ImageBackground, Text } from "react-native";
 import React from "react";
 import useGameStore from "@/stores/game.store";
 import { Stack, View } from "tamagui";
-import { ConvertToMinuteString } from "@/utils";
+import ConvertToMinuteString from "@/utils/convertToMinuteString";
 
 const GameScore = () => {
   const { point, time, increaseTime, gamePhase } = useGameStore();

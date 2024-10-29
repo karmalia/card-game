@@ -1,5 +1,5 @@
 import { Dimensions, ImageBackground, StyleSheet } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { View, Text, styled } from "tamagui";
 import useGameStore from "@/stores/game.store";
 import * as Haptics from "expo-haptics";
@@ -11,15 +11,16 @@ import {
 import Animated, {
   ReduceMotion,
   runOnJS,
+  SharedValue,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
 import { Card, TPos, TSlotPos } from "../types";
-import usePlaySound from "@/hooks/usePlaySound";
 import { TapGesture } from "react-native-gesture-handler/lib/typescript/handlers/gestures/tapGesture";
 import { PanGesture } from "react-native-gesture-handler/lib/typescript/handlers/gestures/panGesture";
 import { set } from "@react-native-firebase/database";
+import { Sounds } from "@/stores/SoundProvider";
 
 const StyledCard = styled(View, {
   name: "GameCard",
@@ -43,7 +44,8 @@ type GameCardProps = {
   card: Card;
   startingPosition: TPos;
   endingPosition: TPos | null;
-  sharedAnimatedCard: any;
+  sharedAnimatedCard: SharedValue<string | null>;
+  sharedDirective: SharedValue<"none" | "play" | "delete">;
 };
 
 const springConfig = {
@@ -67,13 +69,13 @@ const GameCard = ({
   startingPosition,
   endingPosition,
   sharedAnimatedCard,
+  sharedDirective,
 }: GameCardProps) => {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
 
-  const { playDelete, playPutOn, playPullBack } = usePlaySound();
-
-  const [broken, setBroken] = useState(false);
+  const { playDelete, playPutOn, playPullBack, playClickTwo } =
+    useContext(Sounds)!;
 
   const [cardState, setCardState] = useState(card);
 
@@ -170,41 +172,21 @@ const GameCard = ({
         translateX.value = event.translationX;
         translateY.value = event.translationY;
       }
+
+      if (event.absoluteX > trashCanPosition.pageX) {
+        sharedDirective.value = "delete";
+      } else if (event.absoluteY < middleCenterY) {
+        sharedDirective.value = "play";
+      } else {
+        sharedDirective.value = "none";
+      }
     })
     .onEnd((event) => {
+      sharedDirective.value = "none";
       if (sharedAnimatedCard.value !== card.id) return;
-      if (event.absoluteY < middleCenterY) {
-        try {
-          if (sharedTopFirstEmptySlot.value) {
-            const targetX =
-              sharedTopFirstEmptySlot.value.pageX -
-              sharedCardLocation.value.pageX;
-            const targetY =
-              sharedTopFirstEmptySlot.value.pageY -
-              sharedCardLocation.value.pageY;
-            runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
-            // runOnJS(playPutOn)();
-            sharedCard.value.isPlayed = true;
-            translateX.value = withSpring(targetX, springConfig);
-            translateY.value = withSpring(targetY, springConfig, () => {
-              runOnJS(placeOnBoard)(sharedCard.value);
-              sharedAnimatedCard.value = null;
-            });
-          } else {
-            translateX.value = withSpring(0, springConfig);
-            translateY.value = withSpring(0, springConfig, () => {
-              sharedAnimatedCard.value = null;
-            });
-          }
-        } catch (error) {
-          console.log("Error during drag end:", error.message);
-        }
-      } else if (
-        event.absoluteX > trashCanPosition.pageX &&
-        event.absoluteY > trashCanPosition.pageY
-      ) {
+      if (event.absoluteX > trashCanPosition.pageX) {
         runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
-        // runOnJS(playDelete)();
+        runOnJS(playDelete)();
         translateX.value = withSpring(trashCanPosition.pageX, springConfig);
         translateY.value = withSpring(
           trashCanPosition.pageY,
@@ -214,6 +196,27 @@ const GameCard = ({
             sharedAnimatedCard.value = null;
           }
         );
+      } else if (event.absoluteY < middleCenterY) {
+        if (sharedTopFirstEmptySlot.value) {
+          const targetX =
+            sharedTopFirstEmptySlot.value.pageX -
+            sharedCardLocation.value.pageX;
+          const targetY =
+            sharedTopFirstEmptySlot.value.pageY -
+            sharedCardLocation.value.pageY;
+          runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
+          runOnJS(playPutOn)();
+          sharedCard.value.isPlayed = true;
+          translateX.value = withSpring(targetX, springConfig);
+          translateY.value = withSpring(targetY, springConfig, () => {
+            runOnJS(placeOnBoard)(sharedCard.value);
+            sharedAnimatedCard.value = null;
+          });
+        } else {
+          translateX.value = 0;
+          translateY.value = 0;
+          sharedAnimatedCard.value = null;
+        }
       } else {
         translateX.value = 0;
         translateY.value = 0;
@@ -225,7 +228,7 @@ const GameCard = ({
     try {
       if (sharedCard.value) {
         runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
-        // runOnJS(playPullBack)();
+        runOnJS(playClickTwo)();
         sharedCard.value.isPlayed = false;
         translateX.value = withSpring(0, springConfig);
         translateY.value = withSpring(0, springConfig, () => {
@@ -289,7 +292,6 @@ const GameCard = ({
         card,
         CardAnimationStyles,
         sharedCard,
-        broken,
         tap,
         drag,
         sharedAnimatedCard,
@@ -302,18 +304,14 @@ const GesturedCard = ({
   card,
   CardAnimationStyles,
   sharedCard,
-  broken,
   tap,
   drag,
-  sharedAnimatedCard,
 }: {
   card: Card;
   CardAnimationStyles: any;
   sharedCard: any;
-  broken: boolean;
   tap: TapGesture;
   drag: PanGesture;
-  sharedAnimatedCard: any;
 }) => {
   return (
     <GestureDetector gesture={sharedCard.value.isPlayed ? tap : drag}>

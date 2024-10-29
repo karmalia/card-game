@@ -1,6 +1,6 @@
-import { Dimensions, StyleSheet, Text } from "react-native";
+import { Dimensions, ImageBackground, StyleSheet, Text } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Text as TamaguiText } from "tamagui";
+import { Text as TamaguiText, View } from "tamagui";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 import HomeButtons from "@/components/home-buttons/home-buttons";

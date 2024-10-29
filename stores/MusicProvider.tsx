@@ -1,8 +1,9 @@
-import { createContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { usePathname } from "expo-router";
 import { set } from "@react-native-firebase/database";
+import { Sounds } from "./SoundProvider";
 
 interface MusicContext {
   menuMusic: {
@@ -26,6 +27,7 @@ const Musics = {
 };
 
 const MusicProvider = ({ children }: Props) => {
+  const { unloadSounds, loadSounds } = useContext(Sounds)!;
   const pathname = usePathname();
   const isMounted = useRef(true);
   const [menuMusic, setMenuMusic] = useState<{
@@ -52,6 +54,7 @@ const MusicProvider = ({ children }: Props) => {
     } else if (type === "Sound") {
       try {
         setGameSounds(play);
+        play ? loadSounds() : unloadSounds();
         await AsyncStorage.setItem("gameSounds", play ? "true" : "false");
       } catch (error) {
         console.error("Error handling game sounds:", error);

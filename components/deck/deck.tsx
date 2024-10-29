@@ -1,14 +1,12 @@
-import { ImageBackground, StyleSheet, Text, View } from "react-native";
-import React, { forwardRef, useState } from "react";
-import { Button, Image, Stack } from "tamagui";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { ImageBackground, Text } from "react-native";
+import React, { forwardRef, useContext } from "react";
+import { Button, Stack } from "tamagui";
 import useGameStore from "@/stores/game.store";
 import * as Haptics from "expo-haptics";
-import { Audio } from "expo-av";
-import usePlaySound from "@/hooks/usePlaySound";
+import { Sounds } from "@/stores/SoundProvider";
 
-const Deck = forwardRef((props: Props, ref: any) => {
-  const { playDraw } = usePlaySound();
+const Deck = forwardRef((props: any, ref: any) => {
+  const { playDraw } = useContext(Sounds)!;
   const {
     drawCard,
     cardsInDeck,

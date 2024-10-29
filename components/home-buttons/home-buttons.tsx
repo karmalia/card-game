@@ -1,11 +1,5 @@
-import {
-  ImageBackground,
-  Keyboard,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import React, { useEffect, useState } from "react";
+import { ImageBackground, Keyboard, StyleSheet, Text } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
 import { Button } from "tamagui";
 import { useRouter } from "expo-router";
 import Animated, {
@@ -14,10 +8,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { Audio } from "expo-av";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { playSound } from "@/utils/playSound";
-import usePlaySound from "@/hooks/usePlaySound";
+import { Sounds } from "@/stores/SoundProvider";
 
 const menuButtons = [
   {
@@ -48,15 +39,15 @@ const menuButtons = [
     disabled: false,
   },
 
-  {
-    title: "CREDITS",
-    imgUrl: require("@/assets/home/TransparentMenuButton2.png"),
-    action: {
-      type: "modal",
-      value: "credits",
-    },
-    disabled: true,
-  },
+  // {
+  //   title: "CREDITS",
+  //   imgUrl: require("@/assets/home/TransparentMenuButton2.png"),
+  //   action: {
+  //     type: "modal",
+  //     value: "credits",
+  //   },
+  //   disabled: true,
+  // },
 ];
 
 const HomeButtons = ({
@@ -67,8 +58,7 @@ const HomeButtons = ({
   setLeaderboardVisible: (value: boolean) => void;
 }) => {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const { playClickOne } = usePlaySound();
-
+  const { playClickOne } = useContext(Sounds)!;
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
       setIsKeyboardVisible(true);

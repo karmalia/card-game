@@ -21,14 +21,15 @@ import useGameStore from "@/stores/game.store";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { playSound } from "@/utils/playSound";
+import { Sounds } from "@/stores/SoundProvider";
 
 const { height } = Dimensions.get("window");
 
 const Options = () => {
   const [optionsVisible, setOptionsVisible] = useState(false);
-  const [closeSound, setCloseSound] = useState<Audio.Sound | null>(null);
   const router = useRouter();
   const { setGamePhase, populateDeck } = useGameStore();
+  const { playClickDefault, playClickSeven } = useContext(Sounds)!;
   const musicId = useId();
   const soundsId = useId();
   const pathname = usePathname();
@@ -36,14 +37,14 @@ const Options = () => {
   function handleNavigation(type: "home" | "restart") {
     switch (type) {
       case "home":
-        closeSound && playSound(closeSound);
+        playClickDefault();
         populateDeck();
         setGamePhase(0);
         router.navigate("/");
 
         break;
       case "restart":
-        closeSound && playSound(closeSound);
+        playClickDefault();
         populateDeck();
         setGamePhase(1);
         break;
@@ -82,27 +83,9 @@ const Options = () => {
   }));
 
   useEffect(() => {
-    async function loadSounds() {
-      const isSoundsOn = await AsyncStorage.getItem("gameSounds");
-      if (isSoundsOn === "true") {
-        const { sound } = await Audio.Sound.createAsync(
-          require("@/assets/sound-effects/click-2.wav")
-        );
-        setCloseSound(sound);
-      }
-    }
-
     if (optionsVisible) {
       setOptionsVisible(false);
     }
-
-    loadSounds();
-
-    return () => {
-      if (closeSound) {
-        closeSound?.unloadAsync();
-      }
-    };
   }, [pathname]);
 
   return (
@@ -124,7 +107,7 @@ const Options = () => {
           <TouchableOpacity
             activeOpacity={1}
             onPress={() => {
-              closeSound && playSound(closeSound);
+              playClickSeven();
               setOptionsVisible((prev) => !prev);
             }}
           >
@@ -329,7 +312,10 @@ const Options = () => {
             {pathname === "/" && (
               <Pressable
                 style={styles.closeButton}
-                onPress={() => setOptionsVisible(false)}
+                onPress={() => {
+                  playClickSeven();
+                  setOptionsVisible(false);
+                }}
                 hitSlop={10}
               >
                 <Text style={styles.closeButtonText}>CLOSE</Text>

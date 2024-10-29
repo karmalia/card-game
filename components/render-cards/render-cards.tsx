@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import useGameStore from "@/stores/game.store";
 import GameCard from "../game-card/game-card";
 import { Card } from "../types";
-import { fillPlayersHand } from "../../utils";
+import fillPlayersHand from "../../utils/fillPlayersHand";
 import GameOverModal from "../modals/gameover/game-over-modal";
 import { useSharedValue } from "react-native-reanimated";
 import { View } from "tamagui";
+import DirectionOverlay from "./DirectionOverlay/direction-overlay";
+import { Sounds } from "@/stores/SoundProvider";
 
 function hasThreeOfAKind(cardList: Card[]) {
   const valueCountMap = cardList.reduce((acc: any, card) => {
@@ -40,7 +42,9 @@ function canStillPlay(cardsInHand: Card[]) {
 }
 
 const RenderCards = () => {
-  const sharedAnimatedCard = useSharedValue(null);
+  const sharedAnimatedCard = useSharedValue<string | null>(null);
+  const sharedDirective = useSharedValue<"none" | "play" | "delete">("none");
+  const { playPointOne, playPointTwo } = useContext(Sounds)!;
   const {
     gamePhase,
     cardsOnBoard,
@@ -87,6 +91,11 @@ const RenderCards = () => {
 
       if (serialized || hasSameValue) {
         calculatePoint(serialized, hasSameValue, hasSameColor, totalValue);
+        if (serialized && hasSameColor) {
+          playPointTwo();
+        } else {
+          playPointOne();
+        }
         if (cardsInDeck.length == 0 && cardsInHand.length <= 2) {
           setGamePhase(3);
         }
@@ -118,6 +127,7 @@ const RenderCards = () => {
               startingPosition={deckPosition}
               endingPosition={card.slot}
               sharedAnimatedCard={sharedAnimatedCard}
+              sharedDirective={sharedDirective}
             />
           );
         })}
@@ -131,10 +141,12 @@ const RenderCards = () => {
               startingPosition={card.slot}
               endingPosition={null}
               sharedAnimatedCard={sharedAnimatedCard}
+              sharedDirective={sharedDirective}
             />
           );
         })}
       {gamePhase === 3 && <GameOverModal restartGame={restartGame} />}
+      <DirectionOverlay sharedDirective={sharedDirective} />
     </>
   );
 };

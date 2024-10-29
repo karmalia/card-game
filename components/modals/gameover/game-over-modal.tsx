@@ -1,4 +1,4 @@
-import { Dimensions, ImageBackground, Modal, Text, View } from "react-native";
+import { Dimensions, ImageBackground, Text, View } from "react-native";
 import React from "react";
 
 import Animated, {
@@ -9,26 +9,13 @@ import Animated, {
   withDelay,
 } from "react-native-reanimated";
 import useGameStore from "@/stores/game.store";
-import { Button, ScrollView } from "tamagui";
-import { green } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
 import Stars from "./Stars/Stars";
-import { ConvertToMinuteString } from "@/utils";
+import ConvertToMinuteString from "@/utils/convertToMinuteString";
 import calculateTotalScore from "@/utils/calculateTotalScore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import firestore from "@react-native-firebase/firestore";
-function getScore(point: number) {
-  if (point < 300) {
-    return "bronze";
-  } else if (point >= 300 && point <= 399) {
-    return "silver";
-  } else if (point >= 400) {
-    return "gold";
-  } else {
-    return "bronze";
-  }
-}
 
 const GameOverModal = ({ restartGame }: { restartGame: () => void }) => {
   const router = useRouter();

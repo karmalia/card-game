@@ -1,6 +1,5 @@
 import {
   Dimensions,
-  ImageBackground,
   StyleSheet,
   Text,
   View,

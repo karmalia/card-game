@@ -1,19 +1,17 @@
 import {
   Dimensions,
-  ImageBackground,
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { Image, ScrollView } from "tamagui";
 import {
   BottomLeft,
   BottomRight,
@@ -21,10 +19,9 @@ import {
   TopRight,
 } from "@/components/skia-components/corners";
 import firestore from "@react-native-firebase/firestore";
-import { ConvertToMinuteString } from "@/utils";
+import ConvertToMinuteString from "@/utils/convertToMinuteString";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlatList } from "react-native-gesture-handler";
-import dummyPlayers from "./dummyData.json";
 type LeaderboardProps = {
   visible: boolean;
   onClose: () => void;
