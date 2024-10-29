@@ -43,8 +43,7 @@ type GameCardProps = {
   card: Card;
   startingPosition: TPos;
   endingPosition: TPos | null;
-  animatedCard: string | null;
-  setAnimatedCard: (value: string | null) => void;
+  sharedAnimatedCard: any;
 };
 
 const springConfig = {
@@ -67,8 +66,7 @@ const GameCard = ({
   card,
   startingPosition,
   endingPosition,
-  animatedCard,
-  setAnimatedCard,
+  sharedAnimatedCard,
 }: GameCardProps) => {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -158,37 +156,25 @@ const GameCard = ({
   const drag = Gesture.Pan()
     .onStart((event) => {
       //Return if the card is already animated
-      if (animatedCard === null) {
-        runOnJS(setAnimatedCard)(card.id);
+      if (sharedAnimatedCard.value === null) {
+        sharedAnimatedCard.value = card.id;
       }
 
-      if (animatedCard === card.id) {
+      if (sharedAnimatedCard.value === card.id) {
         event.x = translateX.value;
         event.y = translateY.value;
       }
     })
     .onChange((event) => {
-      if (animatedCard !== card.id) {
-        return;
-      } else {
+      if (sharedAnimatedCard.value === card.id) {
         translateX.value = event.translationX;
         translateY.value = event.translationY;
       }
-
-      // if (
-      //   event.absoluteX > trashCanPosition.pageX &&
-      //   event.absoluteY > trashCanPosition.pageY
-      // ) {
-      //   runOnJS(setBroken)(true);
-      // } else {
-      //   runOnJS(setBroken)(false);
-      // }
     })
     .onEnd((event) => {
-      if (animatedCard !== card.id) return;
+      if (sharedAnimatedCard.value !== card.id) return;
       if (event.absoluteY < middleCenterY) {
         try {
-          runOnJS(setAnimatedCard)(null);
           if (sharedTopFirstEmptySlot.value) {
             const targetX =
               sharedTopFirstEmptySlot.value.pageX -
@@ -197,15 +183,18 @@ const GameCard = ({
               sharedTopFirstEmptySlot.value.pageY -
               sharedCardLocation.value.pageY;
             runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
-            runOnJS(playPutOn)();
+            // runOnJS(playPutOn)();
             sharedCard.value.isPlayed = true;
             translateX.value = withSpring(targetX, springConfig);
             translateY.value = withSpring(targetY, springConfig, () => {
               runOnJS(placeOnBoard)(sharedCard.value);
+              sharedAnimatedCard.value = null;
             });
           } else {
             translateX.value = withSpring(0, springConfig);
-            translateY.value = withSpring(0, springConfig);
+            translateY.value = withSpring(0, springConfig, () => {
+              sharedAnimatedCard.value = null;
+            });
           }
         } catch (error) {
           console.log("Error during drag end:", error.message);
@@ -215,18 +204,20 @@ const GameCard = ({
         event.absoluteY > trashCanPosition.pageY
       ) {
         runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
-        runOnJS(playDelete)();
+        // runOnJS(playDelete)();
         translateX.value = withSpring(trashCanPosition.pageX, springConfig);
         translateY.value = withSpring(
           trashCanPosition.pageY,
           springConfig,
           () => {
             runOnJS(discardCard)(sharedCard.value);
+            sharedAnimatedCard.value = null;
           }
         );
       } else {
-        translateX.value = withSpring(0);
-        translateY.value = withSpring(0);
+        translateX.value = 0;
+        translateY.value = 0;
+        sharedAnimatedCard.value = null;
       }
     });
 
@@ -234,7 +225,7 @@ const GameCard = ({
     try {
       if (sharedCard.value) {
         runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
-        runOnJS(playPullBack)();
+        // runOnJS(playPullBack)();
         sharedCard.value.isPlayed = false;
         translateX.value = withSpring(0, springConfig);
         translateY.value = withSpring(0, springConfig, () => {
@@ -301,7 +292,7 @@ const GameCard = ({
         broken,
         tap,
         drag,
-        animatedCard,
+        sharedAnimatedCard,
       }}
     />
   );
@@ -314,15 +305,15 @@ const GesturedCard = ({
   broken,
   tap,
   drag,
-  animatedCard,
+  sharedAnimatedCard,
 }: {
   card: Card;
   CardAnimationStyles: any;
   sharedCard: any;
   broken: boolean;
-  animatedCard: string | null;
   tap: TapGesture;
   drag: PanGesture;
+  sharedAnimatedCard: any;
 }) => {
   return (
     <GestureDetector gesture={sharedCard.value.isPlayed ? tap : drag}>

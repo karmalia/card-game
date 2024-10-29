@@ -7,7 +7,7 @@ import tamaguiConfig from "@/tamagui.config";
 import { TamaguiProvider, Text } from "tamagui";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
-import { MusicProvider } from "@/hooks/MusicProvider";
+import { MusicProvider } from "@/stores/MusicProvider";
 import { BackHandler } from "react-native";
 import * as NavigationBar from "expo-navigation-bar";
 export {

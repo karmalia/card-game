@@ -1,7 +1,8 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { usePathname } from "expo-router";
+import { set } from "@react-native-firebase/database";
 
 interface MusicContext {
   menuMusic: {
@@ -26,6 +27,7 @@ const Musics = {
 
 const MusicProvider = ({ children }: Props) => {
   const pathname = usePathname();
+  const isMounted = useRef(true);
   const [menuMusic, setMenuMusic] = useState<{
     sound: Audio.Sound | null;
     isActive: boolean;
@@ -37,11 +39,9 @@ const MusicProvider = ({ children }: Props) => {
 
     if (type === "Music") {
       try {
-        if (play) {
-          await menuMusic.sound.playAsync();
-        } else {
-          await menuMusic.sound.stopAsync();
-        }
+        play
+          ? await menuMusic.sound.playAsync()
+          : await menuMusic.sound.stopAsync();
 
         setMenuMusic((prev) => ({ ...prev, isActive: play }));
 
@@ -60,19 +60,25 @@ const MusicProvider = ({ children }: Props) => {
   };
 
   useEffect(() => {
-    let isMounted = true; // To handle async operations on unmounted component
+    isMounted.current = true;
 
-    const loadAndPlayMusic = async () => {
+    async function loadAndPlayMusic() {
       const isMusicOn = await AsyncStorage.getItem("musicOn");
+      const isSoundsOn = await AsyncStorage.getItem("gameSounds");
+
+      if (menuMusic.sound) await menuMusic.sound.unloadAsync();
+
+      if (!isSoundsOn) {
+        await AsyncStorage.setItem("gameSounds", "true");
+      }
+
+      if (!isMusicOn) {
+        await AsyncStorage.setItem("musicOn", "true");
+      }
 
       if (!pathname) {
         console.log("No Pathname");
         return;
-      }
-
-      if (menuMusic.sound !== null) {
-        // Clean up the previous sound
-        await menuMusic.sound.unloadAsync();
       }
 
       try {
@@ -83,23 +89,23 @@ const MusicProvider = ({ children }: Props) => {
             isLooping: true,
           }
         );
-        if (isMounted) {
-          setMenuMusic({ sound, isActive: isMusicOn === "true" });
+
+        if (isMounted.current) {
+          setMenuMusic({ sound: sound, isActive: isMusicOn === "true" });
+          setGameSounds(isSoundsOn === "true");
         }
       } catch (error) {
         console.error("Error loading music:", error);
       }
-    };
+    }
 
     loadAndPlayMusic();
 
     return () => {
-      isMounted = false; // Avoid state updates after unmount
-      if (menuMusic.sound !== null) {
-        menuMusic.sound.unloadAsync().catch((error) => {
-          console.error("Error unloading music:", error);
-        });
-      }
+      isMounted.current = false; // Component is unmounted
+      menuMusic.sound
+        ?.unloadAsync()
+        .catch((error) => console.error("Error unloading music:", error));
     };
   }, [pathname]);
 

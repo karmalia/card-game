@@ -14,6 +14,10 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { Audio } from "expo-av";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { playSound } from "@/utils/playSound";
+import usePlaySound from "@/hooks/usePlaySound";
 
 const menuButtons = [
   {
@@ -63,6 +67,7 @@ const HomeButtons = ({
   setLeaderboardVisible: (value: boolean) => void;
 }) => {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const { playClickOne } = usePlaySound();
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
@@ -75,12 +80,14 @@ const HomeButtons = ({
     return () => {
       showSubscription.remove();
       hideSubscription.remove();
+      // if (buttonSound) buttonSound.unloadAsync();
     };
   }, []);
   const router = useRouter();
   const opacity = useSharedValue(0);
 
   function handleAction(action: any) {
+    playClickOne();
     if (action.type === "route") {
       router.navigate(action.value);
     }
@@ -89,9 +96,11 @@ const HomeButtons = ({
       switch (action.value) {
         case "how-to-play":
           setInstructuresVisible(true);
+
           break;
         case "leaderboard":
           setLeaderboardVisible(true);
+
           break;
         case "credits":
           break;

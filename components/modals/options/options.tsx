@@ -16,13 +16,17 @@ import { Checkbox, Image, Label, Stack } from "tamagui";
 import Icons from "@/components/icons";
 import { usePathname, useRouter } from "expo-router";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { Music } from "@/hooks/MusicProvider";
+import { Music } from "@/stores/MusicProvider";
 import useGameStore from "@/stores/game.store";
+import { Audio } from "expo-av";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { playSound } from "@/utils/playSound";
 
 const { height } = Dimensions.get("window");
 
 const Options = () => {
   const [optionsVisible, setOptionsVisible] = useState(false);
+  const [closeSound, setCloseSound] = useState<Audio.Sound | null>(null);
   const router = useRouter();
   const { setGamePhase, populateDeck } = useGameStore();
   const musicId = useId();
@@ -32,15 +36,19 @@ const Options = () => {
   function handleNavigation(type: "home" | "restart") {
     switch (type) {
       case "home":
+        closeSound && playSound(closeSound);
         populateDeck();
         setGamePhase(0);
         router.navigate("/");
 
         break;
       case "restart":
-        console.log("restart");
+        closeSound && playSound(closeSound);
         populateDeck();
         setGamePhase(1);
+        break;
+      default:
+        console.log("Error: Invalid navigation type");
         break;
     }
     setOptionsVisible(false);
@@ -74,9 +82,27 @@ const Options = () => {
   }));
 
   useEffect(() => {
+    async function loadSounds() {
+      const isSoundsOn = await AsyncStorage.getItem("gameSounds");
+      if (isSoundsOn === "true") {
+        const { sound } = await Audio.Sound.createAsync(
+          require("@/assets/sound-effects/click-2.wav")
+        );
+        setCloseSound(sound);
+      }
+    }
+
     if (optionsVisible) {
       setOptionsVisible(false);
     }
+
+    loadSounds();
+
+    return () => {
+      if (closeSound) {
+        closeSound?.unloadAsync();
+      }
+    };
   }, [pathname]);
 
   return (
@@ -98,15 +124,40 @@ const Options = () => {
           <TouchableOpacity
             activeOpacity={1}
             onPress={() => {
+              closeSound && playSound(closeSound);
               setOptionsVisible((prev) => !prev);
             }}
           >
-            <Image
-              height="$4"
-              width="$4"
-              resizeMethod="auto"
-              source={require("@/assets/icons/settings3.png")}
-            />
+            {optionsVisible ? (
+              <Stack
+                height="$4"
+                width="$4"
+                style={{
+                  borderWidth: 2,
+                  borderColor: "white",
+
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  style={{
+                    fontFamily: "DragonSlayer",
+                    color: "white",
+                    fontSize: 32,
+                  }}
+                >
+                  X
+                </Text>
+              </Stack>
+            ) : (
+              <Image
+                height="$4"
+                width="$4"
+                resizeMethod="auto"
+                source={require("@/assets/icons/settings3.png")}
+              />
+            )}
           </TouchableOpacity>
         </Stack>
       </View>

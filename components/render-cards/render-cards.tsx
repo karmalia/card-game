@@ -4,6 +4,8 @@ import GameCard from "../game-card/game-card";
 import { Card } from "../types";
 import { fillPlayersHand } from "../../utils";
 import GameOverModal from "../modals/gameover/game-over-modal";
+import { useSharedValue } from "react-native-reanimated";
+import { View } from "tamagui";
 
 function hasThreeOfAKind(cardList: Card[]) {
   const valueCountMap = cardList.reduce((acc: any, card) => {
@@ -38,7 +40,7 @@ function canStillPlay(cardsInHand: Card[]) {
 }
 
 const RenderCards = () => {
-  const [animatedCard, setAnimatedCard] = useState<null | string>(null);
+  const sharedAnimatedCard = useSharedValue(null);
   const {
     gamePhase,
     cardsOnBoard,
@@ -115,8 +117,7 @@ const RenderCards = () => {
               card={card}
               startingPosition={deckPosition}
               endingPosition={card.slot}
-              animatedCard={animatedCard}
-              setAnimatedCard={setAnimatedCard}
+              sharedAnimatedCard={sharedAnimatedCard}
             />
           );
         })}
@@ -129,8 +130,7 @@ const RenderCards = () => {
               card={card}
               startingPosition={card.slot}
               endingPosition={null}
-              animatedCard={animatedCard}
-              setAnimatedCard={setAnimatedCard}
+              sharedAnimatedCard={sharedAnimatedCard}
             />
           );
         })}
