@@ -1,6 +1,6 @@
 import { Dimensions, ImageBackground, StyleSheet, Text } from "react-native";
-import React, { useEffect, useState } from "react";
-import { Text as TamaguiText, View } from "tamagui";
+import React, { useContext, useEffect, useState } from "react";
+import { Stack, Text as TamaguiText, View } from "tamagui";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 import HomeButtons from "@/components/home-buttons/home-buttons";
@@ -14,10 +14,12 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import Leaderboard from "@/components/modals/leaderboard/leaderboard";
+import { Sounds } from "@/stores/SoundProvider";
 
 const Index = () => {
   const [instructionsVisible, setInstructuresVisible] = useState(false);
   const [leaderboardVisible, setLeaderboardVisible] = useState(false);
+  const { loading } = useContext(Sounds)!;
   const testOpacity = useSharedValue(0);
 
   const animatedStyles = useAnimatedStyle(() => {
@@ -57,25 +59,27 @@ const Index = () => {
           SPACE CARDS
         </TamaguiText>
       </Animated.View>
-
-      <Options />
-
-      <GetUsernameModal />
-      <HowToPlay
-        visible={instructionsVisible}
-        onClose={() => setInstructuresVisible(false)}
-      />
-      <Leaderboard
-        visible={leaderboardVisible}
-        onClose={() => setLeaderboardVisible(false)}
-      />
-
-      <HomeButtons
-        setInstructuresVisible={setInstructuresVisible}
-        setLeaderboardVisible={setLeaderboardVisible}
-      />
-
       <SpaceBackground />
+      {!loading && (
+        <>
+          <Options />
+
+          <GetUsernameModal />
+          <HowToPlay
+            visible={instructionsVisible}
+            onClose={() => setInstructuresVisible(false)}
+          />
+          <Leaderboard
+            visible={leaderboardVisible}
+            onClose={() => setLeaderboardVisible(false)}
+          />
+
+          <HomeButtons
+            setInstructuresVisible={setInstructuresVisible}
+            setLeaderboardVisible={setLeaderboardVisible}
+          />
+        </>
+      )}
     </SafeAreaView>
   );
 };
@@ -88,15 +92,6 @@ export const styles = StyleSheet.create({
     overflow: "hidden",
     height: "100%",
     width: "100%",
-  },
-
-  text: {
-    color: "white",
-    fontSize: 42,
-    lineHeight: 84,
-    fontWeight: "bold",
-    textAlign: "center",
-    backgroundColor: "#000000c0",
   },
 });
 

@@ -1,6 +1,6 @@
 import { Dimensions, ImageBackground, StyleSheet } from "react-native";
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, styled } from "tamagui";
+import { View, Text, styled, Stack } from "tamagui";
 import useGameStore from "@/stores/game.store";
 import * as Haptics from "expo-haptics";
 import {
@@ -38,6 +38,7 @@ const CardNumber = styled(Text, {
   fontSize: "$12",
   color: "$cardText",
   fontFamily: "DragonSlayer",
+  zIndex: 99999,
 });
 
 type GameCardProps = {
@@ -157,22 +158,16 @@ const GameCard = ({
 
   const drag = Gesture.Pan()
     .onStart((event) => {
-      //Return if the card is already animated
-      if (sharedAnimatedCard.value === null) {
-        sharedAnimatedCard.value = card.id;
-      }
-
-      if (sharedAnimatedCard.value === card.id) {
-        event.x = translateX.value;
-        event.y = translateY.value;
-      }
+      if (!sharedAnimatedCard.value)
+        sharedAnimatedCard.value = sharedCard.value.id;
+      event.x = translateX.value;
+      event.y = translateY.value;
     })
     .onChange((event) => {
-      if (sharedAnimatedCard.value === card.id) {
-        translateX.value = event.translationX;
-        translateY.value = event.translationY;
-      }
+      if (sharedAnimatedCard.value !== sharedCard.value.id) return;
 
+      translateX.value = event.translationX;
+      translateY.value = event.translationY;
       if (event.absoluteX > trashCanPosition.pageX) {
         sharedDirective.value = "delete";
       } else if (event.absoluteY < middleCenterY) {
@@ -183,44 +178,48 @@ const GameCard = ({
     })
     .onEnd((event) => {
       sharedDirective.value = "none";
-      if (sharedAnimatedCard.value !== card.id) return;
-      if (event.absoluteX > trashCanPosition.pageX) {
-        runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
-        runOnJS(playDelete)();
-        translateX.value = withSpring(trashCanPosition.pageX, springConfig);
-        translateY.value = withSpring(
-          trashCanPosition.pageY,
-          springConfig,
-          () => {
-            runOnJS(discardCard)(sharedCard.value);
+      if (sharedAnimatedCard.value !== sharedCard.value.id) {
+        translateX.value = 0;
+        translateY.value = 0;
+      } else {
+        if (event.absoluteX > trashCanPosition.pageX) {
+          runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
+          runOnJS(playDelete)();
+          translateX.value = withSpring(trashCanPosition.pageX, springConfig);
+          translateY.value = withSpring(
+            trashCanPosition.pageY,
+            springConfig,
+            () => {
+              runOnJS(discardCard)(sharedCard.value);
+              sharedAnimatedCard.value = null;
+            }
+          );
+        } else if (event.absoluteY < middleCenterY) {
+          if (sharedTopFirstEmptySlot.value) {
+            const targetX =
+              sharedTopFirstEmptySlot.value.pageX -
+              sharedCardLocation.value.pageX;
+            const targetY =
+              sharedTopFirstEmptySlot.value.pageY -
+              sharedCardLocation.value.pageY;
+            runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
+            runOnJS(playPutOn)();
+            sharedCard.value.isPlayed = true;
+            translateX.value = withSpring(targetX, springConfig);
+            translateY.value = withSpring(targetY, springConfig, () => {
+              runOnJS(placeOnBoard)(sharedCard.value);
+              sharedAnimatedCard.value = null;
+            });
+          } else {
+            translateX.value = 0;
+            translateY.value = 0;
             sharedAnimatedCard.value = null;
           }
-        );
-      } else if (event.absoluteY < middleCenterY) {
-        if (sharedTopFirstEmptySlot.value) {
-          const targetX =
-            sharedTopFirstEmptySlot.value.pageX -
-            sharedCardLocation.value.pageX;
-          const targetY =
-            sharedTopFirstEmptySlot.value.pageY -
-            sharedCardLocation.value.pageY;
-          runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
-          runOnJS(playPutOn)();
-          sharedCard.value.isPlayed = true;
-          translateX.value = withSpring(targetX, springConfig);
-          translateY.value = withSpring(targetY, springConfig, () => {
-            runOnJS(placeOnBoard)(sharedCard.value);
-            sharedAnimatedCard.value = null;
-          });
         } else {
           translateX.value = 0;
           translateY.value = 0;
           sharedAnimatedCard.value = null;
         }
-      } else {
-        translateX.value = 0;
-        translateY.value = 0;
-        sharedAnimatedCard.value = null;
       }
     });
 

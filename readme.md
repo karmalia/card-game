@@ -29,24 +29,26 @@ Space Cards Game is a fun and strategic card game where players match high-scori
 ## How to Play
 
 1. **Start the Game**:
-   At the beginning of the game, 5 cards are automatically drawn from a deck of 24 cards.
-   <img src="./assets/readme/img1.jpeg" alt="Game Scene" style="max-width: 400px; max-height: 300px;" />
+   At the start of the game, 5 cards are drawn automatically from the deck of 24 cards.
+   <img src="./assets/how-to-play/game-started-new" alt="Game Scene" style="max-width: 400px; max-height: 300px;" />
 2. **Goal**:
    Arrange cards in sequences or match colors to score points. There are two primary ways to play:
 
-   - **Sequence Play**: Line up cards in numerical order (e.g., 3-4-5) with the same or different colors. Sequences of the same color yield more points.
-     <img src="./assets/readme/img3.jpeg" alt="Option 2" style="max-width: 400px; max-height: 300px;" />
-     <img src="./assets/readme/img2.jpeg" alt="Option 1" style="max-width: 400px; max-height: 300px;" />
+   - **Sequence Play**: Line up cards in numerical order (e.g., 5-6-7) with the same or different colors. Sequences of the same color yield more points.
+
+     <img src="./assets/how-to-play/same-color-serialized-new.png" alt="Option 1" style="max-width: 400px; max-height: 300px;" />
+     <img src="./assets/how-to-play/different-color-sequence-neww.png" alt="Option 2" style="max-width: 400px; max-height: 300px;" />
+
    - **Same Number Play**: Match three cards with the same number (e.g., 8-8-8) but with different colors for bonus points.
-     <img src="./assets/readme/img4.jpeg" alt="Option 3" style="max-width: 400px; max-height: 300px;" />
+     <img src="./assets/how-to-play/triple-eight-new.png" alt="Option 3" style="max-width: 400px; max-height: 300px;" />
 
 3. **Card Management**:
    - If you can’t play any valid moves, drag one card to the discard slot to remove it, and draw a new card from the deck.
-     <img src="./assets/readme/discard.gif" alt="Discard" style="max-width: 400px; max-height: 300px;" />
+     <img src="./assets/how-to-play/discard-new.png" alt="Discard" style="max-width: 400px; max-height: 300px;" />
 4. **Sound Settings**:
 
    - You can easily adjust the game’s audio settings from the in-game options menu.
-     <img src="./assets/readme/options.JPG" alt="Setting" style="max-width: 400px; max-height: 300px;" />
+     <img src="./assets/how-to-play/options.jpg" alt="Setting" style="max-width: 400px; max-height: 300px;" />
 
 5. When there are no more card moves to be made in the game, a ranking table appears according to the points collected by the player.
 6. The goal is to collect the most points with possible possibilities and rank at the top of the list.

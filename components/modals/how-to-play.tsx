@@ -23,6 +23,13 @@ type HowToPlayProps = {
   visible: boolean;
   onClose: () => void;
 };
+
+//Start
+//different color 1-2-3 , same color 1-2-3
+//same color 3-3-3
+//Discard - Draw
+//Score-Timer
+
 const { height: screenHeight } = Dimensions.get("screen");
 const HowToPlay = ({ visible, onClose }: HowToPlayProps) => {
   const translateY = useSharedValue(screenHeight);
@@ -52,7 +59,7 @@ const HowToPlay = ({ visible, onClose }: HowToPlayProps) => {
     return {
       transform: [
         {
-          translateY: sharedIndicator.value * 20,
+          translateY: sharedIndicator.value * 30,
         },
       ],
     };
@@ -61,7 +68,7 @@ const HowToPlay = ({ visible, onClose }: HowToPlayProps) => {
   const handleScroll = (event: any) => {
     const offsetY = event.nativeEvent.contentOffset.y;
 
-    sharedIndicator.value = (offsetY / scrollHeight) * 8;
+    sharedIndicator.value = (offsetY / scrollHeight) * 4;
   };
 
   return (
@@ -153,7 +160,7 @@ const HowToPlay = ({ visible, onClose }: HowToPlayProps) => {
                 }}
               >
                 <Image
-                  source={require("@/assets/how-to-play/game-started.jpg")}
+                  source={require("@/assets/how-to-play/game-started-new.png")}
                   style={{ width: "100%", height: "100%" }}
                   objectFit="contain"
                 />
@@ -170,14 +177,14 @@ const HowToPlay = ({ visible, onClose }: HowToPlayProps) => {
                 }}
               >
                 <Image
-                  source={require("@/assets/how-to-play/different-color-serialized.jpg")}
+                  source={require("@/assets/how-to-play/different-color-sequence-neww.png")}
                   style={{ width: "100%", height: "100%" }}
                   objectFit="contain"
                 />
               </View>
               {/* Dragging A Card */}
               <Text style={styles.modalText}>
-                3. You need to place 3 cards in sequence (like 3-4-5), with the
+                3. You need to place 3 cards in sequence (like 6-7-8), with the
                 same or different colors. Matching the same color gives higher
                 points.
               </Text>
@@ -189,7 +196,7 @@ const HowToPlay = ({ visible, onClose }: HowToPlayProps) => {
                 }}
               >
                 <Image
-                  source={require("@/assets/how-to-play/same-color-serialized.jpg")}
+                  source={require("@/assets/how-to-play/same-color-serialized-new.png")}
                   style={{ width: "100%", height: "100%" }}
                   objectFit="contain"
                 />
@@ -207,7 +214,7 @@ const HowToPlay = ({ visible, onClose }: HowToPlayProps) => {
                 }}
               >
                 <Image
-                  source={require("@/assets/how-to-play/triple-eight.jpg")}
+                  source={require("@/assets/how-to-play/triple-eight-new.png")}
                   style={{ width: "100%", height: "100%" }}
                   objectFit="contain"
                 />
@@ -225,17 +232,39 @@ const HowToPlay = ({ visible, onClose }: HowToPlayProps) => {
                 }}
               >
                 <Image
-                  source={require("@/assets/how-to-play/delete-card.jpg")}
+                  source={require("@/assets/how-to-play/discard-new.png")}
                   style={{ width: "100%", height: "100%" }}
                   objectFit="contain"
                 />
               </View>
               <Text style={styles.modalText}>
-                That is all you need to know to play the game.
+                6. The game ends when the deck is empty and no more valid plays
               </Text>
-              <Text style={styles.modalText}>
-                Good luck and have fun playing!
-              </Text>
+              <View
+                style={{
+                  width: "100%",
+                  height: 200,
+                  marginBottom: 20,
+                }}
+              >
+                <Image
+                  source={require("@/assets/how-to-play/game-over-new.png")}
+                  style={{ width: "100%", height: "100%" }}
+                  objectFit="contain"
+                />
+              </View>
+              <View
+                style={{
+                  height: 160,
+                }}
+              >
+                <Text style={styles.modalText}>
+                  That is all you need to know to play the game.
+                </Text>
+                <Text style={styles.modalText}>
+                  {"Good luck and have fun playing : )"}
+                </Text>
+              </View>
             </ScrollView>
           </View>
         </Animated.View>
@@ -261,14 +290,14 @@ const styles = StyleSheet.create({
   modalContainer: {
     height: Dimensions.get("window").height * 0.8,
     width: Dimensions.get("window").width * 0.6,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
     overflow: "hidden",
   },
   modalContent: {
     width: "100%",
     height: "100%",
     gap: 0,
-    paddingVertical: 20,
+    paddingVertical: 10,
     display: "flex",
     flexDirection: "column",
     paddingHorizontal: 40,

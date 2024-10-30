@@ -22,6 +22,7 @@ interface SoundsContext {
   playPointTwo: () => Promise<void>;
   unloadSounds: () => void;
   loadSounds: () => void;
+  loading: boolean;
 }
 
 const Sounds = createContext<null | SoundsContext>(null);
@@ -31,6 +32,7 @@ type Props = {
 };
 
 const SoundProvider = ({ children }: Props) => {
+  const [loading, setLoading] = useState(true);
   const [draw, setDraw] = useState<Sound>(null);
   const [deleteCard, setDeleteCard] = useState<Sound>(null);
   const [putOn, setPutOn] = useState<Sound>(null);
@@ -47,96 +49,167 @@ const SoundProvider = ({ children }: Props) => {
   const [pointTwo, setPointTwo] = useState<Sound>(null);
 
   function unloadSounds() {
-    draw && draw.unloadAsync();
-    deleteCard && deleteCard.unloadAsync();
-    pullBack && pullBack.unloadAsync();
-    putOn && putOn.unloadAsync();
-    clickDefault && clickDefault.unloadAsync();
-    clickSoundOne && clickSoundOne.unloadAsync();
-    clickSoundTwo && clickSoundTwo.unloadAsync();
-    clickSoundThree && clickSoundThree.unloadAsync();
-    clickSoundFour && clickSoundFour.unloadAsync();
-    clickSoundFive && clickSoundFive.unloadAsync();
-    clickSoundSix && clickSoundSix.unloadAsync();
-    clickSoundSeven && clickSoundSeven.unloadAsync();
-    pointOne && pointOne.unloadAsync();
-    pointTwo && pointTwo.unloadAsync;
+    if (draw) {
+      draw.unloadAsync();
+      setDraw(null);
+    }
+
+    if (deleteCard) {
+      deleteCard.unloadAsync();
+      setDeleteCard(null);
+    }
+
+    if (putOn) {
+      putOn.unloadAsync();
+      setPutOn(null);
+    }
+
+    if (pullBack) {
+      pullBack.unloadAsync();
+      setPullBack(null);
+    }
+
+    if (clickDefault) {
+      clickDefault.unloadAsync();
+      setClickDefault(null);
+    }
+
+    if (clickSoundOne) {
+      clickSoundOne.unloadAsync();
+      setClickSoundOne(null);
+    }
+
+    if (clickSoundTwo) {
+      clickSoundTwo.unloadAsync();
+      setClickSoundTwo(null);
+    }
+
+    if (clickSoundThree) {
+      clickSoundThree.unloadAsync();
+      setClickSoundThree(null);
+    }
+
+    if (clickSoundFour) {
+      clickSoundFour.unloadAsync();
+      setClickSoundFour(null);
+    }
+
+    if (clickSoundFive) {
+      clickSoundFive.unloadAsync();
+      setClickSoundFive(null);
+    }
+
+    if (clickSoundSix) {
+      clickSoundSix.unloadAsync();
+      setClickSoundSix(null);
+    }
+
+    if (clickSoundSeven) {
+      clickSoundSeven.unloadAsync();
+      setClickSoundSeven(null);
+    }
+
+    if (pointOne) {
+      pointOne.unloadAsync();
+      setPointOne(null);
+    }
+
+    if (pointTwo) {
+      pointTwo.unloadAsync();
+      setPointTwo(null);
+    }
   }
 
   async function loadSounds() {
-    Audio.Sound.createAsync(require("@/assets/sound-effects/point-1.wav")).then(
-      ({ sound }) => {
-        !pointOne && setPointOne(sound);
-      }
-    );
-    Audio.Sound.createAsync(require("@/assets/sound-effects/point-2.wav")).then(
-      ({ sound }) => {
-        !pointTwo && setPointTwo(sound);
-      }
-    );
+    const soundPromises = [
+      Audio.Sound.createAsync(
+        require("@/assets/sound-effects/point-1.wav")
+      ).then(async ({ sound }) => {
+        await sound.setIsMutedAsync(false);
+        setPointOne(sound);
+      }),
+      Audio.Sound.createAsync(
+        require("@/assets/sound-effects/point-2.wav")
+      ).then(async ({ sound }) => {
+        await sound.setIsMutedAsync(false);
+        setPointTwo(sound);
+      }),
+      Audio.Sound.createAsync(require("@/assets/sound-effects/click.wav")).then(
+        async ({ sound }) => {
+          await sound.setIsMutedAsync(false);
+          setClickSoundOne(sound);
+        }
+      ),
+      Audio.Sound.createAsync(
+        require("@/assets/sound-effects/click-1.wav")
+      ).then(async ({ sound }) => {
+        await sound.setIsMutedAsync(false);
+        setClickSoundOne(sound);
+      }),
+      Audio.Sound.createAsync(
+        require("@/assets/sound-effects/click-2.wav")
+      ).then(async ({ sound }) => {
+        await sound.setIsMutedAsync(false);
+        setClickSoundTwo(sound);
+      }),
+      Audio.Sound.createAsync(
+        require("@/assets/sound-effects/click-3.wav")
+      ).then(async ({ sound }) => {
+        await sound.setIsMutedAsync(false);
+        setClickSoundThree(sound);
+      }),
+      Audio.Sound.createAsync(
+        require("@/assets/sound-effects/click-4.wav")
+      ).then(async ({ sound }) => {
+        await sound.setIsMutedAsync(false);
+        setClickSoundFour(sound);
+      }),
+      Audio.Sound.createAsync(
+        require("@/assets/sound-effects/click-5.wav")
+      ).then(async ({ sound }) => {
+        await sound.setIsMutedAsync(false);
+        setClickSoundFive(sound);
+      }),
+      Audio.Sound.createAsync(
+        require("@/assets/sound-effects/click-6.wav")
+      ).then(async ({ sound }) => {
+        await sound.setIsMutedAsync(false);
+        setClickSoundSix(sound);
+      }),
+      Audio.Sound.createAsync(
+        require("@/assets/sound-effects/click-7.wav")
+      ).then(async ({ sound }) => {
+        await sound.setIsMutedAsync(false);
+        setClickSoundSeven(sound);
+      }),
+      Audio.Sound.createAsync(
+        require("@/assets/sound-effects/draw-card.wav")
+      ).then(async ({ sound }) => {
+        await sound.setIsMutedAsync(false);
+        setDraw(sound);
+      }),
+      Audio.Sound.createAsync(
+        require("@/assets/sound-effects/delete-card.wav")
+      ).then(async ({ sound }) => {
+        await sound.setIsMutedAsync(false);
+        setDeleteCard(sound);
+      }),
+      Audio.Sound.createAsync(
+        require("@/assets/sound-effects/put-on.wav")
+      ).then(async ({ sound }) => {
+        await sound.setIsMutedAsync(false);
+        setPutOn(sound);
+      }),
+      Audio.Sound.createAsync(
+        require("@/assets/sound-effects/draw-card.wav")
+      ).then(async ({ sound }) => {
+        await sound.setIsMutedAsync(false);
+        setPullBack(sound);
+      }),
+    ];
 
-    Audio.Sound.createAsync(require("@/assets/sound-effects/click.wav")).then(
-      ({ sound }) => {
-        !clickDefault && setClickSoundOne(sound);
-      }
-    );
-
-    Audio.Sound.createAsync(require("@/assets/sound-effects/click-1.wav")).then(
-      ({ sound }) => {
-        !clickSoundOne && setClickSoundOne(sound);
-      }
-    );
-    Audio.Sound.createAsync(require("@/assets/sound-effects/click-2.wav")).then(
-      ({ sound }) => {
-        !clickSoundTwo && setClickSoundTwo(sound);
-      }
-    );
-    Audio.Sound.createAsync(require("@/assets/sound-effects/click-3.wav")).then(
-      ({ sound }) => {
-        !clickSoundThree && setClickSoundThree(sound);
-      }
-    );
-    Audio.Sound.createAsync(require("@/assets/sound-effects/click-4.wav")).then(
-      ({ sound }) => {
-        !clickSoundFour && setClickSoundFour(sound);
-      }
-    );
-    Audio.Sound.createAsync(require("@/assets/sound-effects/click-5.wav")).then(
-      ({ sound }) => {
-        !clickSoundFive && setClickSoundFive(sound);
-      }
-    );
-    Audio.Sound.createAsync(require("@/assets/sound-effects/click-6.wav")).then(
-      ({ sound }) => {
-        !clickSoundSix && setClickSoundSix(sound);
-      }
-    );
-    Audio.Sound.createAsync(require("@/assets/sound-effects/click-7.wav")).then(
-      ({ sound }) => {
-        !clickSoundSeven && setClickSoundSeven(sound);
-      }
-    );
-
-    Audio.Sound.createAsync(
-      require("@/assets/sound-effects/draw-card.wav")
-    ).then(({ sound }) => {
-      !draw && setDraw(sound);
-    });
-    Audio.Sound.createAsync(
-      require("@/assets/sound-effects/delete-card.wav")
-    ).then(({ sound }) => {
-      !deleteCard && setDeleteCard(sound);
-    });
-
-    Audio.Sound.createAsync(require("@/assets/sound-effects/put-on.wav")).then(
-      ({ sound }) => {
-        !putOn && setPutOn(sound);
-      }
-    );
-    Audio.Sound.createAsync(
-      require("@/assets/sound-effects/draw-card.wav")
-    ).then(({ sound }) => {
-      !pullBack && setPullBack(sound);
+    await Promise.all(soundPromises).then(() => {
+      setLoading(false);
     });
   }
 
@@ -196,7 +269,6 @@ const SoundProvider = ({ children }: Props) => {
     loadSounds();
 
     return () => {
-      console.log("unloading sounds");
       draw && draw.unloadAsync();
       deleteCard && deleteCard.unloadAsync();
       pullBack && pullBack.unloadAsync();
@@ -232,6 +304,7 @@ const SoundProvider = ({ children }: Props) => {
         loadSounds,
         playPointOne,
         playPointTwo,
+        loading,
       }}
     >
       {children}

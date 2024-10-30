@@ -63,7 +63,7 @@ function RootLayoutNav() {
           color: "white",
         }}
       >
-        Alpha: 0.0.4
+        Beta: 0.55
       </Text>
       <StatusBar hidden />
       <Stack initialRouteName="index">
