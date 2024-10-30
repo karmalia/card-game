@@ -30,7 +30,7 @@ Space Cards Game is a fun and strategic card game where players match high-scori
 
 1. **Start the Game**:
    At the start of the game, 5 cards are drawn automatically from the deck of 24 cards.
-   <img src="./assets/how-to-play/game-started-new" alt="Game Scene" style="max-width: 400px; max-height: 300px;" />
+   <img src="./assets/how-to-play/game-started-new.png" alt="Game Scene" style="max-width: 400px; max-height: 300px;" />
 2. **Goal**:
    Arrange cards in sequences or match colors to score points. There are two primary ways to play:
 
@@ -44,7 +44,7 @@ Space Cards Game is a fun and strategic card game where players match high-scori
 
 3. **Card Management**:
    - If you can’t play any valid moves, drag one card to the discard slot to remove it, and draw a new card from the deck.
-     <img src="./assets/how-to-play/discard-new.png" alt="Discard" style="max-width: 400px; max-height: 300px;" />
+     <img src="./assets/how-to-play/discard-new.gif" alt="Discard" style="max-width: 400px; max-height: 300px;" />
 4. **Sound Settings**:
 
    - You can easily adjust the game’s audio settings from the in-game options menu.
@@ -56,7 +56,7 @@ Space Cards Game is a fun and strategic card game where players match high-scori
 That is all you need to know to play the game.
 Good luck and have fun playing :)
 
-## Download recent version 0.0.3
+## Download recent version 0.55
 
 [Latest Version](https://expo.dev/artifacts/eas/n8LuMSnqGrufERSBUWzNsj.apk)
 
