@@ -1,4 +1,5 @@
 import useGameStore from "@/stores/game.store";
+import getCardDimension from "@/utils/getCardDimension";
 import React, { forwardRef, useEffect } from "react";
 import Animated, {
   useAnimatedStyle,
@@ -6,11 +7,11 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { styled, View } from "tamagui";
-
+const cardDimensions = getCardDimension();
 const CardSlotStyled = forwardRef((props: any, ref: any) => {
   const StyledView = styled(View, {
-    minWidth: "$8",
-    minHeight: "$11",
+    minWidth: cardDimensions.cardWidth,
+    minHeight: cardDimensions.cardHeight,
     borderColor: "transparent",
     padding: 1,
 
@@ -64,8 +65,8 @@ const BoardSlotStyled = forwardRef((props: any, ref: any) => {
   });
 
   const StyledView = styled(View, {
-    minWidth: "$8",
-    minHeight: "$11",
+    minWidth: cardDimensions.cardWidth,
+    minHeight: cardDimensions.cardHeight,
     padding: 1,
 
     borderRadius: 12,

@@ -2,6 +2,7 @@ import React, { createContext, useEffect, useState } from "react";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { playSound } from "@/utils/playSound";
+import { set } from "@react-native-firebase/database";
 
 type Sound = Audio.Sound | null;
 
@@ -20,8 +21,7 @@ interface SoundsContext {
   playClickSeven: () => Promise<void>;
   playPointOne: () => Promise<void>;
   playPointTwo: () => Promise<void>;
-  unloadSounds: () => void;
-  loadSounds: () => void;
+  setVolumeForSounds: (volume: number) => void;
   loading: boolean;
 }
 
@@ -48,76 +48,34 @@ const SoundProvider = ({ children }: Props) => {
   const [pointOne, setPointOne] = useState<Sound>(null);
   const [pointTwo, setPointTwo] = useState<Sound>(null);
 
-  function unloadSounds() {
-    if (draw) {
-      draw.unloadAsync();
-      setDraw(null);
-    }
+  function setVolumeForSounds(volume: number) {
+    draw && draw.setVolumeAsync(volume);
 
-    if (deleteCard) {
-      deleteCard.unloadAsync();
-      setDeleteCard(null);
-    }
+    deleteCard && deleteCard.setVolumeAsync(volume);
 
-    if (putOn) {
-      putOn.unloadAsync();
-      setPutOn(null);
-    }
+    putOn && putOn.setVolumeAsync(volume);
 
-    if (pullBack) {
-      pullBack.unloadAsync();
-      setPullBack(null);
-    }
+    pullBack && pullBack.setVolumeAsync(volume);
 
-    if (clickDefault) {
-      clickDefault.unloadAsync();
-      setClickDefault(null);
-    }
+    clickDefault && clickDefault.setVolumeAsync(volume);
 
-    if (clickSoundOne) {
-      clickSoundOne.unloadAsync();
-      setClickSoundOne(null);
-    }
+    clickSoundOne && clickSoundOne.setVolumeAsync(volume);
 
-    if (clickSoundTwo) {
-      clickSoundTwo.unloadAsync();
-      setClickSoundTwo(null);
-    }
+    clickSoundTwo && clickSoundTwo.setVolumeAsync(volume);
 
-    if (clickSoundThree) {
-      clickSoundThree.unloadAsync();
-      setClickSoundThree(null);
-    }
+    clickSoundThree && clickSoundThree.setVolumeAsync(volume);
 
-    if (clickSoundFour) {
-      clickSoundFour.unloadAsync();
-      setClickSoundFour(null);
-    }
+    clickSoundFour && clickSoundFour.setVolumeAsync(volume);
 
-    if (clickSoundFive) {
-      clickSoundFive.unloadAsync();
-      setClickSoundFive(null);
-    }
+    clickSoundFive && clickSoundFive.setVolumeAsync(volume);
 
-    if (clickSoundSix) {
-      clickSoundSix.unloadAsync();
-      setClickSoundSix(null);
-    }
+    clickSoundSix && clickSoundSix.setVolumeAsync(volume);
 
-    if (clickSoundSeven) {
-      clickSoundSeven.unloadAsync();
-      setClickSoundSeven(null);
-    }
+    clickSoundSeven && clickSoundSeven.setVolumeAsync(volume);
 
-    if (pointOne) {
-      pointOne.unloadAsync();
-      setPointOne(null);
-    }
+    pointOne && pointOne.setVolumeAsync(volume);
 
-    if (pointTwo) {
-      pointTwo.unloadAsync();
-      setPointTwo(null);
-    }
+    pointTwo && pointTwo.setVolumeAsync(volume);
   }
 
   async function loadSounds() {
@@ -137,7 +95,7 @@ const SoundProvider = ({ children }: Props) => {
       Audio.Sound.createAsync(require("@/assets/sound-effects/click.wav")).then(
         async ({ sound }) => {
           await sound.setIsMutedAsync(false);
-          setClickSoundOne(sound);
+          setClickDefault(sound);
         }
       ),
       Audio.Sound.createAsync(
@@ -267,12 +225,30 @@ const SoundProvider = ({ children }: Props) => {
 
   useEffect(() => {
     loadSounds();
+    async function startSounds() {
+      const gameSounds = await AsyncStorage.getItem("gameSounds");
+      switch (gameSounds) {
+        case "true":
+          setVolumeForSounds(1);
+          break;
+        case "false":
+          setVolumeForSounds(0);
+          break;
+
+        default:
+          setVolumeForSounds(1);
+          break;
+      }
+    }
+
+    startSounds();
 
     return () => {
       draw && draw.unloadAsync();
       deleteCard && deleteCard.unloadAsync();
       pullBack && pullBack.unloadAsync();
       putOn && putOn.unloadAsync();
+      clickDefault && clickDefault.unloadAsync();
       clickSoundOne && clickSoundOne.unloadAsync();
       clickSoundTwo && clickSoundTwo.unloadAsync();
       clickSoundThree && clickSoundThree.unloadAsync();
@@ -300,8 +276,7 @@ const SoundProvider = ({ children }: Props) => {
         playClickFive,
         playClickSix,
         playClickSeven,
-        unloadSounds,
-        loadSounds,
+        setVolumeForSounds,
         playPointOne,
         playPointTwo,
         loading,

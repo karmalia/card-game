@@ -27,9 +27,9 @@ const Musics = {
 };
 
 const MusicProvider = ({ children }: Props) => {
-  const { unloadSounds, loadSounds } = useContext(Sounds)!;
+  const { setVolumeForSounds } = useContext(Sounds)!;
   const pathname = usePathname();
-  const isMounted = useRef(true);
+
   const [menuMusic, setMenuMusic] = useState<{
     sound: Audio.Sound | null;
     isActive: boolean;
@@ -54,8 +54,8 @@ const MusicProvider = ({ children }: Props) => {
     } else if (type === "Sound") {
       try {
         setGameSounds(play);
-        play ? loadSounds() : unloadSounds();
         await AsyncStorage.setItem("gameSounds", play ? "true" : "false");
+        play ? setVolumeForSounds(1) : setVolumeForSounds(0);
       } catch (error) {
         console.error("Error handling game sounds:", error);
       }
@@ -63,16 +63,20 @@ const MusicProvider = ({ children }: Props) => {
   };
 
   useEffect(() => {
-    isMounted.current = true;
-
     async function loadAndPlayMusic() {
       const isMusicOn = await AsyncStorage.getItem("musicOn");
       const isSoundsOn = await AsyncStorage.getItem("gameSounds");
 
       if (menuMusic.sound) await menuMusic.sound.unloadAsync();
 
-      if (!isSoundsOn) {
+      if (!isSoundsOn || isSoundsOn === "true") {
         await AsyncStorage.setItem("gameSounds", "true");
+        setGameSounds(true);
+      }
+
+      if (isSoundsOn === "false") {
+        setVolumeForSounds(0);
+        setGameSounds(false);
       }
 
       if (!isMusicOn) {
@@ -93,10 +97,7 @@ const MusicProvider = ({ children }: Props) => {
           }
         );
 
-        if (isMounted.current) {
-          setMenuMusic({ sound: sound, isActive: isMusicOn === "true" });
-          setGameSounds(isSoundsOn === "true");
-        }
+        setMenuMusic({ sound: sound, isActive: isMusicOn === "true" });
       } catch (error) {
         console.error("Error loading music:", error);
       }
@@ -105,7 +106,6 @@ const MusicProvider = ({ children }: Props) => {
     loadAndPlayMusic();
 
     return () => {
-      isMounted.current = false; // Component is unmounted
       menuMusic.sound
         ?.unloadAsync()
         .catch((error) => console.error("Error unloading music:", error));
@@ -113,12 +113,10 @@ const MusicProvider = ({ children }: Props) => {
   }, [pathname]);
 
   const handleMusicChange = (checked: boolean) => {
-    console.log("handleMusicChange", checked);
     handleMenuOptions(checked, "Music");
   };
 
   const handleGameSoundChange = (checked: boolean) => {
-    console.log("handleGameSoundChange", checked);
     handleMenuOptions(checked, "Sound");
   };
 

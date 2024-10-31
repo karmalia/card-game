@@ -1,9 +1,12 @@
-import { ImageBackground, Text } from "react-native";
-import React, { forwardRef, useContext } from "react";
+import { Dimensions, ImageBackground, Text } from "react-native";
+import React, { forwardRef, useCallback, useContext } from "react";
 import { Button, Stack } from "tamagui";
 import useGameStore from "@/stores/game.store";
 import * as Haptics from "expo-haptics";
 import { Sounds } from "@/stores/SoundProvider";
+import getCardDimension from "@/utils/getCardDimension";
+
+const cardDimensions = getCardDimension();
 
 const Deck = forwardRef((props: any, ref: any) => {
   const { playDraw } = useContext(Sounds)!;
@@ -48,8 +51,8 @@ const Deck = forwardRef((props: any, ref: any) => {
   return (
     <Stack
       ref={ref}
-      height={"$11"}
-      width={"$8"}
+      height={cardDimensions.cardHeight}
+      width={cardDimensions.cardWidth}
       borderRadius={"$2"}
       alignSelf="flex-end"
       margin="$4"
@@ -75,7 +78,7 @@ const Deck = forwardRef((props: any, ref: any) => {
             style={{
               fontFamily: "DragonSlayer",
               color: "white",
-              fontSize: 28,
+              fontSize: Dimensions.get("window").width * 0.04,
             }}
           >
             {useGameStore.getState().cardsInDeck.length}

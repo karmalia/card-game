@@ -1,17 +1,24 @@
-import { ImageBackground, StyleSheet, Text, View } from "react-native";
+import {
+  Dimensions,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import React, { forwardRef } from "react";
 import { Stack } from "tamagui";
 import { Ionicons } from "@expo/vector-icons";
 import useGameStore from "@/stores/game.store";
+import getCardDimension from "@/utils/getCardDimension";
 
-type Props = {};
+const cardDimensions = getCardDimension();
 
-const Trash = forwardRef((props: Props, ref: any) => {
+const Trash = forwardRef((props, ref: any) => {
   const { cardsOnTrash } = useGameStore();
   return (
     <Stack
-      height={"$11"}
-      width={"$8"}
+      height={cardDimensions.cardHeight}
+      width={cardDimensions.cardWidth}
       borderWidth="$1"
       borderRadius={"$2"}
       margin="$4"
@@ -34,7 +41,7 @@ const Trash = forwardRef((props: Props, ref: any) => {
           style={{
             fontFamily: "DragonSlayer",
             color: "white",
-            fontSize: 28,
+            fontSize: Dimensions.get("window").width * 0.04,
           }}
         >
           {cardsOnTrash.length}

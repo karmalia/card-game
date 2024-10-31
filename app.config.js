@@ -1,6 +1,6 @@
 module.exports = {
   expo: {
-    name: "Elemental Cards",
+    name: "Space Cards",
     slug: "metin-the-card-game",
     version: "0.0.4",
     orientation: "landscape",
@@ -17,7 +17,7 @@ module.exports = {
     },
     android: {
       adaptiveIcon: {
-        foregroundImage: "./assets/icons/adaptiveIcon.png",
+        foregroundImage: "./assets/icons/app-icon.png",
         backgroundColor: "#ffffff",
       },
       googleServicesFile:

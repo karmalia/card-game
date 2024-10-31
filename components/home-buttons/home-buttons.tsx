@@ -1,4 +1,10 @@
-import { ImageBackground, Keyboard, StyleSheet, Text } from "react-native";
+import {
+  Dimensions,
+  ImageBackground,
+  Keyboard,
+  StyleSheet,
+  Text,
+} from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { Button } from "tamagui";
 import { useRouter } from "expo-router";
@@ -58,7 +64,7 @@ const HomeButtons = ({
   setLeaderboardVisible: (value: boolean) => void;
 }) => {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const { playClickOne } = useContext(Sounds)!;
+  const { playClickDefault } = useContext(Sounds)!;
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
       setIsKeyboardVisible(true);
@@ -77,7 +83,7 @@ const HomeButtons = ({
   const opacity = useSharedValue(0);
 
   function handleAction(action: any) {
-    playClickOne();
+    playClickDefault();
     if (action.type === "route") {
       router.navigate(action.value);
     }
@@ -139,24 +145,24 @@ const HomeButtons = ({
           key={button.title + index}
         >
           <Button
-            height={"$3"}
-            width={"$20"}
             alignContent="flex-start"
             justifyContent="center"
             backgroundColor={"transparent"}
             onPress={() => handleAction(button.action)}
             disabled={button.disabled}
+            style={{
+              width: Dimensions.get("screen").width * 0.3,
+              height: Dimensions.get("screen").height * 0.1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
           >
             <Text
               style={{
                 fontFamily: "DragonSlayer",
-                fontSize: 18,
+                fontSize: Dimensions.get("screen").height * 0.05,
                 textAlign: "center",
                 letterSpacing: 2,
-                elevation: 4,
-                textShadowColor: "rgba(0, 0, 0, 0.55)",
-                textShadowOffset: { width: 0, height: 1 },
-                textShadowRadius: 10,
                 color: "white",
               }}
             >

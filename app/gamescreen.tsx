@@ -169,7 +169,7 @@ const Index = () => {
             flex={1}
             flexDirection="row"
             justifyContent="center"
-            gap="$2"
+            gap="$4"
             alignItems="flex-end"
           >
             <Styled.CardSlotStyled ref={bottomSlot1Ref}></Styled.CardSlotStyled>

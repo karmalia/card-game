@@ -25,6 +25,8 @@ import { Sounds } from "@/stores/SoundProvider";
 
 const { height } = Dimensions.get("window");
 
+const checkboxSize = Dimensions.get("window").width * 0.025;
+
 const Options = () => {
   const [optionsVisible, setOptionsVisible] = useState(false);
   const router = useRouter();
@@ -113,21 +115,21 @@ const Options = () => {
           >
             {optionsVisible ? (
               <Stack
-                height="$4"
-                width="$4"
                 style={{
                   borderWidth: 2,
                   borderColor: "white",
 
                   justifyContent: "center",
                   alignItems: "center",
+                  height: Dimensions.get("window").width * 0.065,
+                  width: Dimensions.get("window").width * 0.065,
                 }}
               >
                 <Text
                   style={{
                     fontFamily: "DragonSlayer",
                     color: "white",
-                    fontSize: 32,
+                    fontSize: Dimensions.get("window").width * 0.05,
                   }}
                 >
                   X
@@ -135,8 +137,10 @@ const Options = () => {
               </Stack>
             ) : (
               <Image
-                height="$4"
-                width="$4"
+                style={{
+                  height: Dimensions.get("window").width * 0.065,
+                  width: Dimensions.get("window").width * 0.065,
+                }}
                 resizeMethod="auto"
                 source={require("@/assets/icons/settings3.png")}
               />
@@ -159,7 +163,7 @@ const Options = () => {
                 justifyContent: "center",
               }}
             >
-              <Text style={styles.modalText}>OPTIONS</Text>
+              <Text style={styles.modalTitle}>OPTIONS</Text>
             </View>
             <View
               style={{
@@ -169,17 +173,7 @@ const Options = () => {
                 justifyContent: "space-between",
               }}
             >
-              <Text
-                style={{
-                  fontFamily: "DragonSlayer",
-                  fontSize: 28,
-                  letterSpacing: 1,
-                  color: "white",
-                  flex: 1,
-                }}
-              >
-                MUSIC
-              </Text>
+              <Text style={styles.modalOptionText}>MUSIC</Text>
               <Checkbox
                 size={"$4"}
                 id={musicId}
@@ -190,38 +184,12 @@ const Options = () => {
 
               <ImageBackground
                 resizeMode="contain"
-                width={24}
-                height={24}
                 source={require("@/assets/icons/panel-checkbox.png")}
               >
-                <Label
-                  style={{
-                    width: 24,
-                    height: 24,
-                    padding: 0,
-                    margin: 0,
-                    justifyContent: "center",
-                    alignItems: "center",
-
-                    backgroundColor: "transparent",
-                    zIndex: 10,
-                  }}
-                  htmlFor={musicId}
-                />
+                <Label style={styles.modalLabel} htmlFor={musicId} />
                 {menuMusic?.isActive && (
-                  <View
-                    style={{
-                      position: "absolute",
-                      width: 24,
-                      height: 24,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      top: 0,
-                      left: 0,
-                      zIndex: -10,
-                    }}
-                  >
-                    <Icons.Check width={12} height={12} />
+                  <View style={styles.checkboxContainer}>
+                    <Icons.Check width={checkboxSize} height={checkboxSize} />
                   </View>
                 )}
               </ImageBackground>
@@ -234,17 +202,7 @@ const Options = () => {
                 justifyContent: "space-between",
               }}
             >
-              <Text
-                style={{
-                  fontFamily: "DragonSlayer",
-                  fontSize: 28,
-                  letterSpacing: 1,
-                  color: "white",
-                  flex: 1,
-                }}
-              >
-                SOUNDS
-              </Text>
+              <Text style={styles.modalOptionText}>SOUNDS</Text>
               <Checkbox
                 size={"$4"}
                 id={soundsId}
@@ -257,34 +215,10 @@ const Options = () => {
                 resizeMode="contain"
                 source={require("@/assets/icons/panel-checkbox.png")}
               >
-                <Label
-                  style={{
-                    width: 24,
-                    height: 24,
-                    padding: 0,
-                    margin: 0,
-                    justifyContent: "center",
-                    alignItems: "center",
-
-                    backgroundColor: "transparent",
-                    zIndex: 10,
-                  }}
-                  htmlFor={soundsId}
-                />
+                <Label style={styles.modalLabel} htmlFor={soundsId} />
                 {gameSounds && (
-                  <View
-                    style={{
-                      position: "absolute",
-                      width: 24,
-                      height: 24,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      top: 0,
-                      left: 0,
-                      zIndex: -10,
-                    }}
-                  >
-                    <Icons.Check width={12} height={12} />
+                  <View style={styles.checkboxContainer}>
+                    <Icons.Check width={checkboxSize} height={checkboxSize} />
                   </View>
                 )}
               </ImageBackground>
@@ -349,27 +283,61 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     position: "absolute",
-    maxWidth: Dimensions.get("window").width * 0.3,
     backgroundColor: "rgba(0, 0, 20, 0.8)",
 
     alignSelf: "center",
     top: "20%",
   },
   modalContent: {
-    width: Dimensions.get("window").width * 0.3,
+    width: Dimensions.get("window").width * 0.4,
     height: Dimensions.get("window").height * 0.6,
-    paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingHorizontal: Dimensions.get("window").width * 0.04,
+    paddingVertical: Dimensions.get("window").height * 0.05,
     gap: 12,
     justifyContent: "space-between",
   },
-  modalText: {
-    fontSize: 28,
+  modalTitle: {
+    fontSize: Dimensions.get("window").width * 0.05,
     color: "white",
     letterSpacing: 4,
     fontFamily: "DragonSlayer",
     flex: 1,
     textAlign: "center",
+  },
+  modalText: {
+    fontSize: Dimensions.get("window").width * 0.04,
+    justifyContent: "center",
+    alignItems: "center",
+
+    backgroundColor: "transparent",
+    zIndex: 10,
+  },
+  modalLabel: {
+    width: Dimensions.get("window").width * 0.04,
+    height: Dimensions.get("window").width * 0.04,
+
+    justifyContent: "center",
+    alignItems: "center",
+
+    backgroundColor: "transparent",
+    zIndex: 10,
+  },
+  modalOptionText: {
+    fontFamily: "DragonSlayer",
+    fontSize: Dimensions.get("window").width * 0.04,
+    letterSpacing: 1,
+    color: "white",
+    flex: 1,
+  },
+  checkboxContainer: {
+    position: "absolute",
+    width: checkboxSize + checkboxSize / 2,
+    height: checkboxSize + checkboxSize / 2,
+    justifyContent: "center",
+    alignItems: "center",
+    top: 0,
+    left: 0,
+    zIndex: -10,
   },
   closeButton: {
     padding: 10,
@@ -378,8 +346,9 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     color: "white",
-    fontSize: 24,
+    fontSize: Dimensions.get("window").width * 0.03,
     textAlign: "center",
+    letterSpacing: 2,
     fontFamily: "DragonSlayer",
   },
   optionsButton: {
@@ -388,7 +357,7 @@ const styles = StyleSheet.create({
   },
   optionsText: {
     fontFamily: "DragonSlayer",
-    fontSize: 22,
+    fontSize: Dimensions.get("window").width * 0.04,
     paddingVertical: 6,
     letterSpacing: 1,
     textAlign: "center",

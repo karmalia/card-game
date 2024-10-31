@@ -21,25 +21,10 @@ import { TapGesture } from "react-native-gesture-handler/lib/typescript/handlers
 import { PanGesture } from "react-native-gesture-handler/lib/typescript/handlers/gestures/panGesture";
 import { set } from "@react-native-firebase/database";
 import { Sounds } from "@/stores/SoundProvider";
-
-const StyledCard = styled(View, {
-  name: "GameCard",
-  height: "$11",
-  width: "$8",
-
-  overflow: "hidden",
-});
+import getCardDimension from "@/utils/getCardDimension";
 
 const part = Dimensions.get("screen").height / 3;
 const middleCenterY = part * 2;
-
-const CardNumber = styled(Text, {
-  name: "CardNumber",
-  fontSize: "$12",
-  color: "$cardText",
-  fontFamily: "DragonSlayer",
-  zIndex: 99999,
-});
 
 type GameCardProps = {
   card: Card;
@@ -64,6 +49,23 @@ const bg = {
   blue: require("@/assets/card-backgrounds/BlueBgOpacity2.png"),
   yellow: require("@/assets/card-backgrounds/YellowBgOpacity2.png"),
 };
+
+const cardDimensions = getCardDimension();
+
+const StyledCard = styled(View, {
+  name: "GameCard",
+  height: cardDimensions.cardHeight,
+  width: cardDimensions.cardWidth,
+  overflow: "hidden",
+});
+
+const CardNumber = styled(Text, {
+  name: "CardNumber",
+  fontSize: Dimensions.get("screen").width * 0.07,
+  color: "$cardText",
+  fontFamily: "DragonSlayer",
+  zIndex: 99999,
+});
 
 const GameCard = ({
   card,

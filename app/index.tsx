@@ -51,10 +51,9 @@ const Index = () => {
         <TamaguiText
           color="white"
           fontFamily={"DragonSlayer"}
-          fontSize={"$12"}
-          lineHeight={84}
           textAlign="left"
           letterSpacing={8}
+          style={{ fontSize: Dimensions.get("screen").width * 0.1 }}
         >
           SPACE CARDS
         </TamaguiText>
