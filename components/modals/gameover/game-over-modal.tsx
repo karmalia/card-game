@@ -16,13 +16,18 @@ import ConvertToMinuteString from "@/utils/convertToMinuteString";
 import calculateTotalScore from "@/utils/calculateTotalScore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import firestore from "@react-native-firebase/firestore";
+import useGameScoreStore from "@/stores/game-score.store";
 
-const GameOverModal = ({ restartGame }: { restartGame: () => void }) => {
+const GameOverModal = () => {
   const router = useRouter();
   const sharedOpacity = useSharedValue(0);
   const sharedWidth = useSharedValue(0);
 
-  const { point, populateDeck, time, gamePhase } = useGameStore();
+  const { restartGame } = useGameStore();
+  const { resetTime } = useGameScoreStore();
+
+  const { point, populateDeck, gamePhase } = useGameStore();
+  const { time } = useGameScoreStore();
   const modalWidth = Math.min(Dimensions.get("screen").width * 0.3, 250);
   const modalHeight = Math.min(Dimensions.get("screen").height * 0.8, 300);
 
@@ -230,7 +235,10 @@ const GameOverModal = ({ restartGame }: { restartGame: () => void }) => {
               justifyContent: "center",
               alignItems: "center",
             }}
-            onPress={restartGame}
+            onPress={() => {
+              resetTime();
+              restartGame();
+            }}
           >
             <Text
               style={{

@@ -3,10 +3,11 @@ import React from "react";
 import useGameStore from "@/stores/game.store";
 import { Stack, View } from "tamagui";
 import ConvertToMinuteString from "@/utils/convertToMinuteString";
+import useGameScoreStore from "@/stores/game-score.store";
 
 const GameScore = () => {
-  const { point, time, increaseTime, gamePhase } = useGameStore();
-
+  const { increaseTime, time } = useGameScoreStore();
+  const { point, gamePhase } = useGameStore();
   React.useEffect(() => {
     const interval = setInterval(() => {
       if (gamePhase === 3) {

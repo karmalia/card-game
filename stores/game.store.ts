@@ -1,41 +1,6 @@
 import { create } from "zustand";
 import { ArraySlots, Card, TPos, TSlotPos } from "@/components/types";
 import { generateTestDeck, generateDeck } from "@/utils/generateDeck";
-
-type gameStore = {
-  gamePhase: number;
-  point: number;
-  time: number;
-  topSlotPositions: ArraySlots;
-  bottomSlotPositions: ArraySlots;
-  firstEmptySlotId: string;
-  filledTopSlotCount: number;
-  trashCanPosition: TPos;
-  deckPosition: TPos;
-  cardsInHand: Card[];
-  cardsOnBoard: Card[];
-  cardsOnGame: Card[];
-  cardsOnTrash: Card[];
-  cardsInDeck: Card[];
-  drawCard: (slot: TSlotPos) => void;
-  setGamePhase: (phase: number) => void;
-  setTopSlotsPositions: (positions: ArraySlots) => void;
-  setBottomSlotsPositions: (positions: ArraySlots) => void;
-  setThrashCanPosition: (position: TPos) => void;
-  setDeckPosition: (position: TPos) => void;
-  placeOnBoard: (card: Card) => void;
-  removeFromBoard: (card: Card) => void;
-  discardCard: (card: Card) => void;
-  calculatePoint: (
-    serialized: boolean,
-    hasSameValue: boolean,
-    hasSameColor: boolean,
-    totalValue: number
-  ) => void;
-  populateDeck: () => void;
-  increaseTime: () => void;
-};
-
 const Points = {
   // Different Color, Same Value
   hasSameValue: {
@@ -58,6 +23,38 @@ const Points = {
     21: 100,
   },
 };
+type gameStore = {
+  gamePhase: number;
+  point: number;
+  topSlotPositions: ArraySlots;
+  bottomSlotPositions: ArraySlots;
+  firstEmptySlotId: string;
+  filledTopSlotCount: number;
+  trashCanPosition: TPos;
+  deckPosition: TPos;
+  cardsInHand: Card[];
+  cardsOnBoard: Card[];
+  cardsOnGame: Card[];
+  cardsOnTrash: Card[];
+  cardsInDeck: Card[];
+  drawCard: (slot: TSlotPos) => void;
+  setTopSlotsPositions: (positions: ArraySlots) => void;
+  setBottomSlotsPositions: (positions: ArraySlots) => void;
+  setThrashCanPosition: (position: TPos) => void;
+  setDeckPosition: (position: TPos) => void;
+  placeOnBoard: (card: Card) => void;
+  removeFromBoard: (card: Card) => void;
+  discardCard: (card: Card) => void;
+  setGamePhase: (phase: number) => void;
+  calculatePoint: (
+    serialized: boolean,
+    hasSameValue: boolean,
+    hasSameColor: boolean,
+    totalValue: number
+  ) => void;
+  restartGame: () => void;
+  populateDeck: () => void;
+};
 
 /*
 Puanlamalar;
@@ -78,7 +75,7 @@ Different 3-4-5: 30
 const initialGameState = {
   gamePhase: 0,
   point: 0,
-  time: 0,
+  canTouch: true,
   topSlotPositions: [],
   bottomSlotPositions: [],
   firstEmptySlotId: "",
@@ -126,7 +123,46 @@ const useGameStore = create<gameStore>((set) => ({
   setGamePhase: (phase: number) => {
     return set((state) => ({ ...state, gamePhase: phase }));
   },
+  calculatePoint: (serialized, hasSameValue, hasSameColor, totalValue) =>
+    set((state) => {
+      let point = 0;
 
+      if (hasSameValue) {
+        point =
+          Points.hasSameValue[totalValue as keyof typeof Points.hasSameValue];
+      }
+
+      if (serialized) {
+        point =
+          Points.isSameColor[totalValue as keyof typeof Points.isSameColor];
+        if (!hasSameColor) point -= 40;
+      }
+
+      const cardsOnBoardIds = state.cardsOnBoard.map((c: any) => c.id);
+      const cardsOnTrashIds = state.cardsOnTrash.map((c: any) => c.id);
+      const emptiedSlotsIds = state.cardsOnBoard.map((c: any) => c.slot.slotId);
+
+      const newState = {
+        point: state.point + point,
+        cardsOnBoard: [],
+        cardsOnGame: state.cardsOnGame.filter(
+          (c: any) =>
+            !cardsOnBoardIds.includes(c.id) || cardsOnTrashIds.includes(c.id)
+        ),
+        topSlotPositions: state.topSlotPositions.map((slot: any) => ({
+          ...slot,
+          isActive: false,
+        })),
+        bottomSlotPositions: state.bottomSlotPositions.map((slot: any) => {
+          return {
+            ...slot,
+            isActive: emptiedSlotsIds.includes(slot.slotId) ? false : true,
+          };
+        }),
+      };
+
+      return newState;
+    }),
   setTopSlotsPositions: (positions) =>
     set((state) => {
       return { ...state, topSlotPositions: positions };
@@ -244,47 +280,6 @@ const useGameStore = create<gameStore>((set) => ({
       return state;
     }),
 
-  calculatePoint: (serialized, hasSameValue, hasSameColor, totalValue) =>
-    set((state) => {
-      let point = 0;
-
-      if (hasSameValue) {
-        point =
-          Points.hasSameValue[totalValue as keyof typeof Points.hasSameValue];
-      }
-
-      if (serialized) {
-        point =
-          Points.isSameColor[totalValue as keyof typeof Points.isSameColor];
-        if (!hasSameColor) point -= 40;
-      }
-
-      const cardsOnBoardIds = state.cardsOnBoard.map((c) => c.id);
-      const cardsOnTrashIds = state.cardsOnTrash.map((c) => c.id);
-      const emptiedSlotsIds = state.cardsOnBoard.map((c) => c.slot.slotId);
-
-      const newState = {
-        point: state.point + point,
-        cardsOnBoard: [],
-        cardsOnGame: state.cardsOnGame.filter(
-          (c) =>
-            !cardsOnBoardIds.includes(c.id) || cardsOnTrashIds.includes(c.id)
-        ),
-        topSlotPositions: state.topSlotPositions.map((slot) => ({
-          ...slot,
-          isActive: false,
-        })),
-        bottomSlotPositions: state.bottomSlotPositions.map((slot) => {
-          return {
-            ...slot,
-            isActive: emptiedSlotsIds.includes(slot.slotId) ? false : true,
-          };
-        }),
-      };
-
-      return newState;
-    }),
-
   populateDeck: () =>
     set((state) => {
       const deck = generateDeck();
@@ -297,9 +292,14 @@ const useGameStore = create<gameStore>((set) => ({
         cardsInDeck: deck,
       };
     }),
-  increaseTime: () =>
+
+  restartGame: () =>
     set((state) => {
-      return { ...state, time: state.time + 1 };
+      return {
+        ...state,
+        cardsInDeck: generateDeck(),
+        gamePhase: 1,
+      };
     }),
 }));
 

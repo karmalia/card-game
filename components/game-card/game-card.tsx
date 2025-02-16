@@ -22,6 +22,11 @@ import { PanGesture } from "react-native-gesture-handler/lib/typescript/handlers
 import { set } from "@react-native-firebase/database";
 import { Sounds } from "@/stores/SoundProvider";
 import getCardDimension from "@/utils/getCardDimension";
+import useGameScoreStore from "@/stores/game-score.store";
+import useOverlayStore from "@/stores/overlay.store";
+import DirectionOverlay, {
+  EDirective,
+} from "../render-cards/DirectionOverlay/direction-overlay";
 
 const part = Dimensions.get("screen").height / 3;
 const middleCenterY = part * 2;
@@ -30,8 +35,10 @@ type GameCardProps = {
   card: Card;
   startingPosition: TPos;
   endingPosition: TPos | null;
-  sharedAnimatedCard: SharedValue<string | null>;
-  sharedDirective: SharedValue<"none" | "play" | "delete">;
+  sharedAnimatedCard: SharedValue<Card | null>;
+  sharedTopFirstEmptySlot: SharedValue<TSlotPos | null>;
+  sharedDirective: SharedValue<keyof typeof EDirective>;
+  index: number;
 };
 
 const springConfig = {
@@ -72,7 +79,9 @@ const GameCard = ({
   startingPosition,
   endingPosition,
   sharedAnimatedCard,
+  sharedTopFirstEmptySlot,
   sharedDirective,
+  index,
 }: GameCardProps) => {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -80,7 +89,7 @@ const GameCard = ({
   const { playDelete, playPutOn, playPullBack, playClickTwo } =
     useContext(Sounds)!;
 
-  const [cardState, setCardState] = useState(card);
+  const [cardState, setCardState] = useState<Card>(card);
 
   const sharedCard = useSharedValue({
     ...cardState,
@@ -88,6 +97,7 @@ const GameCard = ({
       slotId: cardState.slot.slotId,
       pageX: cardState.slot.pageX,
       pageY: cardState.slot.pageY,
+      reservedBy: cardState.slot.reservedBy,
     },
     destinationSlot:
       cardState.destinationSlot !== null
@@ -103,12 +113,10 @@ const GameCard = ({
     placeOnBoard,
     removeFromBoard,
     trashCanPosition,
-    gamePhase,
-    topSlotPositions,
-    bottomSlotPositions,
     cardsOnBoard,
     cardsInHand,
     discardCard,
+    gamePhase,
   } = useGameStore();
 
   useEffect(() => {
@@ -123,21 +131,6 @@ const GameCard = ({
     pageY: startingPosition?.pageY || 0,
   });
 
-  const sharedTopFirstEmptySlot = useSharedValue<TSlotPos | null>(null);
-
-  useEffect(() => {
-    if (topSlotPositions.length) {
-      const emptySlot = topSlotPositions.find((slot) => !slot.isActive);
-      sharedTopFirstEmptySlot.value = emptySlot
-        ? JSON.parse(
-            JSON.stringify(topSlotPositions.find((slot) => !slot.isActive))
-          )
-        : null;
-    } else {
-      sharedTopFirstEmptySlot.value = null;
-    }
-  }, [topSlotPositions]);
-
   useEffect(() => {
     // Keep sharedCard in sync with cardState whenever cardState changes
     sharedCard.value = {
@@ -146,6 +139,7 @@ const GameCard = ({
         slotId: cardState.slot.slotId,
         pageX: cardState.slot.pageX,
         pageY: cardState.slot.pageY,
+        reservedBy: cardState.slot.reservedBy,
       },
       destinationSlot:
         cardState.destinationSlot !== null
@@ -160,44 +154,62 @@ const GameCard = ({
 
   const drag = Gesture.Pan()
     .onStart((event) => {
-      if (!sharedAnimatedCard.value)
-        sharedAnimatedCard.value = sharedCard.value.id;
+      if (!sharedAnimatedCard.value && sharedTopFirstEmptySlot.value) {
+        sharedAnimatedCard.value = sharedCard.value;
+        sharedTopFirstEmptySlot.value.reservedBy = sharedCard.value.id;
+        return;
+      }
+
       event.x = translateX.value;
       event.y = translateY.value;
     })
     .onChange((event) => {
-      if (sharedAnimatedCard.value !== sharedCard.value.id) return;
+      if (
+        sharedAnimatedCard.value &&
+        sharedTopFirstEmptySlot?.value?.reservedBy === sharedCard.value.id
+      ) {
+        translateX.value = event.translationX;
+        translateY.value = event.translationY;
+        return;
+      }
 
-      translateX.value = event.translationX;
-      translateY.value = event.translationY;
       if (event.absoluteX > trashCanPosition.pageX) {
         sharedDirective.value = "delete";
       } else if (event.absoluteY < middleCenterY) {
+        sharedTopFirstEmptySlot.value?.reservedBy === sharedCard.value.id;
         sharedDirective.value = "play";
       } else {
+        console.log("none");
         sharedDirective.value = "none";
       }
     })
     .onEnd((event) => {
       sharedDirective.value = "none";
-      if (sharedAnimatedCard.value !== sharedCard.value.id) {
+      const goTrash = event.absoluteX > trashCanPosition.pageX;
+      const goPlay = event.absoluteY < middleCenterY;
+
+      if (
+        sharedAnimatedCard.value &&
+        sharedAnimatedCard.value.id !== sharedCard.value.id
+      ) {
         translateX.value = 0;
         translateY.value = 0;
       } else {
-        if (event.absoluteX > trashCanPosition.pageX) {
+        if (goTrash) {
           runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
           runOnJS(playDelete)();
+          runOnJS(discardCard)(sharedCard.value);
+          sharedAnimatedCard.value = null;
+
           translateX.value = withSpring(trashCanPosition.pageX, springConfig);
-          translateY.value = withSpring(
-            trashCanPosition.pageY,
-            springConfig,
-            () => {
-              runOnJS(discardCard)(sharedCard.value);
-              sharedAnimatedCard.value = null;
-            }
-          );
-        } else if (event.absoluteY < middleCenterY) {
-          if (sharedTopFirstEmptySlot.value) {
+          translateY.value = withSpring(trashCanPosition.pageY, springConfig);
+          return;
+        }
+
+        if (goPlay) {
+          if (
+            sharedTopFirstEmptySlot.value?.reservedBy === sharedCard.value.id
+          ) {
             const targetX =
               sharedTopFirstEmptySlot.value.pageX -
               sharedCardLocation.value.pageX;
@@ -207,21 +219,19 @@ const GameCard = ({
             runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
             runOnJS(playPutOn)();
             sharedCard.value.isPlayed = true;
+            runOnJS(placeOnBoard)(sharedCard.value);
+
             translateX.value = withSpring(targetX, springConfig);
             translateY.value = withSpring(targetY, springConfig, () => {
-              runOnJS(placeOnBoard)(sharedCard.value);
               sharedAnimatedCard.value = null;
             });
-          } else {
-            translateX.value = 0;
-            translateY.value = 0;
-            sharedAnimatedCard.value = null;
+            return;
           }
-        } else {
-          translateX.value = 0;
-          translateY.value = 0;
-          sharedAnimatedCard.value = null;
         }
+
+        translateX.value = 0;
+        translateY.value = 0;
+        sharedAnimatedCard.value = null;
       }
     });
 
@@ -231,16 +241,12 @@ const GameCard = ({
         runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
         runOnJS(playClickTwo)();
         sharedCard.value.isPlayed = false;
-        translateX.value = withSpring(0, springConfig);
-        translateY.value = withSpring(0, springConfig, () => {
-          runOnJS(removeFromBoard)(sharedCard.value);
-        });
-      } else {
+        runOnJS(removeFromBoard)(sharedCard.value);
         translateX.value = withSpring(0, springConfig);
         translateY.value = withSpring(0, springConfig);
       }
     } catch (error) {
-      console.log("Tap error:", error.message);
+      console.log("Tap error:", error?.message);
     }
   });
 
@@ -304,18 +310,16 @@ const GameCard = ({
 const GesturedCard = ({
   card,
   CardAnimationStyles,
-  sharedCard,
   tap,
   drag,
 }: {
   card: Card;
   CardAnimationStyles: any;
-  sharedCard: any;
   tap: TapGesture;
   drag: PanGesture;
 }) => {
   return (
-    <GestureDetector gesture={sharedCard.value.isPlayed ? tap : drag}>
+    <GestureDetector gesture={card.isPlayed ? tap : drag}>
       <Animated.View
         style={[
           {
@@ -346,4 +350,6 @@ const GesturedCard = ({
   );
 };
 
+GameCard.displayName = "GameCard";
+GesturedCard.displayName = "GesturedCard";
 export default GameCard;

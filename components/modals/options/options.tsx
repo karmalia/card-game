@@ -22,6 +22,7 @@ import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { playSound } from "@/utils/playSound";
 import { Sounds } from "@/stores/SoundProvider";
+import useGameScoreStore from "@/stores/game-score.store";
 
 const { height } = Dimensions.get("window");
 
@@ -30,7 +31,7 @@ const checkboxSize = Dimensions.get("window").width * 0.025;
 const Options = () => {
   const [optionsVisible, setOptionsVisible] = useState(false);
   const router = useRouter();
-  const { setGamePhase, populateDeck } = useGameStore();
+  const { populateDeck, setGamePhase } = useGameStore();
   const { playClickDefault, playClickSeven } = useContext(Sounds)!;
   const musicId = useId();
   const soundsId = useId();
@@ -315,10 +316,8 @@ const styles = StyleSheet.create({
   modalLabel: {
     width: Dimensions.get("window").width * 0.04,
     height: Dimensions.get("window").width * 0.04,
-
     justifyContent: "center",
     alignItems: "center",
-
     backgroundColor: "transparent",
     zIndex: 10,
   },

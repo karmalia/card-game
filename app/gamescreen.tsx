@@ -8,7 +8,6 @@ import { ArraySlots, TSlotPos } from "@/components/types";
 import { GameSlot } from "@/utils/slot-class";
 import SafeAreaStyled from "@/components/gamescreen/safe-area.styled";
 import Styled from "@/components/gamescreen/card-slots.styled";
-import { useRouter } from "expo-router";
 import { randomUUID } from "expo-crypto";
 import RenderCards from "@/components/render-cards/render-cards";
 import Deck from "@/components/deck/deck";
@@ -16,18 +15,17 @@ import Trash from "@/components/trash/trash";
 import GameScore from "@/components/gamescore/gamescore";
 import AnimatedGameBackground from "@/components/backgrounds/GameBackground";
 import Options from "@/components/modals/options/options";
+import GameOverModal from "@/components/modals/gameover/game-over-modal";
 
 const Index = () => {
-  const router = useRouter();
   const {
-    setGamePhase,
     setTopSlotsPositions,
     setBottomSlotsPositions,
     setThrashCanPosition,
     setDeckPosition,
-    populateDeck,
-    gamePhase,
   } = useGameStore();
+
+  const { gamePhase, setGamePhase } = useGameStore();
 
   // For Top Slots
   const topSlot1Ref = useRef<any>(null);
@@ -59,18 +57,21 @@ const Index = () => {
     const measureTopSlots = () => {
       return Promise.all([
         new Promise((resolve) =>
-          topSlot1Ref.current.measure((_x, _y, _w, _h, px, py) =>
-            resolve(new GameSlot(randomUUID(), false, px, py))
+          topSlot1Ref.current.measure(
+            (_x: any, _y: any, _w: any, _h: any, px: any, py: any) =>
+              resolve(new GameSlot(randomUUID(), false, px, py))
           )
         ),
         new Promise((resolve) =>
-          topSlot2Ref.current.measure((_x, _y, _w, _h, px, py) =>
-            resolve(new GameSlot(randomUUID(), false, px, py))
+          topSlot2Ref.current.measure(
+            (_x: any, _y: any, _w: any, _h: any, px: any, py: any) =>
+              resolve(new GameSlot(randomUUID(), false, px, py))
           )
         ),
         new Promise((resolve) =>
-          topSlot3Ref.current.measure((_x, _y, _w, _h, px, py) =>
-            resolve(new GameSlot(randomUUID(), false, px, py))
+          topSlot3Ref.current.measure(
+            (_x: any, _y: any, _w: any, _h: any, px: any, py: any) =>
+              resolve(new GameSlot(randomUUID(), false, px, py))
           )
         ),
       ]);
@@ -79,28 +80,33 @@ const Index = () => {
     const measureBottomSlots = () => {
       return Promise.all([
         new Promise((resolve) =>
-          bottomSlot1Ref.current.measure((_x, _y, _w, _h, px, py) =>
-            resolve(new GameSlot(randomUUID(), true, px, py))
+          bottomSlot1Ref.current.measure(
+            (_x: any, _y: any, _w: any, _h: any, px: any, py: any) =>
+              resolve(new GameSlot(randomUUID(), true, px, py))
           )
         ),
         new Promise((resolve) =>
-          bottomSlot2Ref.current.measure((_x, _y, _w, _h, px, py) =>
-            resolve(new GameSlot(randomUUID(), true, px, py))
+          bottomSlot2Ref.current.measure(
+            (_x: any, _y: any, _w: any, _h: any, px: any, py: any) =>
+              resolve(new GameSlot(randomUUID(), true, px, py))
           )
         ),
         new Promise((resolve) =>
-          bottomSlot3Ref.current.measure((_x, _y, _w, _h, px, py) =>
-            resolve(new GameSlot(randomUUID(), true, px, py))
+          bottomSlot3Ref.current.measure(
+            (_x: any, _y: any, _w: any, _h: any, px: any, py: any) =>
+              resolve(new GameSlot(randomUUID(), true, px, py))
           )
         ),
         new Promise((resolve) =>
-          bottomSlot4Ref.current.measure((_x, _y, _w, _h, px, py) =>
-            resolve(new GameSlot(randomUUID(), true, px, py))
+          bottomSlot4Ref.current.measure(
+            (_x: any, _y: any, _w: any, _h: any, px: any, py: any) =>
+              resolve(new GameSlot(randomUUID(), true, px, py))
           )
         ),
         new Promise((resolve) =>
-          bottomSlot5Ref.current.measure((_x, _y, _w, _h, px, py) =>
-            resolve(new GameSlot(randomUUID(), true, px, py))
+          bottomSlot5Ref.current.measure(
+            (_x: any, _y: any, _w: any, _h: any, px: any, py: any) =>
+              resolve(new GameSlot(randomUUID(), true, px, py))
           )
         ),
       ]);
@@ -111,15 +117,19 @@ const Index = () => {
       await new Promise((resolve) => requestAnimationFrame(resolve));
 
       const deckPosPromise = new Promise((resolve) =>
-        deckPositionRef.current.measure((_x, _y, _w, _h, px, py) => {
-          resolve({ pageX: px, pageY: py });
-        })
+        deckPositionRef.current.measure(
+          (_x: any, _y: any, _w: any, _h: any, px: any, py: any) => {
+            resolve({ pageX: px, pageY: py });
+          }
+        )
       );
 
       const thrashCanPromise = new Promise((resolve) =>
-        thrashCanRef.current.measure((_x, _y, _w, _h, px, py) => {
-          resolve({ pageX: px, pageY: py });
-        })
+        thrashCanRef.current.measure(
+          (_x: any, _y: any, _w: any, _h: any, px: any, py: any) => {
+            resolve({ pageX: px, pageY: py });
+          }
+        )
       );
 
       const [topSlots, bottomSlots, deckPosition, thrashCanPos] =
@@ -183,6 +193,7 @@ const Index = () => {
         <RenderCards />
       </SafeAreaStyled>
       <AnimatedGameBackground />
+      {gamePhase === 3 && <GameOverModal />}
     </View>
   );
 };

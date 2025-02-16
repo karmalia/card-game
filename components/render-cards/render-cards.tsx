@@ -1,63 +1,41 @@
-import React, { useContext, useState } from "react";
+import React from "react";
 import useGameStore from "@/stores/game.store";
 import GameCard from "../game-card/game-card";
-import { Card } from "../types";
+import { TSlotPos } from "../types";
 import fillPlayersHand from "../../utils/fillPlayersHand";
-import GameOverModal from "../modals/gameover/game-over-modal";
+
 import { useSharedValue } from "react-native-reanimated";
-import { View } from "tamagui";
-import DirectionOverlay from "./DirectionOverlay/direction-overlay";
-import { Sounds } from "@/stores/SoundProvider";
 
-function hasThreeOfAKind(cardList: Card[]) {
-  const valueCountMap = cardList.reduce((acc: any, card) => {
-    acc[card.value] = (acc[card.value] || 0) + 1;
-    return acc;
-  }, {});
-
-  return Object.values(valueCountMap).some((count) => count === 3);
-}
-function isSequential(cardList: Card[]) {
-  if (cardList.length < 3) return false;
-  const uniqueValues = Array.from(new Set(cardList.map((card) => card.value)));
-  const sortedValues = uniqueValues.map((value) => value).sort((a, b) => a - b);
-
-  let result = false;
-  cardList.forEach((_, index) => {
-    if (
-      sortedValues[index] + 1 === sortedValues[index + 1] &&
-      sortedValues[index] + 2 === sortedValues[index + 2]
-    ) {
-      result = true;
-    }
-  });
-
-  return result || false;
-}
-
-function canStillPlay(cardsInHand: Card[]) {
-  const sequential = isSequential(cardsInHand);
-  const threeOfAKind = hasThreeOfAKind(cardsInHand);
-  return sequential || threeOfAKind ? true : false;
-}
+import DirectionOverlay, {
+  EDirective,
+} from "./DirectionOverlay/direction-overlay";
 
 const RenderCards = () => {
-  const sharedAnimatedCard = useSharedValue<string | null>(null);
-  const sharedDirective = useSharedValue<"none" | "play" | "delete">("none");
-  const { playPointOne, playPointTwo } = useContext(Sounds)!;
+  const sharedAnimatedCard = useSharedValue<Card | null>(null);
+  const sharedTopFirstEmptySlot = useSharedValue<TSlotPos | null>(null);
+  const sharedDirective = useSharedValue<keyof typeof EDirective>("none");
   const {
-    gamePhase,
-    cardsOnBoard,
     deckPosition,
-    cardsInDeck,
     bottomSlotPositions,
     cardsOnGame,
-    setGamePhase,
+    topSlotPositions,
     drawCard,
-    calculatePoint,
-    cardsInHand,
-    populateDeck,
+    gamePhase,
+    setGamePhase,
   } = useGameStore();
+
+  React.useEffect(() => {
+    if (topSlotPositions.length) {
+      const emptySlot = topSlotPositions.find((slot) => !slot.isActive);
+      sharedTopFirstEmptySlot.value = emptySlot
+        ? JSON.parse(
+            JSON.stringify(topSlotPositions.find((slot) => !slot.isActive))
+          )
+        : null;
+    } else {
+      sharedTopFirstEmptySlot.value = null;
+    }
+  }, [topSlotPositions]);
 
   React.useEffect(() => {
     async function startGame() {
@@ -76,76 +54,23 @@ const RenderCards = () => {
     }
   }, [gamePhase]); // Start the game after gamePhase is set to 1
 
-  React.useEffect(() => {
-    if (cardsOnBoard.length === 3) {
-      const serialized = isSequential(cardsOnBoard);
-      const hasSameValue = cardsOnBoard.every(
-        (item) => item.value === cardsOnBoard[0].value
-      );
-      const hasSameColor = cardsOnBoard.every(
-        (item) => item.color === cardsOnBoard[0].color
-      );
-      const totalValue = cardsOnBoard.reduce((acc, cur) => {
-        return acc + cur.value;
-      }, 0);
-
-      if (serialized || hasSameValue) {
-        calculatePoint(serialized, hasSameValue, hasSameColor, totalValue);
-        if (serialized && hasSameColor) {
-          playPointTwo();
-        } else {
-          playPointOne();
-        }
-        if (cardsInDeck.length == 0 && cardsInHand.length <= 2) {
-          setGamePhase(3);
-        }
-      }
-    }
-  }, [cardsOnBoard.length]);
-
-  React.useEffect(() => {
-    if (cardsInDeck.length === 0) {
-      const canContinue = canStillPlay([...cardsInHand, ...cardsOnBoard]);
-
-      if (!canContinue) setGamePhase(3);
-    }
-  }, [cardsInHand.length]);
-
-  function restartGame() {
-    populateDeck();
-    setGamePhase(1);
-  }
-
   return (
     <>
-      {gamePhase === 1 &&
-        cardsOnGame.map((card) => {
-          return (
-            <GameCard
-              key={card.id + "gamephase1"}
-              card={card}
-              startingPosition={deckPosition}
-              endingPosition={card.slot}
-              sharedAnimatedCard={sharedAnimatedCard}
-              sharedDirective={sharedDirective}
-            />
-          );
-        })}
-      {gamePhase === 2 &&
+      {(gamePhase === 1 || gamePhase === 2) &&
         cardsOnGame.map((card, index) => {
-          // log();
           return (
             <GameCard
-              key={card.id + "gamephase2"}
+              key={card.id + (gamePhase === 1 ? "gamephase1" : "gamephase2")}
               card={card}
-              startingPosition={card.slot}
-              endingPosition={null}
+              startingPosition={gamePhase === 1 ? deckPosition : card.slot}
+              endingPosition={gamePhase === 1 ? card.slot : null}
               sharedAnimatedCard={sharedAnimatedCard}
+              index={index}
+              sharedTopFirstEmptySlot={sharedTopFirstEmptySlot}
               sharedDirective={sharedDirective}
             />
           );
         })}
-      {gamePhase === 3 && <GameOverModal restartGame={restartGame} />}
       <DirectionOverlay sharedDirective={sharedDirective} />
     </>
   );

@@ -3,33 +3,30 @@ import React, { useEffect } from "react";
 import Animated, {
   SharedValue,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
 } from "react-native-reanimated";
+import useOverlayStore from "@/stores/overlay.store";
 
-type DirectionOverlayProps = {
-  sharedDirective: SharedValue<"none" | "play" | "delete">;
-};
-
-enum Directive {
+export enum EDirective {
   "none" = "",
   "play" = "PLAY",
   "delete" = "DISCARD",
 }
 
-const DirectionOverlay = ({ sharedDirective }: DirectionOverlayProps) => {
-  const sharedOpacity = useSharedValue(0);
+const DirectionOverlay = ({
+  sharedDirective,
+}: {
+  sharedDirective: SharedValue<keyof typeof EDirective>;
+}) => {
+  const sharedOpacity = useDerivedValue(() => {
+    console.log("sharedDirective.value", sharedDirective.value);
 
-  useEffect(() => {
-    console.log("sharedDirective", sharedDirective.value);
-    if (
-      sharedDirective.value === "play" ||
+    return sharedDirective.value === "play" ||
       sharedDirective.value === "delete"
-    ) {
-      sharedOpacity.value = 0.5;
-    } else {
-      sharedOpacity.value = 0;
-    }
-  }, [sharedDirective.value]);
+      ? 0.5
+      : 0;
+  }, [sharedDirective]);
 
   const animatedStyles = useAnimatedStyle(() => {
     return {
@@ -64,7 +61,7 @@ const DirectionOverlay = ({ sharedDirective }: DirectionOverlayProps) => {
           textAlign: "center",
         }}
       >
-        {Directive[sharedDirective.value]}
+        {EDirective[sharedDirective.value] || "TEST"}
       </Text>
     </Animated.View>
   );

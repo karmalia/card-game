@@ -6,6 +6,7 @@ export interface TPos {
 export interface TSlotPos extends TPos {
   isActive: boolean;
   slotId: string;
+  reservedBy: string | null;
 }
 
 export type ArraySlots = TSlotPos[];
@@ -33,5 +34,5 @@ export type Card = {
   isPlayed: boolean;
   isDeleted: boolean;
   slot: Omit<TSlotPos, "isActive">;
-  destinationSlot: Omit<TSlotPos, "isActive"> | null;
+  destinationSlot: Omit<TSlotPos, "isActive" | "reservedBy"> | null;
 };

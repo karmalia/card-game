@@ -5,8 +5,12 @@
   },
   "build": {
     "development": {
-      "developmentClient": true,
-      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "env": {
+          "GOOGLE_SERVICES_JSON_FILE": "@GOOGLE_SERVICES_JSON_FILE"
+        }
+      },
       "autoIncrement": true
     },
     "preview": {

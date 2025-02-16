@@ -20,16 +20,16 @@ const Index = () => {
   const [instructionsVisible, setInstructuresVisible] = useState(false);
   const [leaderboardVisible, setLeaderboardVisible] = useState(false);
   const { loading } = useContext(Sounds)!;
-  const testOpacity = useSharedValue(0);
+  const sharedOpacity = useSharedValue(0);
 
   const animatedStyles = useAnimatedStyle(() => {
     return {
-      opacity: testOpacity.value,
+      opacity: sharedOpacity.value,
     };
   });
 
   useEffect(() => {
-    testOpacity.value = withTiming(1, { duration: 1000 });
+    sharedOpacity.value = withTiming(1, { duration: 1000 });
   }, []);
 
   return (
