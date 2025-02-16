@@ -23,10 +23,9 @@ const GameOverModal = () => {
   const sharedOpacity = useSharedValue(0);
   const sharedWidth = useSharedValue(0);
 
-  const { restartGame } = useGameStore();
   const { resetTime } = useGameScoreStore();
 
-  const { point, populateDeck, gamePhase } = useGameStore();
+  const { point, populateDeck, gamePhase, restartGame } = useGameStore();
   const { time } = useGameScoreStore();
   const modalWidth = Math.min(Dimensions.get("screen").width * 0.3, 250);
   const modalHeight = Math.min(Dimensions.get("screen").height * 0.8, 300);

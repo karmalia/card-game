@@ -14,17 +14,30 @@
       "autoIncrement": true
     },
     "preview": {
+      "autoIncrement": true,
       "distribution": "internal",
-      "autoIncrement": true
-    },
-    "production": {
       "android": {
-        "buildType": "apk",
+        "buildType": "app-bundle",
         "env": {
           "GOOGLE_SERVICES_JSON_FILE": "@GOOGLE_SERVICES_JSON_FILE"
         }
       },
-      "autoIncrement": true
+      "ios": {
+        "simulator": false
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "distribution": "store",
+      "android": {
+        "buildType": "app-bundle",
+        "env": {
+          "GOOGLE_SERVICES_JSON_FILE": "@GOOGLE_SERVICES_JSON_FILE"
+        }
+      },
+      "ios": {
+        "simulator": false
+      }
     }
   },
   "submit": {

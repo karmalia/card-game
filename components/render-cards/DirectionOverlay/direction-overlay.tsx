@@ -1,12 +1,12 @@
 import { View, Text } from "react-native";
 import React, { useEffect } from "react";
 import Animated, {
+  runOnJS,
   SharedValue,
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
 } from "react-native-reanimated";
-import useOverlayStore from "@/stores/overlay.store";
 
 export enum EDirective {
   "none" = "",
@@ -20,19 +20,21 @@ const DirectionOverlay = ({
   sharedDirective: SharedValue<keyof typeof EDirective>;
 }) => {
   const sharedOpacity = useDerivedValue(() => {
-    console.log("sharedDirective.value", sharedDirective.value);
-
     return sharedDirective.value === "play" ||
       sharedDirective.value === "delete"
       ? 0.5
       : 0;
-  }, [sharedDirective]);
+  }, [sharedDirective.value]);
 
   const animatedStyles = useAnimatedStyle(() => {
     return {
       opacity: sharedOpacity.value,
     };
   });
+
+  useEffect(() => {
+    console.log("sharedDirective.value", sharedDirective.value);
+  }, [sharedDirective.value]);
 
   return (
     <Animated.View
@@ -61,7 +63,7 @@ const DirectionOverlay = ({
           textAlign: "center",
         }}
       >
-        {EDirective[sharedDirective.value] || "TEST"}
+        {EDirective[sharedDirective.value]}
       </Text>
     </Animated.View>
   );

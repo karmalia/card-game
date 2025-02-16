@@ -37,7 +37,7 @@ type GameCardProps = {
   endingPosition: TPos | null;
   sharedAnimatedCard: SharedValue<Card | null>;
   sharedTopFirstEmptySlot: SharedValue<TSlotPos | null>;
-  sharedDirective: SharedValue<keyof typeof EDirective>;
+
   index: number;
 };
 
@@ -80,12 +80,12 @@ const GameCard = ({
   endingPosition,
   sharedAnimatedCard,
   sharedTopFirstEmptySlot,
-  sharedDirective,
+
   index,
 }: GameCardProps) => {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
-
+  const sharedDirective = useSharedValue<keyof typeof EDirective>("none");
   const { playDelete, playPutOn, playPullBack, playClickTwo } =
     useContext(Sounds)!;
 
@@ -170,12 +170,12 @@ const GameCard = ({
       ) {
         translateX.value = event.translationX;
         translateY.value = event.translationY;
-        return;
       }
-
       if (event.absoluteX > trashCanPosition.pageX) {
+        console.log("delete");
         sharedDirective.value = "delete";
       } else if (event.absoluteY < middleCenterY) {
+        console.log("play");
         sharedTopFirstEmptySlot.value?.reservedBy === sharedCard.value.id;
         sharedDirective.value = "play";
       } else {
@@ -184,7 +184,6 @@ const GameCard = ({
       }
     })
     .onEnd((event) => {
-      sharedDirective.value = "none";
       const goTrash = event.absoluteX > trashCanPosition.pageX;
       const goPlay = event.absoluteY < middleCenterY;
 
@@ -294,16 +293,19 @@ const GameCard = ({
   }, []);
 
   return (
-    <GesturedCard
-      {...{
-        card,
-        CardAnimationStyles,
-        sharedCard,
-        tap,
-        drag,
-        sharedAnimatedCard,
-      }}
-    />
+    <React.Fragment>
+      <GesturedCard
+        {...{
+          card,
+          CardAnimationStyles,
+          sharedCard,
+          tap,
+          drag,
+          sharedAnimatedCard,
+        }}
+      />
+      {index == 0 && <DirectionOverlay sharedDirective={sharedDirective} />}
+    </React.Fragment>
   );
 };
 

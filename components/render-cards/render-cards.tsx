@@ -13,7 +13,7 @@ import DirectionOverlay, {
 const RenderCards = () => {
   const sharedAnimatedCard = useSharedValue<Card | null>(null);
   const sharedTopFirstEmptySlot = useSharedValue<TSlotPos | null>(null);
-  const sharedDirective = useSharedValue<keyof typeof EDirective>("none");
+
   const {
     deckPosition,
     bottomSlotPositions,
@@ -67,11 +67,9 @@ const RenderCards = () => {
               sharedAnimatedCard={sharedAnimatedCard}
               index={index}
               sharedTopFirstEmptySlot={sharedTopFirstEmptySlot}
-              sharedDirective={sharedDirective}
             />
           );
         })}
-      <DirectionOverlay sharedDirective={sharedDirective} />
     </>
   );
 };

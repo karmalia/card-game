@@ -31,7 +31,8 @@ const checkboxSize = Dimensions.get("window").width * 0.025;
 const Options = () => {
   const [optionsVisible, setOptionsVisible] = useState(false);
   const router = useRouter();
-  const { populateDeck, setGamePhase } = useGameStore();
+  const { populateDeck, setGamePhase, restartGame } = useGameStore();
+  const { resetTime } = useGameScoreStore();
   const { playClickDefault, playClickSeven } = useContext(Sounds)!;
   const musicId = useId();
   const soundsId = useId();
@@ -48,8 +49,8 @@ const Options = () => {
         break;
       case "restart":
         playClickDefault();
-        populateDeck();
-        setGamePhase(1);
+        restartGame();
+        resetTime();
         break;
       default:
         console.log("Error: Invalid navigation type");
