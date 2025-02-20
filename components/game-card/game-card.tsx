@@ -86,8 +86,7 @@ const GameCard = ({
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const sharedDirective = useSharedValue<keyof typeof EDirective>("none");
-  const { playDelete, playPutOn, playPullBack, playClickTwo } =
-    useContext(Sounds)!;
+  const { playSound } = useContext(Sounds)!;
 
   const [cardState, setCardState] = useState<Card>(card);
 
@@ -196,7 +195,7 @@ const GameCard = ({
       } else {
         if (goTrash) {
           runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
-          runOnJS(playDelete)();
+          runOnJS(playSound)("deleteCard");
           runOnJS(discardCard)(sharedCard.value);
           sharedAnimatedCard.value = null;
 
@@ -216,7 +215,7 @@ const GameCard = ({
               sharedTopFirstEmptySlot.value.pageY -
               sharedCardLocation.value.pageY;
             runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
-            runOnJS(playPutOn)();
+            runOnJS(playSound)("putOn");
             sharedCard.value.isPlayed = true;
             runOnJS(placeOnBoard)(sharedCard.value);
 
@@ -238,7 +237,7 @@ const GameCard = ({
     try {
       if (sharedCard.value) {
         runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Medium);
-        runOnJS(playClickTwo)();
+        runOnJS(playSound)("clickSoundTwo");
         sharedCard.value.isPlayed = false;
         runOnJS(removeFromBoard)(sharedCard.value);
         translateX.value = withSpring(0, springConfig);

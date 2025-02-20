@@ -16,12 +16,10 @@ import { Checkbox, Image, Label, Stack } from "tamagui";
 import Icons from "@/components/icons";
 import { usePathname, useRouter } from "expo-router";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { Music } from "@/stores/MusicProvider";
+
 import useGameStore from "@/stores/game.store";
-import { Audio } from "expo-av";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { playSound } from "@/utils/playSound";
-import { Sounds } from "@/stores/SoundProvider";
+
+import { Sounds, useSound } from "@/stores/SoundProvider";
 import useGameScoreStore from "@/stores/game-score.store";
 
 const { height } = Dimensions.get("window");
@@ -29,11 +27,12 @@ const { height } = Dimensions.get("window");
 const checkboxSize = Dimensions.get("window").width * 0.025;
 
 const Options = () => {
+  const { gameSounds, setVolumeForSounds } = useSound();
   const [optionsVisible, setOptionsVisible] = useState(false);
   const router = useRouter();
   const { populateDeck, setGamePhase, restartGame } = useGameStore();
   const { resetTime } = useGameScoreStore();
-  const { playClickDefault, playClickSeven } = useContext(Sounds)!;
+  const { playSound } = useContext(Sounds)!;
   const musicId = useId();
   const soundsId = useId();
   const pathname = usePathname();
@@ -41,14 +40,14 @@ const Options = () => {
   function handleNavigation(type: "home" | "restart") {
     switch (type) {
       case "home":
-        playClickDefault();
+        playSound("clickDefault");
         populateDeck();
         setGamePhase(0);
         router.navigate("/");
 
         break;
       case "restart":
-        playClickDefault();
+        playSound("clickDefault");
         restartGame();
         resetTime();
         break;
@@ -58,9 +57,6 @@ const Options = () => {
     }
     setOptionsVisible(false);
   }
-
-  const { menuMusic, gameSounds, handleMusicChange, handleGameSoundChange } =
-    useContext<any>(Music);
 
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(height);
@@ -111,7 +107,7 @@ const Options = () => {
           <TouchableOpacity
             activeOpacity={1}
             onPress={() => {
-              playClickSeven();
+              playSound("clickSoundSeven");
               setOptionsVisible((prev) => !prev);
             }}
           >
@@ -120,7 +116,6 @@ const Options = () => {
                 style={{
                   borderWidth: 2,
                   borderColor: "white",
-
                   justifyContent: "center",
                   alignItems: "center",
                   height: Dimensions.get("window").width * 0.065,
@@ -167,35 +162,7 @@ const Options = () => {
             >
               <Text style={styles.modalTitle}>OPTIONS</Text>
             </View>
-            <View
-              style={{
-                flexDirection: "row",
-                gap: 12,
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <Text style={styles.modalOptionText}>MUSIC</Text>
-              <Checkbox
-                size={"$4"}
-                id={musicId}
-                checked={menuMusic?.isActive}
-                onCheckedChange={handleMusicChange}
-                display="none"
-              />
 
-              <ImageBackground
-                resizeMode="contain"
-                source={require("@/assets/icons/panel-checkbox.png")}
-              >
-                <Label style={styles.modalLabel} htmlFor={musicId} />
-                {menuMusic?.isActive && (
-                  <View style={styles.checkboxContainer}>
-                    <Icons.Check width={checkboxSize} height={checkboxSize} />
-                  </View>
-                )}
-              </ImageBackground>
-            </View>
             <View
               style={{
                 flexDirection: "row",
@@ -208,8 +175,11 @@ const Options = () => {
               <Checkbox
                 size={"$4"}
                 id={soundsId}
-                checked={gameSounds}
-                onCheckedChange={handleGameSoundChange}
+                checked={gameSounds.status}
+                onCheckedChange={() => {
+                  console.log("gameSounds.status", gameSounds.status);
+                  setVolumeForSounds(!gameSounds.status);
+                }}
                 display="none"
               />
 
@@ -249,7 +219,7 @@ const Options = () => {
               <Pressable
                 style={styles.closeButton}
                 onPress={() => {
-                  playClickSeven();
+                  playSound("clickSoundSeven");
                   setOptionsVisible(false);
                 }}
                 hitSlop={10}

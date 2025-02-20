@@ -42,7 +42,6 @@ function canStillPlay(cardsInHand: Card[]) {
 }
 
 const Deck = forwardRef((props: any, ref: any) => {
-  const { playDraw } = useContext(Sounds)!;
   const {
     drawCard,
     cardsInDeck,
@@ -52,7 +51,7 @@ const Deck = forwardRef((props: any, ref: any) => {
     cardsOnBoard,
     removeFromBoard,
   } = useGameStore();
-  const { playPointOne, playPointTwo } = useContext(Sounds)!;
+  const { playSound } = useContext(Sounds)!;
   React.useEffect(() => {
     console.log("masadaki sayı değiti , render");
     if (cardsOnBoard.length === 3) {
@@ -70,9 +69,9 @@ const Deck = forwardRef((props: any, ref: any) => {
       if (serialized || hasSameValue) {
         calculatePoint(serialized, hasSameValue, hasSameColor, totalValue);
         if (serialized && hasSameColor) {
-          playPointTwo();
+          playSound("pointTwo");
         } else {
-          playPointOne();
+          playSound("pointOne");
         }
         if (cardsInDeck.length == 0 && cardsInHand.length <= 2) {
           setGamePhase(3);
@@ -113,7 +112,7 @@ const Deck = forwardRef((props: any, ref: any) => {
     if (findFirstBottomEmptySlot) {
       drawCard(findFirstBottomEmptySlot);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      playDraw();
+      playSound("draw");
     }
   };
 

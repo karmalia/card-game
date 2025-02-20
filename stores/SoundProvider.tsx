@@ -1,27 +1,32 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { playSound } from "@/utils/playSound";
 import { set } from "@react-native-firebase/database";
 
-type Sound = Audio.Sound | null;
+interface SoundPack {
+  status: boolean;
+  loading: boolean;
+  draw: Audio.Sound | null;
+  deleteCard: Audio.Sound | null;
+  putOn: Audio.Sound | null;
+  pullBack: Audio.Sound | null;
+  clickDefault: Audio.Sound | null;
+  clickSoundOne: Audio.Sound | null;
+  clickSoundTwo: Audio.Sound | null;
+  clickSoundThree: Audio.Sound | null;
+  clickSoundFour: Audio.Sound | null;
+  clickSoundFive: Audio.Sound | null;
+  clickSoundSix: Audio.Sound | null;
+  clickSoundSeven: Audio.Sound | null;
+  pointOne: Audio.Sound | null;
+  pointTwo: Audio.Sound | null;
+}
 
 interface SoundsContext {
-  playDraw: () => Promise<void>;
-  playDelete: () => Promise<void>;
-  playPullBack: () => Promise<void>;
-  playPutOn: () => Promise<void>;
-  playClickDefault: () => Promise<void>;
-  playClickOne: () => Promise<void>;
-  playClickTwo: () => Promise<void>;
-  playClickThree: () => Promise<void>;
-  playClickFour: () => Promise<void>;
-  playClickFive: () => Promise<void>;
-  playClickSix: () => Promise<void>;
-  playClickSeven: () => Promise<void>;
-  playPointOne: () => Promise<void>;
-  playPointTwo: () => Promise<void>;
-  setVolumeForSounds: (volume: number) => void;
+  playSound: (sound: keyof SoundPack) => Promise<void>;
+  gameSounds: SoundPack;
+  setVolumeForSounds: (volume: boolean) => void;
   loading: boolean;
 }
 
@@ -32,254 +37,127 @@ type Props = {
 };
 
 const SoundProvider = ({ children }: Props) => {
-  const [loading, setLoading] = useState(true);
-  const [draw, setDraw] = useState<Sound>(null);
-  const [deleteCard, setDeleteCard] = useState<Sound>(null);
-  const [putOn, setPutOn] = useState<Sound>(null);
-  const [pullBack, setPullBack] = useState<Sound>(null);
-  const [clickDefault, setClickDefault] = useState<Sound>(null);
-  const [clickSoundOne, setClickSoundOne] = useState<Sound>(null);
-  const [clickSoundTwo, setClickSoundTwo] = useState<Sound>(null);
-  const [clickSoundThree, setClickSoundThree] = useState<Sound>(null);
-  const [clickSoundFour, setClickSoundFour] = useState<Sound>(null);
-  const [clickSoundFive, setClickSoundFive] = useState<Sound>(null);
-  const [clickSoundSix, setClickSoundSix] = useState<Sound>(null);
-  const [clickSoundSeven, setClickSoundSeven] = useState<Sound>(null);
-  const [pointOne, setPointOne] = useState<Sound>(null);
-  const [pointTwo, setPointTwo] = useState<Sound>(null);
+  const [gameSounds, setGameSounds] = useState<SoundPack>({
+    status: true,
+    loading: true,
+    draw: null,
+    deleteCard: null,
+    putOn: null,
+    pullBack: null,
+    clickDefault: null,
+    clickSoundOne: null,
+    clickSoundTwo: null,
+    clickSoundThree: null,
+    clickSoundFour: null,
+    clickSoundFive: null,
+    clickSoundSix: null,
+    clickSoundSeven: null,
+    pointOne: null,
+    pointTwo: null,
+  });
 
-  function setVolumeForSounds(volume: number) {
-    draw && draw.setVolumeAsync(volume);
-
-    deleteCard && deleteCard.setVolumeAsync(volume);
-
-    putOn && putOn.setVolumeAsync(volume);
-
-    pullBack && pullBack.setVolumeAsync(volume);
-
-    clickDefault && clickDefault.setVolumeAsync(volume);
-
-    clickSoundOne && clickSoundOne.setVolumeAsync(volume);
-
-    clickSoundTwo && clickSoundTwo.setVolumeAsync(volume);
-
-    clickSoundThree && clickSoundThree.setVolumeAsync(volume);
-
-    clickSoundFour && clickSoundFour.setVolumeAsync(volume);
-
-    clickSoundFive && clickSoundFive.setVolumeAsync(volume);
-
-    clickSoundSix && clickSoundSix.setVolumeAsync(volume);
-
-    clickSoundSeven && clickSoundSeven.setVolumeAsync(volume);
-
-    pointOne && pointOne.setVolumeAsync(volume);
-
-    pointTwo && pointTwo.setVolumeAsync(volume);
+  async function setVolumeForSounds(volume: boolean) {
+    console.log("setVolumeForSounds", volume);
+    try {
+      const sounds = Object.values(gameSounds).filter(
+        (sound): sound is Audio.Sound => sound instanceof Audio.Sound
+      );
+      await Promise.all(
+        sounds.map((sound) => sound.setVolumeAsync(volume ? 1 : 0))
+      );
+      setGameSounds((prev) => ({ ...prev, status: volume }));
+    } catch (error) {
+      console.error("Error setting volume:", error);
+    }
   }
 
   async function loadSounds() {
-    const soundPromises = [
-      Audio.Sound.createAsync(
-        require("@/assets/sound-effects/point-1.wav")
-      ).then(async ({ sound }) => {
-        await sound.setIsMutedAsync(false);
-        setPointOne(sound);
-      }),
-      Audio.Sound.createAsync(
-        require("@/assets/sound-effects/point-2.wav")
-      ).then(async ({ sound }) => {
-        await sound.setIsMutedAsync(false);
-        setPointTwo(sound);
-      }),
-      Audio.Sound.createAsync(require("@/assets/sound-effects/click.wav")).then(
-        async ({ sound }) => {
+    try {
+      const soundFiles = {
+        pointOne: require("@/assets/sound-effects/point-1.wav"),
+        pointTwo: require("@/assets/sound-effects/point-2.wav"),
+        clickDefault: require("@/assets/sound-effects/click.wav"),
+        clickSoundOne: require("@/assets/sound-effects/click-1.wav"),
+        clickSoundTwo: require("@/assets/sound-effects/click-2.wav"),
+        clickSoundThree: require("@/assets/sound-effects/click-3.wav"),
+        clickSoundFour: require("@/assets/sound-effects/click-4.wav"),
+        clickSoundFive: require("@/assets/sound-effects/click-5.wav"),
+        clickSoundSix: require("@/assets/sound-effects/click-6.wav"),
+        clickSoundSeven: require("@/assets/sound-effects/click-7.wav"),
+        draw: require("@/assets/sound-effects/draw-card.wav"),
+        deleteCard: require("@/assets/sound-effects/delete-card.wav"),
+        putOn: require("@/assets/sound-effects/put-on.wav"),
+        pullBack: require("@/assets/sound-effects/draw-card.wav"),
+      };
+
+      const loadedSounds = await Promise.all(
+        Object.entries(soundFiles).map(async ([key, file]) => {
+          const { sound } = await Audio.Sound.createAsync(file);
           await sound.setIsMutedAsync(false);
-          setClickDefault(sound);
-        }
-      ),
-      Audio.Sound.createAsync(
-        require("@/assets/sound-effects/click-1.wav")
-      ).then(async ({ sound }) => {
-        await sound.setIsMutedAsync(false);
-        setClickSoundOne(sound);
-      }),
-      Audio.Sound.createAsync(
-        require("@/assets/sound-effects/click-2.wav")
-      ).then(async ({ sound }) => {
-        await sound.setIsMutedAsync(false);
-        setClickSoundTwo(sound);
-      }),
-      Audio.Sound.createAsync(
-        require("@/assets/sound-effects/click-3.wav")
-      ).then(async ({ sound }) => {
-        await sound.setIsMutedAsync(false);
-        setClickSoundThree(sound);
-      }),
-      Audio.Sound.createAsync(
-        require("@/assets/sound-effects/click-4.wav")
-      ).then(async ({ sound }) => {
-        await sound.setIsMutedAsync(false);
-        setClickSoundFour(sound);
-      }),
-      Audio.Sound.createAsync(
-        require("@/assets/sound-effects/click-5.wav")
-      ).then(async ({ sound }) => {
-        await sound.setIsMutedAsync(false);
-        setClickSoundFive(sound);
-      }),
-      Audio.Sound.createAsync(
-        require("@/assets/sound-effects/click-6.wav")
-      ).then(async ({ sound }) => {
-        await sound.setIsMutedAsync(false);
-        setClickSoundSix(sound);
-      }),
-      Audio.Sound.createAsync(
-        require("@/assets/sound-effects/click-7.wav")
-      ).then(async ({ sound }) => {
-        await sound.setIsMutedAsync(false);
-        setClickSoundSeven(sound);
-      }),
-      Audio.Sound.createAsync(
-        require("@/assets/sound-effects/draw-card.wav")
-      ).then(async ({ sound }) => {
-        await sound.setIsMutedAsync(false);
-        setDraw(sound);
-      }),
-      Audio.Sound.createAsync(
-        require("@/assets/sound-effects/delete-card.wav")
-      ).then(async ({ sound }) => {
-        await sound.setIsMutedAsync(false);
-        setDeleteCard(sound);
-      }),
-      Audio.Sound.createAsync(
-        require("@/assets/sound-effects/put-on.wav")
-      ).then(async ({ sound }) => {
-        await sound.setIsMutedAsync(false);
-        setPutOn(sound);
-      }),
-      Audio.Sound.createAsync(
-        require("@/assets/sound-effects/draw-card.wav")
-      ).then(async ({ sound }) => {
-        await sound.setIsMutedAsync(false);
-        setPullBack(sound);
-      }),
-    ];
+          return [key, sound];
+        })
+      );
 
-    await Promise.all(soundPromises).then(() => {
-      setLoading(false);
-    });
+      setGameSounds((prev) => ({
+        ...prev,
+        ...Object.fromEntries(loadedSounds),
+        loading: false,
+      }));
+    } catch (error) {
+      console.error("Error loading sounds:", error);
+      setGameSounds((prev) => ({ ...prev, loading: false }));
+    }
   }
 
-  async function playPointOne() {
-    if (pointOne) playSound(pointOne);
-  }
+  async function playSound(soundKey: keyof SoundPack) {
+    try {
+      const sound = gameSounds[soundKey];
+      if (!sound) return;
 
-  async function playPointTwo() {
-    if (pointTwo) playSound(pointTwo);
-  }
+      if (typeof soundKey === "boolean") return;
 
-  async function playClickDefault() {
-    if (clickDefault) playSound(clickDefault);
-  }
-
-  async function playClickOne() {
-    if (clickSoundOne) playSound(clickSoundOne);
-  }
-
-  async function playClickTwo() {
-    if (clickSoundOne) playSound(clickSoundTwo);
-  }
-
-  async function playClickThree() {
-    if (clickSoundOne) playSound(clickSoundThree);
-  }
-  async function playClickFour() {
-    if (clickSoundOne) playSound(clickSoundFour);
-  }
-  async function playClickFive() {
-    if (clickSoundOne) playSound(clickSoundFive);
-  }
-
-  async function playClickSix() {
-    if (clickSoundOne) playSound(clickSoundSix);
-  }
-
-  async function playClickSeven() {
-    if (clickSoundOne) playSound(clickSoundSeven);
-  }
-
-  async function playDraw() {
-    if (draw) playSound(draw);
-  }
-
-  async function playDelete() {
-    if (deleteCard) playSound(deleteCard);
-  }
-  async function playPullBack() {
-    if (pullBack) playSound(pullBack);
-  }
-  async function playPutOn() {
-    if (putOn) playSound(putOn);
+      await sound.playAsync();
+    } catch (error) {
+      console.error("Error playing sound:", error);
+    }
   }
 
   useEffect(() => {
-    loadSounds();
-    async function startSounds() {
-      const gameSounds = await AsyncStorage.getItem("gameSounds");
-      switch (gameSounds) {
-        case "true":
-          setVolumeForSounds(1);
-          break;
-        case "false":
-          setVolumeForSounds(0);
-          break;
+    async function initAudio() {
+      try {
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: true,
+          shouldDuckAndroid: true,
+        });
 
-        default:
-          setVolumeForSounds(1);
-          break;
+        await loadSounds();
+
+        const gameSoundsEnabled = await AsyncStorage.getItem("gameSounds");
+        const volume = gameSoundsEnabled === "false" ? false : true;
+        await setVolumeForSounds(volume);
+      } catch (error) {
+        console.error("Error initializing audio:", error);
       }
     }
 
-    startSounds();
+    initAudio();
 
     return () => {
-      draw && draw.unloadAsync();
-      deleteCard && deleteCard.unloadAsync();
-      pullBack && pullBack.unloadAsync();
-      putOn && putOn.unloadAsync();
-      clickDefault && clickDefault.unloadAsync();
-      clickSoundOne && clickSoundOne.unloadAsync();
-      clickSoundTwo && clickSoundTwo.unloadAsync();
-      clickSoundThree && clickSoundThree.unloadAsync();
-      clickSoundFour && clickSoundFour.unloadAsync();
-      clickSoundFive && clickSoundFive.unloadAsync();
-      clickSoundSix && clickSoundSix.unloadAsync();
-      clickSoundSeven && clickSoundSeven.unloadAsync();
-      pointOne && pointOne.unloadAsync();
-      pointTwo && pointTwo.unloadAsync();
+      // Cleanup sounds on unmount
+      Object.values(gameSounds)
+        .filter((sound): sound is Audio.Sound => sound instanceof Audio.Sound)
+        .forEach((sound) => sound.unloadAsync());
     };
   }, []);
 
   return (
     <Sounds.Provider
       value={{
-        playDraw,
-        playDelete,
-        playPullBack,
-        playPutOn,
-        playClickDefault,
-        playClickOne,
-        playClickTwo,
-        playClickThree,
-        playClickFour,
-        playClickFive,
-        playClickSix,
-        playClickSeven,
+        playSound,
         setVolumeForSounds,
-        playPointOne,
-        playPointTwo,
-        loading,
+        gameSounds,
+        loading: gameSounds.loading,
       }}
     >
       {children}
@@ -287,4 +165,12 @@ const SoundProvider = ({ children }: Props) => {
   );
 };
 
-export { SoundProvider, Sounds };
+const useSound = () => {
+  const context = useContext(Sounds);
+  if (!context) {
+    throw new Error("useMusicContext must be used within a MusicProvider");
+  }
+  return context;
+};
+
+export { SoundProvider, Sounds, useSound };

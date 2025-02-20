@@ -64,7 +64,7 @@ const HomeButtons = ({
   setLeaderboardVisible: (value: boolean) => void;
 }) => {
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const { playClickDefault } = useContext(Sounds)!;
+  const { playSound } = useContext(Sounds)!;
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
       setIsKeyboardVisible(true);
@@ -83,7 +83,7 @@ const HomeButtons = ({
   const opacity = useSharedValue(0);
 
   function handleAction(action: any) {
-    playClickDefault();
+    playSound("clickDefault");
     if (action.type === "route") {
       router.navigate(action.value);
     }

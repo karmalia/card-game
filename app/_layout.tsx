@@ -7,7 +7,7 @@ import tamaguiConfig from "@/tamagui.config";
 import { TamaguiProvider, Text } from "tamagui";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
-import { MusicProvider } from "@/stores/MusicProvider";
+
 import { SoundProvider } from "@/stores/SoundProvider";
 export {
   // Catch any errors thrown by the Layout component.
@@ -36,9 +36,7 @@ export default function RootLayout() {
       <GestureHandlerRootView>
         <TamaguiProvider config={tamaguiConfig}>
           <SoundProvider>
-            <MusicProvider>
-              <RootLayoutNav />
-            </MusicProvider>
+            <RootLayoutNav />
           </SoundProvider>
         </TamaguiProvider>
       </GestureHandlerRootView>
