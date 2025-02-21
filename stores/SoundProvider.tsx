@@ -56,6 +56,8 @@ const SoundProvider = ({ children }: Props) => {
     pointTwo: null,
   });
 
+  console.log("gameSounds status", gameSounds.status);
+
   async function setVolumeForSounds(volume: boolean) {
     console.log("setVolumeForSounds", volume);
     try {
@@ -115,7 +117,7 @@ const SoundProvider = ({ children }: Props) => {
       if (!sound) return;
 
       if (typeof soundKey === "boolean") return;
-
+      console.log("sound", sound);
       await sound.playAsync();
     } catch (error) {
       console.error("Error playing sound:", error);
@@ -127,8 +129,7 @@ const SoundProvider = ({ children }: Props) => {
       try {
         await Audio.setAudioModeAsync({
           playsInSilentModeIOS: true,
-          staysActiveInBackground: true,
-          shouldDuckAndroid: true,
+          // shouldDuckAndroid: true,
         });
 
         await loadSounds();

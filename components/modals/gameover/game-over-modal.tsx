@@ -52,26 +52,30 @@ const GameOverModal = () => {
         const totalScore = calculateTotalScore(point, time);
 
         if (userId) {
+          console.log("User ID:", userId);
           const userRef = firestore().collection("users").doc(userId);
+          try {
+            const userDoc = await userRef.get();
+            if (userDoc.exists) {
+              const best = bestScore ? JSON.parse(bestScore) : 0;
 
-          const userDoc = await userRef.get();
-          if (userDoc.exists) {
-            const best = bestScore ? JSON.parse(bestScore) : 0;
+              if (totalScore > best) {
+                await AsyncStorage.setItem(
+                  "bestScore",
+                  JSON.stringify(totalScore)
+                );
 
-            if (totalScore > best) {
-              await AsyncStorage.setItem(
-                "bestScore",
-                JSON.stringify(totalScore)
-              );
-
-              await userRef.update({
-                point,
-                time,
-                score: totalScore,
-              });
+                await userRef.update({
+                  point,
+                  time,
+                  score: totalScore,
+                });
+              }
+            } else {
+              throw new Error("User not found in database");
             }
-          } else {
-            console.error("User document not found.");
+          } catch (error) {
+            console.error("Error updating score:", error);
           }
         } else {
           const newUserRef = await firestore().collection("users").add({

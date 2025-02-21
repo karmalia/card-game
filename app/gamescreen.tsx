@@ -173,7 +173,12 @@ const Index = () => {
             ></Styled.BoardSlotStyled>
           </Stack>
         </Stack>
-        <Stack flex={1} flexDirection="row" justifyContent="space-around">
+        <Stack
+          flex={1}
+          flexDirection="row"
+          justifyContent="space-around"
+          paddingHorizontal="$4"
+        >
           <Deck ref={deckPositionRef} />
           <Stack
             flex={1}

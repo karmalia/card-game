@@ -16,57 +16,47 @@ const cardDimensions = getCardDimension();
 const Trash = forwardRef((props, ref: any) => {
   const { cardsOnTrash } = useGameStore();
   return (
-    <Stack
-      height={cardDimensions.cardHeight}
-      width={cardDimensions.cardWidth}
-      borderWidth="$1"
-      borderRadius={"$2"}
-      margin="$4"
-      alignSelf="flex-end"
-      alignItems="center"
-      justifyContent="center"
-      ref={ref!}
-    >
-      <ImageBackground
+    <Stack alignContent="center" justifyContent="center" gap={"$3"}>
+      <Text
         style={{
-          flex: 1,
-          width: "100%",
-          height: "100%",
-          justifyContent: "center",
-          alignItems: "center",
+          color: "white",
+          fontFamily: "DragonSlayer",
+          letterSpacing: 4,
+          fontSize: 18,
+          textAlign: "center",
         }}
-        source={require("@/assets/card-backgrounds/TrashCardOpacity.png")}
       >
-        <Text
-          style={{
-            fontFamily: "DragonSlayer",
-            color: "white",
-            fontSize: Dimensions.get("window").width * 0.04,
-          }}
-        >
-          {cardsOnTrash.length}
-        </Text>
-      </ImageBackground>
+        DISCARD
+      </Text>
+
       <Stack
-        width={"$8"}
-        padding="$2"
-        position="absolute"
-        top={-35}
-        left="0%"
-        alignItems="center"
-        justifyContent="center"
+        backgroundColor={"transparent"}
+        ref={ref}
+        width={cardDimensions.cardWidth}
+        height={cardDimensions.cardHeight}
+        padding={0}
+        borderRadius={0}
       >
-        <Text
+        <ImageBackground
+          source={require("@/assets/card-backgrounds/TrashCardOpacity.png")}
+          resizeMode="stretch"
           style={{
-            color: "white",
-            fontFamily: "DragonSlayer",
-            letterSpacing: 2,
-            fontSize: 16,
             width: "100%",
+            height: "100%",
+            justifyContent: "center",
+            alignItems: "center",
           }}
         >
-          DISCARD
-        </Text>
+          <Text
+            style={{
+              fontFamily: "DragonSlayer",
+              color: "white",
+              fontSize: Dimensions.get("window").width * 0.04,
+            }}
+          >
+            {cardsOnTrash.length}
+          </Text>
+        </ImageBackground>
       </Stack>
     </Stack>
   );

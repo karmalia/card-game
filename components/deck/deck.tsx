@@ -117,30 +117,37 @@ const Deck = forwardRef((props: any, ref: any) => {
   };
 
   return (
-    <Stack
-      ref={ref}
-      height={cardDimensions.cardHeight}
-      width={cardDimensions.cardWidth}
-      borderRadius={"$2"}
-      alignSelf="flex-end"
-      margin="$4"
-      position="relative"
-    >
-      <ImageBackground
-        source={require("@/assets/card-backgrounds/TrashCardOpacity.png")}
-        resizeMode="stretch"
+    <Stack alignContent="center" justifyContent="center" gap={"$3"}>
+      <Text
+        style={{
+          color: "white",
+          fontFamily: "DragonSlayer",
+          letterSpacing: 4,
+          fontSize: 18,
+          textAlign: "center",
+        }}
       >
-        <Button
+        DRAW
+      </Text>
+
+      <Button
+        backgroundColor={"transparent"}
+        ref={ref}
+        onPress={handleDraw}
+        width={cardDimensions.cardWidth}
+        height={cardDimensions.cardHeight}
+        padding={0}
+        borderRadius={0}
+      >
+        <ImageBackground
+          source={require("@/assets/card-backgrounds/TrashCardOpacity.png")}
+          resizeMode="stretch"
           style={{
-            height: "100%",
             width: "100%",
-            display: "flex",
-            alignItems: "center",
+            height: "100%",
             justifyContent: "center",
-            backgroundColor: "transparent",
-            borderWidth: 1,
+            alignItems: "center",
           }}
-          onPress={handleDraw}
         >
           <Text
             style={{
@@ -151,29 +158,8 @@ const Deck = forwardRef((props: any, ref: any) => {
           >
             {useGameStore.getState().cardsInDeck.length}
           </Text>
-        </Button>
-      </ImageBackground>
-      <Stack
-        width={"$8"}
-        padding="$2"
-        position="absolute"
-        top={-35}
-        left="0%"
-        alignItems="center"
-        justifyContent="center"
-        backgroundColor="transparent"
-      >
-        <Text
-          style={{
-            color: "white",
-            fontFamily: "DragonSlayer",
-            letterSpacing: 4,
-            fontSize: 18,
-          }}
-        >
-          DRAW
-        </Text>
-      </Stack>
+        </ImageBackground>
+      </Button>
     </Stack>
   );
 });

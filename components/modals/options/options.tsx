@@ -188,7 +188,7 @@ const Options = () => {
                 source={require("@/assets/icons/panel-checkbox.png")}
               >
                 <Label style={styles.modalLabel} htmlFor={soundsId} />
-                {gameSounds && (
+                {gameSounds.status && (
                   <View style={styles.checkboxContainer}>
                     <Icons.Check width={checkboxSize} height={checkboxSize} />
                   </View>
