@@ -1,8 +1,12 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from "react";
 import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { playSound } from "@/utils/playSound";
-import { set } from "@react-native-firebase/database";
 
 interface SoundPack {
   status: boolean;
@@ -56,10 +60,26 @@ const SoundProvider = ({ children }: Props) => {
     pointTwo: null,
   });
 
-  console.log("gameSounds status", gameSounds.status);
+  const soundPlayed = useRef<Record<keyof SoundPack, boolean>>({
+    status: false,
+    loading: false,
+    draw: false,
+    deleteCard: false,
+    putOn: false,
+    pullBack: false,
+    clickDefault: false,
+    clickSoundOne: false,
+    clickSoundTwo: false,
+    clickSoundThree: false,
+    clickSoundFour: false,
+    clickSoundFive: false,
+    clickSoundSix: false,
+    clickSoundSeven: false,
+    pointOne: false,
+    pointTwo: false,
+  });
 
   async function setVolumeForSounds(volume: boolean) {
-    console.log("setVolumeForSounds", volume);
     try {
       const sounds = Object.values(gameSounds).filter(
         (sound): sound is Audio.Sound => sound instanceof Audio.Sound
@@ -116,9 +136,12 @@ const SoundProvider = ({ children }: Props) => {
       const sound = gameSounds[soundKey];
       if (!sound) return;
 
-      if (typeof soundKey === "boolean") return;
-      console.log("sound", sound);
-      await sound.playAsync();
+      if (soundPlayed.current[soundKey]) {
+        await sound.replayAsync();
+      } else {
+        await sound.playAsync();
+        soundPlayed.current[soundKey] = true;
+      }
     } catch (error) {
       console.error("Error playing sound:", error);
     }
@@ -129,7 +152,6 @@ const SoundProvider = ({ children }: Props) => {
       try {
         await Audio.setAudioModeAsync({
           playsInSilentModeIOS: true,
-          // shouldDuckAndroid: true,
         });
 
         await loadSounds();
@@ -145,7 +167,6 @@ const SoundProvider = ({ children }: Props) => {
     initAudio();
 
     return () => {
-      // Cleanup sounds on unmount
       Object.values(gameSounds)
         .filter((sound): sound is Audio.Sound => sound instanceof Audio.Sound)
         .forEach((sound) => sound.unloadAsync());

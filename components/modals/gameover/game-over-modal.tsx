@@ -1,263 +1,218 @@
-import { Dimensions, ImageBackground, Text, View } from "react-native";
-import React from "react";
-
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-  Easing,
-  withDelay,
-} from "react-native-reanimated";
-import useGameStore from "@/stores/game.store";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import {
+  Dimensions,
+  ImageBackground,
+  Text,
+  View,
+  Modal,
+  TouchableOpacity,
+} from "react-native";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
 import Stars from "./Stars/Stars";
 import ConvertToMinuteString from "@/utils/convertToMinuteString";
 import calculateTotalScore from "@/utils/calculateTotalScore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import firestore from "@react-native-firebase/firestore";
+import useGameStore from "@/stores/game.store";
 import useGameScoreStore from "@/stores/game-score.store";
 
 const GameOverModal = () => {
   const router = useRouter();
-  const sharedOpacity = useSharedValue(0);
-  const sharedWidth = useSharedValue(0);
-
+  const [modalVisible, setModalVisible] = useState(false);
   const { resetTime } = useGameScoreStore();
-
   const { point, populateDeck, gamePhase, restartGame } = useGameStore();
   const { time } = useGameScoreStore();
-  const modalWidth = Math.min(Dimensions.get("screen").width * 0.3, 250);
-  const modalHeight = Math.min(Dimensions.get("screen").height * 0.8, 300);
+  const modalWidth = Math.min(Dimensions.get("screen").width * 0.8, 300); // Adjusted modal width
+  const modalHeight = Math.min(Dimensions.get("screen").height * 0.8, 400); //Adjusted modal height
 
-  React.useEffect(() => {
-    sharedOpacity.value = withTiming(1, {
-      duration: 200,
-      easing: Easing.linear,
-    });
-
-    sharedWidth.value = withDelay(
-      200,
-      withTiming(modalWidth, {
-        duration: 200,
-        easing: Easing.bounce,
-      })
-    );
-
-    async function checkAndUpdateScore() {
-      try {
-        const bestScore = await AsyncStorage.getItem("bestScore");
-        const userId = await AsyncStorage.getItem("userId");
-        const username = await AsyncStorage.getItem("username");
-        const totalScore = calculateTotalScore(point, time);
-
-        if (userId) {
-          console.log("User ID:", userId);
-          const userRef = firestore().collection("users").doc(userId);
-          try {
-            const userDoc = await userRef.get();
-            if (userDoc.exists) {
-              const best = bestScore ? JSON.parse(bestScore) : 0;
-
-              if (totalScore > best) {
-                await AsyncStorage.setItem(
-                  "bestScore",
-                  JSON.stringify(totalScore)
-                );
-
-                await userRef.update({
-                  point,
-                  time,
-                  score: totalScore,
-                });
-              }
-            } else {
-              throw new Error("User not found in database");
-            }
-          } catch (error) {
-            console.error("Error updating score:", error);
-          }
-        } else {
-          const newUserRef = await firestore().collection("users").add({
-            nickname: username,
-            point,
-            time,
-            score: totalScore,
-          });
-
-          // Store the new document ID in AsyncStorage
-          await AsyncStorage.setItem("userId", newUserRef.id);
-        }
-      } catch (error) {
-        console.error("Error updating score:", error);
-      }
+  useEffect(() => {
+    if (gamePhase === 3) {
+      setModalVisible(true);
+      checkAndUpdateScore();
+    } else {
+      setModalVisible(false);
     }
-
-    gamePhase === 3 && checkAndUpdateScore();
   }, [gamePhase]);
 
-  const wrapperAnimated = useAnimatedStyle(() => ({
-    opacity: sharedOpacity.value,
-  }));
-  const scoreBoardAnimated = useAnimatedStyle(() => ({
-    width: sharedWidth.value,
-  }));
-  return (
-    <Animated.View
-      style={[
-        {
-          width: Dimensions.get("window").width,
-          height: Dimensions.get("window").height,
-          position: "absolute",
-          top: 0,
-          left: 0,
+  async function checkAndUpdateScore() {
+    try {
+      const bestScore = await AsyncStorage.getItem("bestScore");
+      const userId = await AsyncStorage.getItem("userId");
+      const username = await AsyncStorage.getItem("username");
+      const totalScore = calculateTotalScore(point, time);
 
+      if (userId) {
+        const userRef = firestore().collection("users").doc(userId);
+        try {
+          const userDoc = await userRef.get();
+          if (userDoc.exists) {
+            const best = bestScore ? JSON.parse(bestScore) : 0;
+            if (totalScore > best) {
+              await AsyncStorage.setItem(
+                "bestScore",
+                JSON.stringify(totalScore)
+              );
+              await userRef.update({ point, time, score: totalScore });
+            }
+          } else {
+            throw new Error("User not found in database");
+          }
+        } catch (error) {
+          console.error("Error updating score:", error);
+        }
+      } else {
+        const newUserRef = await firestore().collection("users").add({
+          nickname: username,
+          point,
+          time,
+          score: totalScore,
+        });
+        await AsyncStorage.setItem("userId", newUserRef.id);
+      }
+    } catch (error) {
+      console.error("Error updating score:", error);
+    }
+  }
+
+  return (
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={modalVisible}
+      statusBarTranslucent={true}
+      onRequestClose={() => {
+        setModalVisible(false);
+      }}
+    >
+      <View
+        style={{
+          flex: 1,
           justifyContent: "center",
           alignItems: "center",
-        },
-        wrapperAnimated,
-      ]}
-    >
-      <ImageBackground
-        source={require("@/assets/modals/TransparentGameover.png")}
-        resizeMode="stretch"
-        style={{
-          height: modalHeight,
-          width: modalWidth,
-          paddingVertical: 20,
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
         }}
       >
-        <Animated.View
-          style={[
-            scoreBoardAnimated,
-            {
-              height: "30%",
-            },
-          ]}
-        >
-          <Stars starCount={2} />
-        </Animated.View>
         <View
           style={{
-            flex: 1,
-            justifyContent: "space-around",
-            width: "100%",
+            borderWidth: 1,
+            borderColor: "white",
+            height: modalHeight,
+            width: modalWidth,
+            paddingVertical: 20,
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
         >
-          <Text
+          <View style={{ height: "30%", width: "100%", alignItems: "center" }}>
+            <Stars starCount={2} />
+          </View>
+          <View
             style={{
-              fontFamily: "DragonSlayer",
-              fontWeight: 600,
-              textAlignVertical: "center",
-              fontSize: 32,
-              color: "white",
-              textAlign: "center",
-              letterSpacing: 2,
-            }}
-          >
-            point{" "}
-            <Text
-              style={{
-                letterSpacing: 4,
-              }}
-            >
-              {point}
-            </Text>
-          </Text>
-
-          <Text
-            style={{
-              fontFamily: "DragonSlayer",
-              fontWeight: 600,
-              textAlignVertical: "center",
-              fontSize: 32,
-              color: "white",
-              textAlign: "center",
-              letterSpacing: 2,
-            }}
-          >
-            TIME{" "}
-            <Text style={{ letterSpacing: 4 }}>
-              {ConvertToMinuteString(time)}
-            </Text>
-          </Text>
-          <Text
-            style={{
-              fontFamily: "DragonSlayer",
-              fontWeight: 600,
-              textAlignVertical: "center",
-              fontSize: 32,
-              color: "white",
-              textAlign: "center",
-              letterSpacing: 2,
-            }}
-          >
-            SCORE{" "}
-            <Text style={{ letterSpacing: 4 }}>
-              {calculateTotalScore(point, time)}
-            </Text>
-          </Text>
-        </View>
-        <View
-          style={{
-            paddingTop: 14,
-
-            paddingHorizontal: 20,
-            flexDirection: "row",
-            justifyContent: "center",
-            gap: 18,
-          }}
-        >
-          <TouchableOpacity
-            style={{
-              height: 40,
-              justifyContent: "center",
+              flex: 1,
+              justifyContent: "space-around",
+              width: "100%",
               alignItems: "center",
-            }}
-            onPress={() => {
-              populateDeck();
-              router.navigate("/");
             }}
           >
             <Text
               style={{
                 fontFamily: "DragonSlayer",
-                color: "#efefef",
-                fontSize: 28,
-                paddingBottom: 2,
+                fontWeight: 600,
+                fontSize: 32,
+                color: "white",
                 letterSpacing: 2,
               }}
             >
-              HOME
+              point <Text style={{ letterSpacing: 4 }}>{point}</Text>
             </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={{
-              height: 40,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            onPress={() => {
-              resetTime();
-              restartGame();
-            }}
-          >
             <Text
               style={{
                 fontFamily: "DragonSlayer",
-                color: "#efefef",
-                fontSize: 28,
-                paddingBottom: 2,
+                fontWeight: 600,
+                fontSize: 32,
+                color: "white",
                 letterSpacing: 2,
               }}
             >
-              REPLAY
+              TIME{" "}
+              <Text style={{ letterSpacing: 4 }}>
+                {ConvertToMinuteString(time)}
+              </Text>
             </Text>
-          </TouchableOpacity>
+            <Text
+              style={{
+                fontFamily: "DragonSlayer",
+                fontWeight: 600,
+                fontSize: 32,
+                color: "white",
+                letterSpacing: 2,
+              }}
+            >
+              SCORE{" "}
+              <Text style={{ letterSpacing: 4 }}>
+                {calculateTotalScore(point, time)}
+              </Text>
+            </Text>
+          </View>
+          <View
+            style={{
+              paddingTop: 12,
+              paddingHorizontal: 20,
+              flexDirection: "row",
+              justifyContent: "center",
+              gap: 20,
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                height: 40,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              onPress={() => {
+                populateDeck();
+                router.navigate("/");
+                setModalVisible(false);
+              }}
+            >
+              <Text
+                style={{
+                  fontFamily: "DragonSlayer",
+                  color: "#efefef",
+                  fontSize: 28,
+                  letterSpacing: 2,
+                }}
+              >
+                HOME
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                height: 40,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              onPress={() => {
+                resetTime();
+                restartGame();
+                setModalVisible(false);
+              }}
+            >
+              <Text
+                style={{
+                  fontFamily: "DragonSlayer",
+                  color: "#efefef",
+                  fontSize: 28,
+                  letterSpacing: 2,
+                }}
+              >
+                REPLAY
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </ImageBackground>
-    </Animated.View>
+      </View>
+    </Modal>
   );
 };
 
