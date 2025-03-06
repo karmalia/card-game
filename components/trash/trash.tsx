@@ -10,6 +10,12 @@ import { Stack } from "tamagui";
 import { Ionicons } from "@expo/vector-icons";
 import useGameStore from "@/stores/game.store";
 import getCardDimension from "@/utils/getCardDimension";
+import {
+  TopLeft,
+  TopRight,
+  BottomLeft,
+  BottomRight,
+} from "@/components/skia-components/corners";
 
 const cardDimensions = getCardDimension();
 
@@ -20,7 +26,7 @@ const Trash = forwardRef((props, ref: any) => {
       <Text
         style={{
           color: "white",
-          fontFamily: "DragonSlayer",
+          fontFamily: "TrenchThin",
           letterSpacing: 4,
           fontSize: 18,
           textAlign: "center",
@@ -30,33 +36,32 @@ const Trash = forwardRef((props, ref: any) => {
       </Text>
 
       <Stack
-        backgroundColor={"transparent"}
+        backgroundColor={"rgba(0,0,0,0.5)"}
         ref={ref}
         width={cardDimensions.cardWidth}
         height={cardDimensions.cardHeight}
         padding={0}
         borderRadius={0}
+        position="relative"
+        flex={1}
+        justifyContent="center"
+        alignItems="center"
       >
-        <ImageBackground
-          source={require("@/assets/card-backgrounds/TrashCardOpacity.png")}
-          resizeMode="stretch"
+        <Text
           style={{
-            width: "100%",
-            height: "100%",
-            justifyContent: "center",
-            alignItems: "center",
+            fontFamily: "TrenchThin",
+            color: "white",
+            fontSize: Dimensions.get("window").width * 0.04,
           }}
         >
-          <Text
-            style={{
-              fontFamily: "DragonSlayer",
-              color: "white",
-              fontSize: Dimensions.get("window").width * 0.04,
-            }}
-          >
-            {cardsOnTrash.length}
-          </Text>
-        </ImageBackground>
+          {cardsOnTrash.length}
+        </Text>
+
+        {/* Add box corners */}
+        <TopLeft size={16} variant="edged" color="white" strokeWidth={2} />
+        <TopRight size={16} variant="edged" color="white" strokeWidth={2} />
+        <BottomLeft size={16} variant="edged" color="white" strokeWidth={2} />
+        <BottomRight size={16} variant="edged" color="white" strokeWidth={2} />
       </Stack>
     </Stack>
   );

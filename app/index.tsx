@@ -50,10 +50,14 @@ const Index = () => {
       >
         <TamaguiText
           color="white"
-          fontFamily={"DragonSlayer"}
+          fontFamily={"TrenchThin"}
           textAlign="left"
           letterSpacing={8}
-          style={{ fontSize: Dimensions.get("screen").width * 0.1 }}
+          style={{
+            fontSize: Dimensions.get("screen").width * 0.1,
+            opacity: 0.8,
+            fontFamily: "TrenchThin",
+          }}
         >
           SPACE CARDS
         </TamaguiText>

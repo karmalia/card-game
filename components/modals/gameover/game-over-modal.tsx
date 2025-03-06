@@ -1,11 +1,4 @@
-import {
-  Dimensions,
-  ImageBackground,
-  Text,
-  View,
-  Modal,
-  TouchableOpacity,
-} from "react-native";
+import { Dimensions, Text, View, Modal, TouchableOpacity } from "react-native";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
 import Stars from "./Stars/Stars";
@@ -15,6 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import firestore from "@react-native-firebase/firestore";
 import useGameStore from "@/stores/game.store";
 import useGameScoreStore from "@/stores/game-score.store";
+import { Canvas, Path, Skia } from "@shopify/react-native-skia";
 
 const GameOverModal = () => {
   const router = useRouter();
@@ -22,8 +16,8 @@ const GameOverModal = () => {
   const { resetTime } = useGameScoreStore();
   const { point, populateDeck, gamePhase, restartGame } = useGameStore();
   const { time } = useGameScoreStore();
-  const modalWidth = Math.min(Dimensions.get("screen").width * 0.8, 300); // Adjusted modal width
-  const modalHeight = Math.min(Dimensions.get("screen").height * 0.8, 400); //Adjusted modal height
+  const modalWidth = Math.min(Dimensions.get("screen").width * 0.8, 300);
+  const modalHeight = Math.min(Dimensions.get("screen").height * 0.8, 400);
 
   useEffect(() => {
     if (gamePhase === 3) {
@@ -74,6 +68,24 @@ const GameOverModal = () => {
     }
   }
 
+  const createCornerPath = (
+    width: number,
+    height: number,
+    cornerSize: number
+  ) => {
+    const path = Skia.Path.Make();
+    path.moveTo(0, cornerSize);
+    path.lineTo(cornerSize, 0);
+    path.lineTo(width - cornerSize, 0);
+    path.lineTo(width, cornerSize);
+    path.lineTo(width, height - cornerSize);
+    path.lineTo(width - cornerSize, height);
+    path.lineTo(cornerSize, height);
+    path.lineTo(0, height - cornerSize);
+    path.close();
+    return path;
+  };
+
   return (
     <Modal
       animationType="fade"
@@ -94,8 +106,6 @@ const GameOverModal = () => {
       >
         <View
           style={{
-            borderWidth: 1,
-            borderColor: "white",
             height: modalHeight,
             width: modalWidth,
             paddingVertical: 20,
@@ -103,6 +113,23 @@ const GameOverModal = () => {
             alignItems: "center",
           }}
         >
+          <Canvas
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: modalWidth,
+              height: modalHeight,
+            }}
+          >
+            <Path
+              path={createCornerPath(modalWidth, modalHeight, 10)}
+              style="stroke"
+              strokeWidth={3}
+              color="white"
+            />
+          </Canvas>
+
           <View style={{ height: "30%", width: "100%", alignItems: "center" }}>
             <Stars starCount={2} />
           </View>
@@ -116,7 +143,7 @@ const GameOverModal = () => {
           >
             <Text
               style={{
-                fontFamily: "DragonSlayer",
+                fontFamily: "TrenchThin",
                 fontWeight: 600,
                 fontSize: 32,
                 color: "white",
@@ -127,7 +154,7 @@ const GameOverModal = () => {
             </Text>
             <Text
               style={{
-                fontFamily: "DragonSlayer",
+                fontFamily: "TrenchThin",
                 fontWeight: 600,
                 fontSize: 32,
                 color: "white",
@@ -141,7 +168,7 @@ const GameOverModal = () => {
             </Text>
             <Text
               style={{
-                fontFamily: "DragonSlayer",
+                fontFamily: "TrenchThin",
                 fontWeight: 600,
                 fontSize: 32,
                 color: "white",
@@ -177,7 +204,7 @@ const GameOverModal = () => {
             >
               <Text
                 style={{
-                  fontFamily: "DragonSlayer",
+                  fontFamily: "TrenchThin",
                   color: "#efefef",
                   fontSize: 28,
                   letterSpacing: 2,
@@ -200,7 +227,7 @@ const GameOverModal = () => {
             >
               <Text
                 style={{
-                  fontFamily: "DragonSlayer",
+                  fontFamily: "TrenchThin",
                   color: "#efefef",
                   fontSize: 28,
                   letterSpacing: 2,

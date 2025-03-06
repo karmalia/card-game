@@ -14,6 +14,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { Canvas, Path, Skia } from "@shopify/react-native-skia";
 import { Sounds } from "@/stores/SoundProvider";
 
 const menuButtons = [
@@ -63,6 +64,25 @@ const HomeButtons = ({
   setInstructuresVisible: (value: boolean) => void;
   setLeaderboardVisible: (value: boolean) => void;
 }) => {
+  const buttonWidth = Dimensions.get("screen").width * 0.3;
+  const buttonHeight = Dimensions.get("screen").height * 0.1;
+
+  const cornerRadius = 10; // Adjust for corner roundness
+  const cornerSize = 20; // Adjust for corner shape size
+
+  const createButtonPath = (width, height) => {
+    const path = Skia.Path.Make();
+    path.moveTo(0, cornerSize);
+    path.lineTo(cornerSize, 0);
+    path.lineTo(width - cornerSize, 0);
+    path.lineTo(width, cornerSize);
+    path.lineTo(width, height - cornerSize);
+    path.lineTo(width - cornerSize, height);
+    path.lineTo(cornerSize, height);
+    path.lineTo(0, height - cornerSize);
+    path.close();
+    return path;
+  };
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const { playSound } = useContext(Sounds)!;
   useEffect(() => {
@@ -133,43 +153,40 @@ const HomeButtons = ({
       ]}
     >
       {menuButtons.map((button, index) => (
-        <ImageBackground
-          source={button.imgUrl}
-          resizeMode="stretch"
+        <Button
+          alignContent="flex-start"
+          justifyContent="center"
+          backgroundColor={"transparent"}
+          onPress={() => handleAction(button.action)}
+          key={button.title + index}
+          disabled={button.disabled}
+          unstyled
           style={[
             styles.button,
             {
-              opacity: button.disabled ? 0.6 : 1,
-            },
-          ]}
-          key={button.title + index}
-        >
-          <Button
-            alignContent="flex-start"
-            justifyContent="center"
-            backgroundColor={"transparent"}
-            onPress={() => handleAction(button.action)}
-            disabled={button.disabled}
-            style={{
-              width: Dimensions.get("screen").width * 0.3,
-              height: Dimensions.get("screen").height * 0.1,
+              width: buttonWidth,
+              height: buttonHeight,
               justifyContent: "center",
               alignItems: "center",
+              opacity: button.disabled ? 0.6 : 1,
+              position: "relative",
+            },
+          ]}
+        >
+          <Canvas
+            style={{
+              position: "absolute",
+              width: buttonWidth,
+              height: buttonHeight,
             }}
           >
-            <Text
-              style={{
-                fontFamily: "DragonSlayer",
-                fontSize: Dimensions.get("screen").height * 0.05,
-                textAlign: "center",
-                letterSpacing: 2,
-                color: "white",
-              }}
-            >
-              {button.title}
-            </Text>
-          </Button>
-        </ImageBackground>
+            <Path
+              path={createButtonPath(buttonWidth, buttonHeight)}
+              color="rgba(255, 255, 255, 0.2)" // Adjust color as needed
+            />
+          </Canvas>
+          <Text style={styles.buttonText}>{button.title}</Text>
+        </Button>
       ))}
     </Animated.View>
   );
@@ -179,6 +196,14 @@ export const styles = StyleSheet.create({
   button: {
     borderWidth: 1,
     borderColor: "transparent",
+  },
+  buttonText: {
+    fontFamily: "TrenchThin",
+    fontSize: 24,
+    textAlign: "center",
+    letterSpacing: 2,
+
+    color: "white",
   },
 });
 

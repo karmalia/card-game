@@ -215,7 +215,7 @@ const GetUsernameModal = () => {
                 color: "white",
                 fontSize: 18,
                 letterSpacing: 2,
-                fontFamily: "DragonSlayer",
+                fontFamily: "TrenchThin",
               }}
             >
               DONE

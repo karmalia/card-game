@@ -27,6 +27,12 @@ import useOverlayStore from "@/stores/overlay.store";
 import DirectionOverlay, {
   EDirective,
 } from "../render-cards/DirectionOverlay/direction-overlay";
+import {
+  TopLeft,
+  TopRight,
+  BottomLeft,
+  BottomRight,
+} from "@/components/skia-components/corners";
 
 const part = Dimensions.get("screen").height / 3;
 const middleCenterY = part * 2;
@@ -68,10 +74,13 @@ const StyledCard = styled(View, {
 
 const CardNumber = styled(Text, {
   name: "CardNumber",
-  fontSize: Dimensions.get("screen").width * 0.07,
+  fontSize: 80,
   color: "$cardText",
-  fontFamily: "DragonSlayer",
-  zIndex: 99999,
+  padding: 12,
+
+  textAlign: "center",
+
+  fontFamily: "TrenchThin",
 });
 
 const GameCard = ({
@@ -311,14 +320,22 @@ const GameCard = ({
 const GesturedCard = ({
   card,
   CardAnimationStyles,
+  sharedCard,
   tap,
   drag,
 }: {
   card: Card;
   CardAnimationStyles: any;
+  sharedCard: any;
   tap: TapGesture;
   drag: PanGesture;
 }) => {
+  const cardColor = {
+    red: "#8B0000",
+    blue: "#000080",
+    yellow: "#8B8000",
+  };
+
   return (
     <GestureDetector gesture={card.isPlayed ? tap : drag}>
       <Animated.View
@@ -330,20 +347,31 @@ const GesturedCard = ({
         ]}
       >
         <TouchableOpacity touchSoundDisabled activeOpacity={1}>
-          <StyledCard>
-            <ImageBackground
-              source={bg[card.color.name]}
-              resizeMode="stretch"
-              style={{
-                flex: 1,
-                width: "100%",
-                height: "100%",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <CardNumber>{card.value || 0}</CardNumber>
-            </ImageBackground>
+          <StyledCard
+            style={{
+              backgroundColor: `${cardColor[card.color.name]}80`, // 80 adds transparency
+              position: "relative",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <CardNumber>{card.value || 0}</CardNumber>
+
+            {/* Add corners */}
+            <TopLeft size={32} variant="edged" color="white" strokeWidth={1} />
+            <TopRight size={32} variant="edged" color="white" strokeWidth={1} />
+            <BottomLeft
+              size={32}
+              variant="edged"
+              color="white"
+              strokeWidth={1}
+            />
+            <BottomRight
+              size={32}
+              variant="edged"
+              color="white"
+              strokeWidth={1}
+            />
           </StyledCard>
         </TouchableOpacity>
       </Animated.View>

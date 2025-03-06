@@ -22,6 +22,7 @@ export default function RootLayout() {
     Inter: require("@tamagui/font-inter/otf/Inter-Medium.otf"),
     InterBold: require("@tamagui/font-inter/otf/Inter-Bold.otf"),
     DragonSlayer: require("@/assets/fonts/dragon-slayer/dragon-slayer.otf"),
+    TrenchThin: require("@/assets/fonts/trench-thin/trench-thin.otf"),
   });
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
@@ -52,7 +53,7 @@ function RootLayoutNav() {
       <Text
         style={{
           position: "absolute",
-          fontFamily: "monospace",
+          fontFamily: "TrenchThin",
           top: 12,
           fontSize: 12,
           left: 140,

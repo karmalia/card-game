@@ -4,6 +4,12 @@ import useGameStore from "@/stores/game.store";
 import { Stack, View } from "tamagui";
 import ConvertToMinuteString from "@/utils/convertToMinuteString";
 import useGameScoreStore from "@/stores/game-score.store";
+import {
+  TopLeft,
+  TopRight,
+  BottomLeft,
+  BottomRight,
+} from "@/components/skia-components/corners";
 
 const GameScore = () => {
   const { increaseTime, time } = useGameScoreStore();
@@ -27,25 +33,23 @@ const GameScore = () => {
   return (
     <View style={styles.container} marginHorizontal="$4">
       <Stack style={styles.section}>
-        <ImageBackground
-          source={require("@/assets/backgrounds/ScoreBoard.png")}
-          resizeMode="stretch"
-          style={styles.sectionImage}
-        >
-          <Text style={styles.sectionText}>Points: {point}</Text>
-        </ImageBackground>
+        <Text style={styles.sectionText}>Points: {point}</Text>
+        {/* Add edged corners */}
+        <TopLeft size={12} variant="edged" strokeWidth={2} />
+        <TopRight size={12} variant="edged" strokeWidth={2} />
+        <BottomLeft size={12} variant="edged" strokeWidth={2} />
+        <BottomRight size={12} variant="edged" strokeWidth={2} />
       </Stack>
       <Stack style={styles.section}>
-        <ImageBackground
-          source={require("@/assets/backgrounds/ScoreBoard.png")}
-          resizeMode="stretch"
-          style={styles.sectionImage}
-        >
-          <Text style={styles.sectionText}>
-            TIME:
-            {ConvertToMinuteString(time)}
-          </Text>
-        </ImageBackground>
+        <Text style={styles.sectionText}>
+          TIME:
+          {ConvertToMinuteString(time)}
+        </Text>
+        {/* Add edged corners */}
+        <TopLeft size={12} variant="edged" strokeWidth={2} />
+        <TopRight size={12} variant="edged" strokeWidth={2} />
+        <BottomLeft size={12} variant="edged" strokeWidth={2} />
+        <BottomRight size={12} variant="edged" strokeWidth={2} />
       </Stack>
     </View>
   );
@@ -64,17 +68,19 @@ const styles = StyleSheet.create({
     width: Dimensions.get("screen").width * 0.2,
     alignItems: "center",
     justifyContent: "center",
+    position: "relative", // Ensure corners are positioned correctly
   },
   sectionImage: {
     width: "100%",
     height: "100%",
     alignItems: "center",
     justifyContent: "center",
+    position: "relative", // Needed for absolute positioning of corners
   },
   sectionText: {
     color: "#F5F5DC",
     fontSize: Dimensions.get("screen").width * 0.025,
-    fontFamily: "DragonSlayer",
+    fontFamily: "TrenchThin",
     textAlign: "center",
     letterSpacing: 2,
     paddingHorizontal: 24,

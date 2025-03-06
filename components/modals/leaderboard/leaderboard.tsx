@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   modalTitle: {
-    fontFamily: "DragonSlayer",
+    fontFamily: "TrenchThin",
     fontSize: 28,
     letterSpacing: 2,
     color: "#efefef",
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     overflow: "scroll",
   },
   headerText: {
-    fontFamily: "DragonSlayer",
+    fontFamily: "TrenchThin",
     fontSize: 16,
     color: "white",
     letterSpacing: 2,
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   rowText: {
-    fontFamily: "DragonSlayer",
+    fontFamily: "TrenchThin",
     letterSpacing: 2,
     fontSize: 16,
     color: "white",
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     color: "#efefef",
     textAlign: "center",
     fontSize: 18,
-    fontFamily: "DragonSlayer",
+    fontFamily: "TrenchThin",
     letterSpacing: 2,
     paddingVertical: 8,
   },
