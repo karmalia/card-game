@@ -19,9 +19,6 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    Inter: require("@tamagui/font-inter/otf/Inter-Medium.otf"),
-    InterBold: require("@tamagui/font-inter/otf/Inter-Bold.otf"),
-    DragonSlayer: require("@/assets/fonts/dragon-slayer/dragon-slayer.otf"),
     TrenchThin: require("@/assets/fonts/trench-thin/trench-thin.otf"),
   });
 
@@ -68,6 +65,7 @@ function RootLayoutNav() {
       <Stack initialRouteName="index">
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="gamescreen" options={{ headerShown: false }} />
+        <Stack.Screen name="loadingscreen" options={{ headerShown: false }} />
       </Stack>
     </>
   );

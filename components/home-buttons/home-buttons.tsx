@@ -23,7 +23,7 @@ const menuButtons = [
     imgUrl: require("@/assets/home/TransparentMenuButton2.png"),
     action: {
       type: "route",
-      value: "/gamescreen",
+      value: "/loadingscreen",
     },
     disabled: false,
   },
@@ -66,6 +66,7 @@ const HomeButtons = ({
 }) => {
   const buttonWidth = Dimensions.get("screen").width * 0.3;
   const buttonHeight = Dimensions.get("screen").height * 0.1;
+  console.log("buttonWidth", buttonWidth);
 
   const cornerRadius = 10; // Adjust for corner roundness
   const cornerSize = 20; // Adjust for corner shape size

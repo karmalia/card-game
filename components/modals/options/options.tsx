@@ -109,6 +109,7 @@ const Options = () => {
           <TouchableOpacity
             activeOpacity={1}
             onPress={() => {
+              console.log("options");
               playSound("clickSoundSeven");
               openModal();
             }}
@@ -183,25 +184,24 @@ const Options = () => {
 
               {/* Navigation buttons for game screen */}
               {pathname === "/gamescreen" && (
-                <Stack
-                  direction="ltr"
-                  marginVertical="$4"
-                  flexDirection="row"
-                  display="flex"
-                >
-                  <View style={styles.optionsButton}>
-                    <TouchableOpacity onPress={() => handleNavigation("home")}>
-                      <Text style={styles.optionsText}>HOME</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View style={styles.optionsButton}>
-                    <TouchableOpacity
-                      onPress={() => handleNavigation("restart")}
-                    >
-                      <Text style={styles.optionsText}>RESTART</Text>
-                    </TouchableOpacity>
-                  </View>
-                </Stack>
+                <View style={styles.optionRow}>
+                  <Pressable
+                    style={styles.optionsButton}
+                    onPress={() => {
+                      console.log("home");
+                      handleNavigation("home");
+                    }}
+                  >
+                    <Text style={styles.optionsText}>HOME</Text>
+                  </Pressable>
+
+                  <Pressable
+                    style={styles.optionsButton}
+                    onPress={() => handleNavigation("restart")}
+                  >
+                    <Text style={styles.optionsText}>RESTART</Text>
+                  </Pressable>
+                </View>
               )}
 
               {/* Close button for home screen */}
@@ -313,13 +313,13 @@ const styles = StyleSheet.create({
     fontFamily: "TrenchThin",
   },
   optionsButton: {
-    borderColor: "black",
-    flex: 1,
+    padding: 10,
+    zIndex: 10,
   },
   optionsText: {
     fontFamily: "TrenchThin",
     fontSize: 28,
-    paddingVertical: 6,
+
     letterSpacing: 1,
     textAlign: "center",
     color: "white",
