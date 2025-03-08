@@ -1,31 +1,31 @@
-# name: Expo Android Deploy
+name: Expo Android Deploy
 
-# on:
-#   push:
-#     branches:
-#       - main
+on:
+  push:
+    branches:
+      - main
 
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-#       - name: Setup Node.js
-#         uses: actions/setup-node@v3
-#         with:
-#           node-version: 18
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-#       - name: Install dependencies
-#         run: npm install
+      - name: Install dependencies
+        run: npm install
 
-#       - name: Install EAS CLI
-#         run: npm install -g eas-cli
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
 
-#       - name: Configure EAS
-#         run: eas login --non-interactive -u ${{ secrets.EXPO_USERNAME }} -p ${{ secrets.EXPO_PASSWORD }}
+      - name: Configure EAS
+        run: eas login --non-interactive -u ${{ secrets.EXPO_USERNAME }} -p ${{ secrets.EXPO_PASSWORD }}
 
-#       - name: Build Android (EAS)
-#         run: eas build --platform android --profile production
+      - name: Build Android (EAS)
+        run: eas build --platform android --profile production

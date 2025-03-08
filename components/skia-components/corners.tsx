@@ -16,6 +16,7 @@ const TopLeft = ({
   strokeWidth = 2,
 }: CornerProps) => {
   const path = Skia.Path.Make();
+  const path2 = Skia.Path.Make();
 
   if (variant === "box") {
     // Box variant - creates a square corner
@@ -24,10 +25,15 @@ const TopLeft = ({
     path.lineTo(size / 3, 0);
   } else if (variant === "edged") {
     // Edged variant - creates a stylized corner with a notch
-    path.moveTo(0, size / 2);
-    path.lineTo(0, size / 5);
-    path.lineTo(size / 5, 0);
-    path.lineTo(size / 2, 0);
+    path.moveTo(0, 0);
+    path.lineTo(0, size);
+    path.moveTo(0, 0);
+    path.lineTo(size, 0);
+
+    path2.moveTo(5, 5);
+    path2.lineTo(5, size / 2);
+    path2.moveTo(5, 5);
+    path2.lineTo(size / 2, 5);
   } else {
     // Default variant - creates an angled corner
     path.moveTo(0, 0);
@@ -37,6 +43,7 @@ const TopLeft = ({
   }
 
   path.close();
+  path2.close();
 
   return (
     <Canvas
@@ -51,6 +58,12 @@ const TopLeft = ({
       <Path
         style={"stroke"}
         path={path}
+        strokeWidth={strokeWidth * 2}
+        color={color}
+      />
+      <Path
+        style={"stroke"}
+        path={path2}
         strokeWidth={strokeWidth}
         color={color}
       />
@@ -65,6 +78,7 @@ const TopRight = ({
   strokeWidth = 2,
 }: CornerProps) => {
   const path = Skia.Path.Make();
+  const path2 = Skia.Path.Make();
 
   if (variant === "box") {
     // Box variant
@@ -72,11 +86,17 @@ const TopRight = ({
     path.lineTo(size, 0);
     path.lineTo(size, size / 3);
   } else if (variant === "edged") {
-    // Edged variant
-    path.moveTo(size / 2, 0);
-    path.lineTo(size - size / 5, 0);
-    path.lineTo(size, size / 5);
-    path.lineTo(size, size / 2);
+    // Edged variant - main outline
+    path.moveTo(size, 0);
+    path.lineTo(size, size);
+    path.moveTo(size, 0);
+    path.lineTo(0, 0);
+
+    // Edged variant - inner detail
+    path2.moveTo(size - 5, 5);
+    path2.lineTo(size - 5, size / 2);
+    path2.moveTo(size - 5, 5);
+    path2.lineTo(size / 2, 5);
   } else {
     // Default variant
     path.moveTo(0, 0);
@@ -86,6 +106,7 @@ const TopRight = ({
   }
 
   path.close();
+  path2.close();
 
   return (
     <Canvas
@@ -100,6 +121,12 @@ const TopRight = ({
       <Path
         style={"stroke"}
         path={path}
+        strokeWidth={strokeWidth * 2}
+        color={color}
+      />
+      <Path
+        style={"stroke"}
+        path={path2}
         strokeWidth={strokeWidth}
         color={color}
       />
@@ -114,6 +141,7 @@ const BottomLeft = ({
   strokeWidth = 2,
 }: CornerProps) => {
   const path = Skia.Path.Make();
+  const path2 = Skia.Path.Make();
 
   if (variant === "box") {
     // Box variant
@@ -121,11 +149,17 @@ const BottomLeft = ({
     path.lineTo(0, size);
     path.lineTo(size / 3, size);
   } else if (variant === "edged") {
-    // Edged variant
-    path.moveTo(0, size / 2);
-    path.lineTo(0, size - size / 5);
-    path.lineTo(size / 5, size);
-    path.lineTo(size / 2, size);
+    // Edged variant - main outline
+    path.moveTo(0, size);
+    path.lineTo(0, 0);
+    path.moveTo(0, size);
+    path.lineTo(size, size);
+
+    // Edged variant - inner detail
+    path2.moveTo(5, size - 5);
+    path2.lineTo(5, size / 2);
+    path2.moveTo(5, size - 5);
+    path2.lineTo(size / 2, size - 5);
   } else {
     // Default variant
     path.moveTo(0, 0);
@@ -135,6 +169,7 @@ const BottomLeft = ({
   }
 
   path.close();
+  path2.close();
 
   return (
     <Canvas
@@ -149,6 +184,12 @@ const BottomLeft = ({
       <Path
         style={"stroke"}
         path={path}
+        strokeWidth={strokeWidth * 2}
+        color={color}
+      />
+      <Path
+        style={"stroke"}
+        path={path2}
         strokeWidth={strokeWidth}
         color={color}
       />
@@ -163,6 +204,7 @@ const BottomRight = ({
   strokeWidth = 2,
 }: CornerProps) => {
   const path = Skia.Path.Make();
+  const path2 = Skia.Path.Make();
 
   if (variant === "box") {
     // Box variant
@@ -170,11 +212,17 @@ const BottomRight = ({
     path.lineTo(size, size);
     path.lineTo(size, size - size / 3);
   } else if (variant === "edged") {
-    // Edged variant
-    path.moveTo(size / 2, size);
-    path.lineTo(size - size / 5, size);
-    path.lineTo(size, size - size / 5);
-    path.lineTo(size, size / 2);
+    // Edged variant - main outline
+    path.moveTo(size, size);
+    path.lineTo(size, 0);
+    path.moveTo(size, size);
+    path.lineTo(0, size);
+
+    // Edged variant - inner detail
+    path2.moveTo(size - 5, size - 5);
+    path2.lineTo(size - 5, size / 2);
+    path2.moveTo(size - 5, size - 5);
+    path2.lineTo(size / 2, size - 5);
   } else {
     // Default variant
     path.moveTo(size, size);
@@ -184,6 +232,7 @@ const BottomRight = ({
   }
 
   path.close();
+  path2.close();
 
   return (
     <Canvas
@@ -198,6 +247,12 @@ const BottomRight = ({
       <Path
         style={"stroke"}
         path={path}
+        strokeWidth={strokeWidth * 2}
+        color={color}
+      />
+      <Path
+        style={"stroke"}
+        path={path2}
         strokeWidth={strokeWidth}
         color={color}
       />

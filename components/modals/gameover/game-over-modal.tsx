@@ -8,7 +8,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import firestore from "@react-native-firebase/firestore";
 import useGameStore from "@/stores/game.store";
 import useGameScoreStore from "@/stores/game-score.store";
-import { Canvas, Path, Skia } from "@shopify/react-native-skia";
+import {
+  TopLeft,
+  TopRight,
+  BottomLeft,
+  BottomRight,
+} from "@/components/skia-components/corners";
 
 const GameOverModal = () => {
   const router = useRouter();
@@ -68,24 +73,6 @@ const GameOverModal = () => {
     }
   }
 
-  const createCornerPath = (
-    width: number,
-    height: number,
-    cornerSize: number
-  ) => {
-    const path = Skia.Path.Make();
-    path.moveTo(0, cornerSize);
-    path.lineTo(cornerSize, 0);
-    path.lineTo(width - cornerSize, 0);
-    path.lineTo(width, cornerSize);
-    path.lineTo(width, height - cornerSize);
-    path.lineTo(width - cornerSize, height);
-    path.lineTo(cornerSize, height);
-    path.lineTo(0, height - cornerSize);
-    path.close();
-    return path;
-  };
-
   return (
     <Modal
       animationType="fade"
@@ -111,28 +98,25 @@ const GameOverModal = () => {
             paddingVertical: 20,
             justifyContent: "space-between",
             alignItems: "center",
+            backgroundColor: "rgba(0, 0, 20, 0.8)",
+            position: "relative",
           }}
         >
-          <Canvas
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: modalWidth,
-              height: modalHeight,
-            }}
-          >
-            <Path
-              path={createCornerPath(modalWidth, modalHeight, 10)}
-              style="stroke"
-              strokeWidth={3}
-              color="white"
-            />
-          </Canvas>
+          {/* Add custom corners */}
+          <TopLeft size={24} variant="edged" color="white" strokeWidth={2} />
+          <TopRight size={24} variant="edged" color="white" strokeWidth={2} />
+          <BottomLeft size={24} variant="edged" color="white" strokeWidth={2} />
+          <BottomRight
+            size={24}
+            variant="edged"
+            color="white"
+            strokeWidth={2}
+          />
 
           <View style={{ height: "30%", width: "100%", alignItems: "center" }}>
             <Stars starCount={2} />
           </View>
+
           <View
             style={{
               flex: 1,
@@ -150,7 +134,7 @@ const GameOverModal = () => {
                 letterSpacing: 2,
               }}
             >
-              point <Text style={{ letterSpacing: 4 }}>{point}</Text>
+              POINT : <Text style={{ letterSpacing: 4 }}>{point}</Text>
             </Text>
             <Text
               style={{
@@ -161,7 +145,7 @@ const GameOverModal = () => {
                 letterSpacing: 2,
               }}
             >
-              TIME{" "}
+              TIME :{" "}
               <Text style={{ letterSpacing: 4 }}>
                 {ConvertToMinuteString(time)}
               </Text>
@@ -175,12 +159,13 @@ const GameOverModal = () => {
                 letterSpacing: 2,
               }}
             >
-              SCORE{" "}
+              SCORE :{" "}
               <Text style={{ letterSpacing: 4 }}>
                 {calculateTotalScore(point, time)}
               </Text>
             </Text>
           </View>
+
           <View
             style={{
               paddingTop: 12,
@@ -190,11 +175,14 @@ const GameOverModal = () => {
               gap: 20,
             }}
           >
+            {/* Home button with corners */}
             <TouchableOpacity
               style={{
                 height: 40,
+                width: 120,
                 justifyContent: "center",
                 alignItems: "center",
+                position: "relative",
               }}
               onPress={() => {
                 populateDeck();
@@ -212,12 +200,31 @@ const GameOverModal = () => {
               >
                 HOME
               </Text>
+
+              {/* Add corners to Home button */}
+              <TopLeft size={12} variant="box" color="white" strokeWidth={1} />
+              <TopRight size={12} variant="box" color="white" strokeWidth={1} />
+              <BottomLeft
+                size={12}
+                variant="box"
+                color="white"
+                strokeWidth={1}
+              />
+              <BottomRight
+                size={12}
+                variant="box"
+                color="white"
+                strokeWidth={1}
+              />
             </TouchableOpacity>
+
             <TouchableOpacity
               style={{
                 height: 40,
+                width: 120,
                 justifyContent: "center",
                 alignItems: "center",
+                position: "relative",
               }}
               onPress={() => {
                 resetTime();
@@ -235,6 +242,22 @@ const GameOverModal = () => {
               >
                 REPLAY
               </Text>
+
+              {/* Add corners to Replay button */}
+              <TopLeft size={12} variant="box" color="white" strokeWidth={1} />
+              <TopRight size={12} variant="box" color="white" strokeWidth={1} />
+              <BottomLeft
+                size={12}
+                variant="box"
+                color="white"
+                strokeWidth={1}
+              />
+              <BottomRight
+                size={12}
+                variant="box"
+                color="white"
+                strokeWidth={1}
+              />
             </TouchableOpacity>
           </View>
         </View>

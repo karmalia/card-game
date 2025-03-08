@@ -1,13 +1,6 @@
-import {
-  Dimensions,
-  ImageBackground,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Dimensions, StyleSheet, Text, View } from "react-native";
 import React, { forwardRef } from "react";
 import { Stack } from "tamagui";
-import { Ionicons } from "@expo/vector-icons";
 import useGameStore from "@/stores/game.store";
 import getCardDimension from "@/utils/getCardDimension";
 import {
@@ -43,9 +36,9 @@ const Trash = forwardRef((props, ref: any) => {
         padding={0}
         borderRadius={0}
         position="relative"
-        flex={1}
         justifyContent="center"
         alignItems="center"
+        // Remove flex={1} - this is causing the size difference
       >
         <Text
           style={{
