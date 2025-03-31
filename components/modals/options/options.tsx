@@ -1,5 +1,4 @@
 import {
-  Animated as RNAnimated, // Using React Native's Animated instead
   Dimensions,
   Modal,
   Pressable,
@@ -7,7 +6,7 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useContext, useEffect, useId, useRef, useState } from "react";
+import React, { useContext, useEffect, useId, useState } from "react";
 import { Checkbox, Label, Stack } from "tamagui";
 import Icons from "@/components/icons";
 import { usePathname, useRouter } from "expo-router";
@@ -21,7 +20,14 @@ import {
   TopLeft,
   TopRight,
 } from "@/components/skia-components/corners";
-import { Settings } from "lucide-react-native";
+import { LucideX, Settings } from "lucide-react-native";
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withTiming, 
+  runOnJS 
+} from "react-native-reanimated";
+import { StatusBar } from "expo-status-bar";
 
 const { height, width } = Dimensions.get("window");
 
@@ -38,8 +44,8 @@ const Options = () => {
   const soundsId = useId();
   const pathname = usePathname();
 
-  // Animation value for content sliding
-  const slideAnimation = useRef(new RNAnimated.Value(height)).current;
+  // Reanimated shared value for slide animation
+  const slideY = useSharedValue(height);
 
   function handleNavigation(type: "home" | "restart") {
     switch (type) {
@@ -64,23 +70,21 @@ const Options = () => {
   // Function to open modal with animation
   const openModal = () => {
     setOptionsVisible(true);
-    RNAnimated.timing(slideAnimation, {
-      toValue: 0,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
+    slideY.value = withTiming(0, { duration: 300 });
   };
 
   // Function to close modal with animation
   const closeModal = () => {
-    RNAnimated.timing(slideAnimation, {
-      toValue: height,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      setOptionsVisible(false);
+    slideY.value = withTiming(height, { 
+      duration: 300 
+    }, (finished) => {
+      if (finished) {
+        // Use runOnJS to call setState from worklet
+        runOnJS(setOptionsVisible)(false);
+      }
     });
   };
+  
 
   // Close options when route changes
   useEffect(() => {
@@ -89,9 +93,17 @@ const Options = () => {
     }
   }, [pathname]);
 
+  // Create animated style for the slide animation
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: slideY.value }],
+    };
+  });
+
   return (
     <>
       {/* Settings button */}
+      
       <View
         style={{
           position: "absolute",
@@ -106,10 +118,10 @@ const Options = () => {
           alignItems="center"
           marginHorizontal="$4"
         >
-          <TouchableOpacity
+<TouchableOpacity
             activeOpacity={1}
             onPress={() => {
-              console.log("options");
+              console.log("settings button pressed 1");
               playSound("clickSoundSeven");
               openModal();
             }}
@@ -118,15 +130,21 @@ const Options = () => {
               position: "relative",
               width: 50,
               height: 50,
+              zIndex: 100,
+           
             }}
           >
             <TopRight size={12} variant="edged" strokeWidth={2} />
             <TopLeft size={12} variant="edged" strokeWidth={2} />
             <BottomLeft size={12} variant="edged" strokeWidth={2} />
             <BottomRight size={12} variant="edged" strokeWidth={2} />
-            <Settings width={30} height={30} color={"white"} />
+         <Settings width={30} height={30} color={"white"} />
           </TouchableOpacity>
+
+
         </Stack>
+          
+       
       </View>
 
       {/* Native Modal with fixed background */}
@@ -139,87 +157,92 @@ const Options = () => {
           closeModal();
         }}
         statusBarTranslucent={true}
+        
+        
       >
+      
+        
+   
         {/* Fixed background that appears immediately */}
-        <View style={styles.background}>
+      
           {/* Animated content that slides up */}
-          <RNAnimated.View
-            style={[
-              styles.modalContainer,
-              { transform: [{ translateY: slideAnimation }] },
-            ]}
-          >
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>OPTIONS</Text>
-                {/* Add corners to the modal */}
-                <TopLeft size={16} variant="edged" strokeWidth={2} />
-                <TopRight size={16} variant="edged" strokeWidth={2} />
-                <BottomLeft size={16} variant="edged" strokeWidth={2} />
-                <BottomRight size={16} variant="edged" strokeWidth={2} />
-              </View>
-
-              {/* Sound toggle */}
-              <View style={styles.optionRow}>
-                <Text style={styles.modalOptionText}>SOUNDS</Text>
-                <Checkbox
-                  size={"$4"}
-                  id={soundsId}
-                  checked={gameSounds.status}
-                  onCheckedChange={() => {
-                    setVolumeForSounds(!gameSounds.status);
-                  }}
-                  display="none"
-                />
-
-                <View style={styles.checkboxWrapper}>
-                  <Label style={styles.modalLabel} htmlFor={soundsId} />
-                  {gameSounds.status && (
-                    <View style={styles.checkboxContainer}>
-                      <Icons.Check width={checkboxSize} height={checkboxSize} />
-                    </View>
-                  )}
+          <View style={styles.background}>
+            <Animated.View
+              style={[
+                styles.modalContainer,
+                animatedStyle,
+            
+              ]}
+            >
+              <View style={styles.modalContent}>
+            
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>OPTIONS</Text>
+            
+                  <TopLeft size={16} variant="edged" strokeWidth={2} />
+                  <TopRight size={16} variant="edged" strokeWidth={2} />
+                  <BottomLeft size={16} variant="edged" strokeWidth={2} />
+                  <BottomRight size={16} variant="edged" strokeWidth={2} />
                 </View>
-              </View>
-
-              {/* Navigation buttons for game screen */}
-              {pathname === "/gamescreen" && (
+                {/* Sound toggle */}
                 <View style={styles.optionRow}>
-                  <Pressable
-                    style={styles.optionsButton}
-                    onPress={() => {
-                      console.log("home");
-                      handleNavigation("home");
+                  <Text style={styles.modalOptionText}>SOUNDS</Text>
+                  <Checkbox
+                    size={"$4"}
+                    id={soundsId}
+                    checked={gameSounds.status}
+                    onCheckedChange={() => {
+                      setVolumeForSounds(!gameSounds.status);
                     }}
-                  >
-                    <Text style={styles.optionsText}>HOME</Text>
-                  </Pressable>
-
-                  <Pressable
-                    style={styles.optionsButton}
-                    onPress={() => handleNavigation("restart")}
-                  >
-                    <Text style={styles.optionsText}>RESTART</Text>
-                  </Pressable>
+                    display="none"
+                  />
+                  <View style={styles.checkboxWrapper}>
+                    <Label style={styles.modalLabel} htmlFor={soundsId} />
+                    {gameSounds.status && (
+                      <View style={styles.checkboxContainer}>
+                        <Icons.Check width={checkboxSize} height={checkboxSize} />
+                      </View>
+                    )}
+                  </View>
                 </View>
-              )}
+                {/* Navigation buttons for game screen */}
+                {pathname === "/gamescreen" && (
+                  <View style={styles.optionRow}>
+                    <Pressable
+                      style={styles.optionsButton}
+                      onPress={() => {
+                        handleNavigation("home");
+                      }}
+                    >
+                      <Text style={styles.optionsText}>HOME</Text>
+                    </Pressable>
+                    <Pressable
+                      style={styles.optionsButton}
+                      onPress={() => handleNavigation("restart")}
+                    >
+                      <Text style={styles.optionsText}>RESTART</Text>
+                    </Pressable>
+                  </View>
+                )}
+                {/* Close button for home screen */}
+                
+                  <Pressable
+                    style={styles.closeButton}
+                    onPress={() => {
+                      playSound("clickSoundSeven");
+                      closeModal();
+                    }}
+                    hitSlop={10}
+                  >
+                    <Text style={styles.closeButtonText}>CLOSE</Text>
+                  </Pressable>
+                
 
-              {/* Close button for home screen */}
-              {pathname === "/" && (
-                <Pressable
-                  style={styles.closeButton}
-                  onPress={() => {
-                    playSound("clickSoundSeven");
-                    closeModal();
-                  }}
-                  hitSlop={10}
-                >
-                  <Text style={styles.closeButtonText}>CLOSE</Text>
-                </Pressable>
-              )}
-            </View>
-          </RNAnimated.View>
-        </View>
+                
+              </View>
+            </Animated.View>
+          </View>
+        
       </Modal>
     </>
   );
@@ -230,9 +253,24 @@ export default Options;
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
     justifyContent: "center",
     alignItems: "center",
+  },
+  headerCloseButton: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    width: 12,
+    height: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 20,
+  },
+  headerCloseButtonText: {
+    color: 'white',
+    fontSize: 24,
+    fontWeight: 'bold',
   },
   modalContainer: {
     backgroundColor: "rgba(0, 0, 20, 0.8)",

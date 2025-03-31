@@ -43,7 +43,7 @@ type GameCardProps = {
   endingPosition: TPos | null;
   sharedAnimatedCard: SharedValue<Card | null>;
   sharedTopFirstEmptySlot: SharedValue<TSlotPos | null>;
-
+  sharedDirective: SharedValue<keyof typeof EDirective>;
   index: number;
 };
 
@@ -57,11 +57,6 @@ const springConfig = {
   reduceMotion: ReduceMotion.System,
 };
 
-const bg = {
-  red: require("@/assets/card-backgrounds/RedBgOpacity2.png"),
-  blue: require("@/assets/card-backgrounds/BlueBgOpacity2.png"),
-  yellow: require("@/assets/card-backgrounds/YellowBgOpacity2.png"),
-};
 
 const cardDimensions = getCardDimension();
 
@@ -76,10 +71,7 @@ const CardNumber = styled(Text, {
   name: "CardNumber",
   fontSize: 80,
   color: "$cardText",
-  padding: 12,
-
-  textAlign: "center",
-
+  letterSpacing: 6,
   fontFamily: "TrenchThin",
 });
 
@@ -89,12 +81,12 @@ const GameCard = ({
   endingPosition,
   sharedAnimatedCard,
   sharedTopFirstEmptySlot,
-
+  sharedDirective,
   index,
 }: GameCardProps) => {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
-  const sharedDirective = useSharedValue<keyof typeof EDirective>("none");
+  
   const { playSound } = useContext(Sounds)!;
 
   const [cardState, setCardState] = useState<Card>(card);
@@ -180,21 +172,21 @@ const GameCard = ({
         translateY.value = event.translationY;
       }
       if (event.absoluteX > trashCanPosition.pageX) {
-        console.log("delete");
+        
         sharedDirective.value = "delete";
       } else if (event.absoluteY < middleCenterY) {
-        console.log("play");
+        
         sharedTopFirstEmptySlot.value?.reservedBy === sharedCard.value.id;
         sharedDirective.value = "play";
       } else {
-        console.log("none");
+        
         sharedDirective.value = "none";
       }
     })
     .onEnd((event) => {
       const goTrash = event.absoluteX > trashCanPosition.pageX;
       const goPlay = event.absoluteY < middleCenterY;
-
+      sharedDirective.value = "none";
       if (
         sharedAnimatedCard.value &&
         sharedAnimatedCard.value.id !== sharedCard.value.id
@@ -235,11 +227,13 @@ const GameCard = ({
             return;
           }
         }
-
+        
         translateX.value = 0;
         translateY.value = 0;
         sharedAnimatedCard.value = null;
       }
+
+     
     });
 
   const tap = Gesture.Tap().onStart(() => {
@@ -272,7 +266,6 @@ const GameCard = ({
     const allCards = [...cardsOnBoard, ...cardsInHand];
     const findOnTop = cardsOnBoard.find((c) => c.id === cardState.id);
     const findCard = allCards.find((c) => c.id === cardState.id);
-
     if (findCard && findCard.destinationSlot) {
       // Update cardState in JS thread when the destinationSlot changes
       setCardState((prev) => ({
@@ -312,7 +305,7 @@ const GameCard = ({
           sharedAnimatedCard,
         }}
       />
-      {index == 0 && <DirectionOverlay sharedDirective={sharedDirective} />}
+
     </React.Fragment>
   );
 };

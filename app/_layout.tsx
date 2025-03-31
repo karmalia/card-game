@@ -6,7 +6,7 @@ import "react-native-reanimated";
 import tamaguiConfig from "@/tamagui.config";
 import { TamaguiProvider, Text } from "tamagui";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { StatusBar } from "expo-status-bar";
+
 
 import { SoundProvider } from "@/stores/SoundProvider";
 export {
@@ -61,7 +61,7 @@ function RootLayoutNav() {
       >
         Beta: 0.55
       </Text>
-      <StatusBar hidden />
+      
       <Stack initialRouteName="index">
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="gamescreen" options={{ headerShown: false }} />

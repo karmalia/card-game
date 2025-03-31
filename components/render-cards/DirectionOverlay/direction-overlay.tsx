@@ -1,11 +1,10 @@
 import { View, Text } from "react-native";
-import React, { useEffect } from "react";
+import React from "react";
 import Animated, {
-  runOnJS,
   SharedValue,
   useAnimatedStyle,
   useDerivedValue,
-  useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 
 export enum EDirective {
@@ -19,22 +18,41 @@ const DirectionOverlay = ({
 }: {
   sharedDirective: SharedValue<keyof typeof EDirective>;
 }) => {
+  // Derive the opacity value with smoother animation
   const sharedOpacity = useDerivedValue(() => {
     return sharedDirective.value === "play" ||
       sharedDirective.value === "delete"
-      ? 0.5
-      : 0;
-  }, [sharedDirective.value]);
+      ? withTiming(0.8, { duration: 300 })
+      : withTiming(0, { duration: 300 });
+  }, []);
 
+  // Derive the text value
+  const directiveText = useDerivedValue(() => {
+    console.log("Directive updated:", sharedDirective.value, EDirective[sharedDirective.value]);
+    return EDirective[sharedDirective.value] || "testo";
+  }, []);
+
+  // Create animated styles for the view
   const animatedStyles = useAnimatedStyle(() => {
     return {
       opacity: sharedOpacity.value,
+    
     };
   });
 
-  useEffect(() => {
-    console.log("sharedDirective.value", sharedDirective.value);
-  }, [sharedDirective.value]);
+  // Create animated styles for the text
+  const textStyle = useAnimatedStyle(() => {
+    return {
+      color: "#FFFFFF", // Make sure text is white
+      fontSize: 42,
+      fontWeight: "bold",
+      textAlign: "center",
+      // Add a text shadow to make it more visible against any background
+      textShadowColor: 'rgba(0, 0, 0, 0.75)',
+      textShadowOffset: { width: 2, height: 2 },
+      textShadowRadius: 5,
+    };
+  });
 
   return (
     <Animated.View
@@ -45,26 +63,17 @@ const DirectionOverlay = ({
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: "rgba(0,0,0,1)",
+          backgroundColor: "rgba(0,0,0,0.6)", // Slightly transparent background
           justifyContent: "center",
           alignItems: "center",
-          zIndex: -10,
-          opacity: 0,
+          zIndex: 99, // Ensure it's on top of everything
         },
         animatedStyles,
       ]}
     >
-      <Text
-        style={{
-          color: "white",
-          fontSize: 42,
-          lineHeight: 84,
-          fontWeight: "bold",
-          textAlign: "center",
-        }}
-      >
-        {EDirective[sharedDirective.value]}
-      </Text>
+      <Animated.Text style={textStyle}>
+        {directiveText.value}
+      </Animated.Text>
     </Animated.View>
   );
 };
