@@ -19,6 +19,7 @@ import { Sounds } from "@/stores/SoundProvider";
 const Index = () => {
   const [instructionsVisible, setInstructuresVisible] = useState(false);
   const [leaderboardVisible, setLeaderboardVisible] = useState(false);
+
   const { loading } = useContext(Sounds)!;
   const sharedOpacity = useSharedValue(0);
 
