@@ -63,7 +63,7 @@ const Index = () => {
           SPACE CARDS
         </TamaguiText>
       </Animated.View>
-      <SpaceBackground />
+      {!__DEV__ && <SpaceBackground />}
       {!loading && (
         <>
           <Options />
